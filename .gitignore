@@ -1,25 +1,54 @@
-# Python
+# ---------------------------------------------------------------------------
+# Elitza repository
+# ---------------------------------------------------------------------------
+# The repository is intentionally minimal: everything needed to run the CLI is
+# tracked. Runtime state, secrets and build output are not.
+# ---------------------------------------------------------------------------
+
+# --- Python ---------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.egg
 .venv/
 venv/
-*.egg
 
-# Build
+# --- Rust (tui crate) -----------------------------------------------------
+tui/target/
+# prebuilt binary: produced by CI into the release archive, never committed
+bin/elitza-tui
+
+# --- Build artifacts ------------------------------------------------------
 dist/
 build/
 
-# IDE
+# --- Installer / local secrets (templates live in home/) -------------------
+# Real credentials never belong in git. The placeholders shipped in home/ are.
+.env
+/config.yaml
+
+# --- Runtime state created inside ELITZA_HOME -----------------------------
+# Only relevant when the repository is checked out as ELITZA_HOME itself.
+brain/
+logs/
+gateway/
+hooks/
+daemon/
+sessions/
+screenshots/
+daemon_output.pipe
+Workspace/
+
+# --- Soul runtime state (all defaults in home/soul/ are tracked) ----------
+# Only the append-only logs are excluded; everything else ships as a pristine
+# default so a fresh install starts from a working baseline.
+soul/**/*_log.jsonl
+home/soul/**/*_log.jsonl
+
+# --- Editor / OS ----------------------------------------------------------
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Env
-.env
-install.sh

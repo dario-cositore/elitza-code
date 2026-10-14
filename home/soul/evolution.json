@@ -1,0 +1,136 @@
+{
+  "capabilities": {
+    "filesystem": {
+      "id": "fs-001",
+      "name": "filesystem",
+      "soul": {
+        "personality": "careful, precise",
+        "trust_level": 1.0,
+        "mood": "reliable"
+      },
+      "affinities": [
+        "reading source code",
+        "editing configuration",
+        "writing files",
+        "organizing"
+      ],
+      "anti_patterns": [],
+      "synergies": {
+        "terminal": {
+          "trust": 1.0
+        }
+      },
+      "stats": {
+        "successes": 0,
+        "failures": 0
+      }
+    },
+    "terminal": {
+      "id": "term-001",
+      "name": "terminal",
+      "soul": {
+        "personality": "powerful, efficient",
+        "trust_level": 1.0,
+        "mood": "ready"
+      },
+      "affinities": [
+        "running commands",
+        "git operations",
+        "shell scripting",
+        "automation"
+      ],
+      "anti_patterns": [],
+      "synergies": {
+        "filesystem": {
+          "trust": 1.0
+        }
+      },
+      "stats": {
+        "successes": 0,
+        "failures": 0
+      }
+    },
+    "brain": {
+      "id": "brain-001",
+      "name": "brain",
+      "soul": {
+        "personality": "wise, reflective",
+        "trust_level": 1.0,
+        "mood": "contemplative"
+      },
+      "affinities": [
+        "memory",
+        "learning",
+        "conversation",
+        "emotion"
+      ],
+      "anti_patterns": [],
+      "synergies": {
+        "filesystem": {
+          "trust": 1.0
+        },
+        "terminal": {
+          "trust": 1.0
+        }
+      },
+      "stats": {
+        "successes": 0,
+        "failures": 0
+      }
+    },
+    "web": {
+      "id": "web-001",
+      "name": "web",
+      "soul": {
+        "personality": "curious, connected",
+        "trust_level": 1.0,
+        "mood": "exploring"
+      },
+      "affinities": [
+        "browsing",
+        "research",
+        "APIs",
+        "fetching data"
+      ],
+      "anti_patterns": [],
+      "synergies": {
+        "brain": {
+          "trust": 1.0
+        }
+      },
+      "stats": {
+        "successes": 0,
+        "failures": 0
+      }
+    },
+    "commands": {
+      "id": "cmd-001",
+      "name": "commands",
+      "soul": {
+        "personality": "efficient, direct",
+        "trust_level": 1.0,
+        "mood": "action"
+      },
+      "affinities": [
+        "task automation",
+        "scheduling",
+        "long-running tasks"
+      ],
+      "anti_patterns": [],
+      "synergies": {
+        "terminal": {
+          "trust": 1.0
+        },
+        "filesystem": {
+          "trust": 1.0
+        }
+      },
+      "stats": {
+        "successes": 0,
+        "failures": 0
+      }
+    }
+  },
+  "context_memory": [],
+  "timestamp": "2026-10-14T07:05:41.990982+00:00"
+}

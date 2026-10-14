@@ -11,14 +11,14 @@ from elitza.tools import registry
 
 def terminal(
     command: str,
-    timeout: int = 180,
+    timeout: int = 0,
     workdir: Optional[str] = None,
 ) -> str:
     """Execute a shell command and return the output.
 
     Args:
         command: Shell command to execute
-        timeout: Maximum seconds to wait
+        timeout: Maximum seconds to wait (0 = no limit)
         workdir: Working directory (defaults to cwd)
     """
     try:
@@ -28,7 +28,7 @@ def terminal(
             shell=True,
             capture_output=True,
             text=True,
-            timeout=timeout,
+            timeout=timeout if timeout > 0 else None,
             cwd=workdir or os.getcwd(),
             env=env,
         )
@@ -59,7 +59,7 @@ registry.register(
                 },
                 "timeout": {
                     "type": "integer",
-                    "description": "Maximum seconds to wait (default 180)",
+                    "description": "Maximum seconds to wait (0 = no limit)",
                 },
                 "workdir": {
                     "type": "string",

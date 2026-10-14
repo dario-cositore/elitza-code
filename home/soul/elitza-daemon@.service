@@ -1,0 +1,19 @@
+[Unit]
+Description=Elitza Soul Daemon - Always-On AI Companion
+After=network-online.target graphical-session.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+Environment=HOME=/home/%i
+Environment=PYTHONPATH=/home/%i/.elitza
+ExecStart=/usr/bin/python3 -m soul.daemon run
+WorkingDirectory=/home/%i/.elitza
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

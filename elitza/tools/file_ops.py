@@ -9,13 +9,13 @@ from typing import Optional
 from elitza.tools import registry
 
 
-def read_file(path: str, offset: int = 1, limit: int = 500) -> str:
+def read_file(path: str, offset: int = 1, limit: int = 0) -> str:
     """Read a text file with line numbers.
 
     Args:
         path: File path (absolute or relative)
         offset: Line number to start from (1-indexed)
-        limit: Maximum lines to return
+        limit: Maximum lines to return (0 = all)
     """
     try:
         p = Path(path).expanduser()
@@ -24,7 +24,7 @@ def read_file(path: str, offset: int = 1, limit: int = 500) -> str:
         lines = p.read_text(encoding="utf-8").splitlines()
         total = len(lines)
         start = max(0, offset - 1)
-        end = min(total, start + limit)
+        end = total if limit <= 0 else min(total, start + limit)
         selected = lines[start:end]
         numbered = [f"{start + i + 1}|{line}" for i, line in enumerate(selected)]
         result = "\n".join(numbered)
@@ -81,7 +81,7 @@ def search_files(
     pattern: str,
     path: str = ".",
     file_glob: Optional[str] = None,
-    limit: int = 50,
+    limit: int = 0,
 ) -> str:
     """Search file contents using regex.
 
@@ -89,7 +89,7 @@ def search_files(
         pattern: Regex pattern to search for
         path: Directory to search in
         file_glob: Optional glob filter (e.g. '*.py')
-        limit: Maximum results
+        limit: Maximum results (0 = unlimited)
     """
     try:
         base = Path(path).expanduser()
@@ -110,9 +110,9 @@ def search_files(
                 if re.search(pattern, line):
                     rel = fpath.relative_to(base) if fpath.is_relative_to(base) else fpath
                     results.append(f"{rel}:{i}|{line.strip()}")
-                    if len(results) >= limit:
+                    if limit > 0 and len(results) >= limit:
                         break
-            if len(results) >= limit:
+            if limit > 0 and len(results) >= limit:
                 break
 
         if not results:
@@ -133,7 +133,7 @@ registry.register(
             "properties": {
                 "path": {"type": "string", "description": "File path"},
                 "offset": {"type": "integer", "description": "Start line (1-indexed, default 1)"},
-                "limit": {"type": "integer", "description": "Max lines (default 500)"},
+                "limit": {"type": "integer", "description": "Max lines (0 = all, default 0)"},
             },
             "required": ["path"],
         },
@@ -193,7 +193,7 @@ registry.register(
                 "pattern": {"type": "string", "description": "Regex pattern"},
                 "path": {"type": "string", "description": "Directory to search (default: current)"},
                 "file_glob": {"type": "string", "description": "File filter glob (e.g. '*.py')"},
-                "limit": {"type": "integer", "description": "Max results (default 50)"},
+                "limit": {"type": "integer", "description": "Max results (0 = unlimited, default 0)"},
             },
             "required": ["pattern"],
         },
