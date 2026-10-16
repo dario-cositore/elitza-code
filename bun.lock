@@ -561,6 +561,18 @@
         "typescript": "catalog:",
       },
     },
+    "packages/plugins/elitza-brain": {
+      "name": "@elitza/brain",
+      "version": "2.0.30",
+      "dependencies": {
+        "@opencode/plugin": "workspace:*",
+        "@opencode/schema": "workspace:*",
+      },
+      "devDependencies": {
+        "@tsconfig/bun": "1.0.9",
+        "@types/bun": "1.4.0",
+      },
+    },
     "packages/plugins/figma": {
       "name": "@opencode/plugin-figma",
       "version": "2.0.30",
@@ -1656,6 +1668,8 @@
     "@electron/universal": ["@electron/universal@2.0.3", "", { "dependencies": { "@electron/asar": "^3.3.1", "@malept/cross-spawn-promise": "^2.0.0", "debug": "^4.3.1", "dir-compare": "^4.2.0", "fs-extra": "^11.1.1", "minimatch": "^9.0.3", "plist": "^3.1.0" } }, "sha512-Wn9sPYIVFRFl5HmwMJkARCCf7rqK/EurkfQ/rJZ14mHP3iYTjZSIOSVonEAnhWeAXwtw7zOekGRlc6yTtZ0t+g=="],
 
     "@electron/windows-sign": ["@electron/windows-sign@1.2.2", "", { "dependencies": { "cross-dirname": "^0.1.0", "debug": "^4.3.4", "fs-extra": "^11.1.1", "minimist": "^1.2.8", "postject": "^1.0.0-alpha.6" }, "bin": { "electron-windows-sign": "bin/electron-windows-sign.js" } }, "sha512-dfZeox66AvdPtb2lD8OsIIQh12Tp0GNCRUDfBHIKGpbmopZto2/A8nSpYYLoedPIHpqkeblZ/k8OV0Gy7PYuyQ=="],
+
+    "@elitza/brain": ["@elitza/brain@workspace:packages/plugins/elitza-brain"],
 
     "@emmetio/abbreviation": ["@emmetio/abbreviation@2.3.3", "", { "dependencies": { "@emmetio/scanner": "^1.0.4" } }, "sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA=="],
 

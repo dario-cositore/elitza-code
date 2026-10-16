@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@elitza/brain",
+  "version": "2.0.30",
+  "description": "Elitza's brain — memory, soul, emotions. TypeScript port of her legacy Python mind, running as a native OpenCode-fork plugin.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "@opencode/plugin": "workspace:*",
+    "@opencode/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@tsconfig/bun": "1.0.9",
+    "@types/bun": "1.4.0"
+  }
+}
