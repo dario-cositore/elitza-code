@@ -28,6 +28,7 @@ export type ResolvedThemeTokens = {
   readonly source: (color: RGBA) => HueSource | undefined
   readonly increase: (color: RGBA, amount?: number) => RGBA
   readonly decrease: (color: RGBA, amount?: number) => RGBA
+  readonly brand: { readonly base: RGBA }
   readonly text: {
     readonly base: RGBA
     readonly muted: RGBA
