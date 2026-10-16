@@ -277,11 +277,21 @@ service on 49474, loads elitza-brain from the tarball WITHOUT node_modules
 (all brain_* tools registered), creates soul_v2.db, and fails only with
 "No model is available" (empty key — the expected pre-/connect state).
 
-**Website (commit c9d8ee6, pushed once release assets are verified):**
-install-pause banner removed, OS tabs + "Other ways" un-hidden, direct
-downloads point at v1.0.0 assets, from-source = bun, maintenance = re-run
-the installer (self-update stays gated, `ELITZA_SELF_UPDATE=1` escape hatch;
-the gated message now points at the installer), meta description updated.
+**Website (commit c9d8ee6, pushed — verified live):** install-pause banner
+removed, OS tabs + "Other ways" un-hidden, direct downloads point at v1.0.0
+assets, from-source = bun, maintenance = re-run the installer (self-update
+stays gated, `ELITZA_SELF_UPDATE=1` escape hatch; the gated message now
+points at the installer), meta description updated.
+
+**Final state (2026-10-16 ~19:30):** tag v1.0.0 = commit 37b0da9; CI
+release/check/test all green; GitHub release "Elitza v1.0.0" carries all four
+tarballs (86–98 MB); the REAL installer run against the REAL release (fresh
+HOME, no overrides) installed v1.0.0, booted the service on 49474, loaded
+elitza-brain from the shipped tarball (all tools registered, soul_v2.db
+created) and stopped only at the expected empty-key model error;
+elitza.life serves the new installer and page with zero Python and zero
+"paused" copy. Production (Dario's ~/.elitza) still runs the source deploy
+via elitza-deploy — untouched by all of this.
 
 ## Housekeeping notes
 
