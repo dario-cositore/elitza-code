@@ -87,8 +87,4 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" elitza-*.tar.gz \
             --title "Elitza $GITHUB_REF_NAME" \
-            --notes "Install with:
-
-    curl -fsSL https://elitza.life/install.sh | bash
-
-Free models, bring your own key: https://openrouter.ai/keys"
+            --notes "Install: curl -fsSL https://elitza.life/install.sh | bash — free models, bring your own key (https://openrouter.ai/keys)"
