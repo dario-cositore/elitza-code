@@ -12,18 +12,25 @@ export default Runtime.handler(
   Effect.fn("cli.upgrade")(
     function* (input) {
       intro("Upgrade")
+      // Elitza: never run OpenCode's updater against an Elitza install.
+      if (process.env.ELITZA_SELF_UPDATE !== "1")
+        return yield* Effect.fail(
+          new Error(
+            "Self-update ships with Elitza's release pipeline. Until then, grab the latest build at https://elitza.life.",
+          ),
+        )
       const updater = yield* Updater.Service
       const method = Option.getOrUndefined(input.method) ?? (yield* updater.method())
       if (!method)
         return yield* Effect.fail(
-          new Error("Could not detect the installation method. Pass --method to choose how to upgrade OpenCode."),
+          new Error("Could not detect the installation method. Pass --method to choose how to upgrade Elitza."),
         )
 
       log.info(`Using method: ${method}`)
       const target = Option.getOrUndefined(input.target) ?? (yield* updater.latest(method))
       const version = target.trim().replace(/^v/, "")
       if (version === OPENCODE_VERSION) {
-        log.warn(`OpenCode upgrade skipped: ${version} is already installed`)
+        log.warn(`Elitza upgrade skipped: ${version} is already installed`)
         outro("Done")
         return
       }
