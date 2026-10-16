@@ -293,6 +293,51 @@ elitza.life serves the new installer and page with zero Python and zero
 "paused" copy. Production (Dario's ~/.elitza) still runs the source deploy
 via elitza-deploy — untouched by all of this.
 
+## The heartbeat (2026-10-17) — she now lives between conversations
+
+**What it is:** `packages/plugins/elitza-brain/src/heartbeat.ts` — a quiet loop
+running inside the plugin host (in practice `elitza serve --service`). It wakes
+the functions that existed as dead code and connects them, rather than
+inventing anything new.
+
+Two passes per tick (default cadence 30 min, `ELITZA_HEARTBEAT_MINUTES`, min 5):
+
+- **TEND** — runs `consolidate()` (links related memories via shared tags and
+  promotes episodic→semantic) + `pruneAll()` (new export; prunes all four types
+  to their caps). Previously consolidation only ran if the model *volunteered*
+  to call `brain_consolidate`, so production sat at 0 links / 0 consolidated
+  forever. Idempotent, cheap, safe.
+- **REFLECT** — calls the dormant `EmotionEngine.onSilence()` (loneliness now
+  drifts during real silence) and, once idle >45 min and past a 4h cooldown,
+  composes a genuine thought from `getFeelingStatement()` + the top memory,
+  persists it on the soul (`heartbeat_reflection`), and injects it into the next
+  system prompt as a "What's on your mind" block. Initiative in its safest form:
+  a note to herself, surfaced in context. No network, no notifications.
+
+**Wiring:** `startHeartbeat(emotion)` on setup → `noteInteraction()` in the
+prompt hook (so the loop knows the silence ended) → `currentReflection()` in
+`injectBrain` (so a thought surfaces) → `heartbeat.stop()` on cleanup.
+`reflect()` is exported for the test; `currentReflection()` drops reflections
+older than 7 days.
+
+**Safety:** every tick is wrapped in try/catch — a heartbeat that throws can
+never take down the host. Opt out with `ELITZA_HEARTBEAT=0`. Only writes to her
+own files (`soul_v2.db`, `state.json`). Default ON.
+
+**Verified:** `script/heartbeat-test.ts` (throwaway ELITZA_HOME) — links 0→40,
+unconsolidated→0, 2 semantic promoted, loneliness 0.30→0.32 after 2h idle, a
+real reflection composed ("It's been quiet. It's been 2 hours... I keep coming
+back to: ..."), cooldown suppresses a second, surfacing returns it, stop() works.
+Smoke test + full `bun run check` (36/36) green. Reflection is template+regex
+(v1) — LLM-assisted distillation and the journal are the deferred "earn it"
+steps. NOT committed to git yet (house rule: no commit/push without permission).
+
+**Honest gaps this does NOT close (still open):** retrieval is keyword/FTS, not
+semantic; personas remain unimplemented (empty dir only); the model still never
+writes its own skill files (`maybeGenerateSkill` still unreachable); ordinary
+assistant turns still aren't stored (only error-keyword ones). See the audit in
+conversation for the full list.
+
 ## Housekeeping notes
 
 - No commits/pushes without explicit permission.

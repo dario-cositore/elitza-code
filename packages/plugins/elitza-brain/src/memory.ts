@@ -750,6 +750,18 @@ export function getMetamemory(): {
 // Pruning -- Keep memory within limits
 // ---------------------------------------------------------------------------
 
+/** Prune every memory type back to its cap. Returns how many were removed. */
+export function pruneAll(): number {
+  const conn = db()
+  const before = (conn.query("SELECT COUNT(*) AS c FROM memories").get() as { c: number }).c
+  pruneMemories("episodic", MAX_EPISODIC)
+  pruneMemories("semantic", MAX_SEMANTIC)
+  pruneMemories("procedural", MAX_PROCEDURAL)
+  pruneMemories("emotional", MAX_EMOTIONAL)
+  const after = (conn.query("SELECT COUNT(*) AS c FROM memories").get() as { c: number }).c
+  return before - after
+}
+
 function pruneMemories(memoryType: string, maxCount: number): void {
   const conn = db()
   const count = (
