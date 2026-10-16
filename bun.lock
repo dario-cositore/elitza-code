@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "opencode",
+      "name": "elitza",
       "dependencies": {
         "@aws-sdk/client-s3": "3.933.0",
         "@opencode/plugin": "workspace:*",
@@ -563,7 +563,7 @@
     },
     "packages/plugins/elitza-brain": {
       "name": "@elitza/brain",
-      "version": "2.0.30",
+      "version": "1.0.0",
       "dependencies": {
         "@opencode/plugin": "workspace:*",
         "@opencode/schema": "workspace:*",

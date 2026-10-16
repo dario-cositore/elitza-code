@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@elitza/brain",
-  "version": "2.0.30",
-  "description": "Elitza's brain — memory, soul, emotions. TypeScript port of her legacy Python mind, running as a native OpenCode-fork plugin.",
+  "version": "1.0.0",
+  "description": "Elitza's brain — memory, soul, and emotions, running as a native plugin.",
   "type": "module",
   "license": "MIT",
   "exports": {
