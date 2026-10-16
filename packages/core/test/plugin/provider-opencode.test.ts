@@ -1749,58 +1749,21 @@ describe("OpencodePlugin", () => {
     ),
   )
 
-  it.effect("uses a public key and disables paid models without credentials", () =>
+  it.effect("disables zen without credentials so it never appears available", () =>
     withEnv({ OPENCODE_API_KEY: undefined }, () =>
       Effect.gen(function* () {
         const catalog = yield* Provider.Service
-        const models = yield* Model.Service
-        yield* catalog.transform((catalog) => {
-          catalog.update(Provider.ID.opencode, () => {})
-          catalog.models.update(Provider.ID.opencode, Model.ID.make("paid"), (draft) => {
-            draft.cost = cost(1)
-          })
-        })
-        yield* addPlugin()
-        expect(required(yield* catalog.get(Provider.ID.opencode)).settings?.apiKey).toBe("public")
-        expect(required(yield* models.get(Provider.ID.opencode, Model.ID.make("paid"))).enabled).toBe(false)
-      }),
-    ),
-  )
-
-  it.effect("keeps free models without credentials", () =>
-    withEnv({ OPENCODE_API_KEY: undefined }, () =>
-      Effect.gen(function* () {
-        const catalog = yield* Provider.Service
-        const models = yield* Model.Service
         yield* catalog.transform((catalog) => {
           catalog.update(Provider.ID.opencode, () => {})
           catalog.models.update(Provider.ID.opencode, Model.ID.make("free"), (draft) => {
             draft.cost = cost(0)
           })
-        })
-        yield* addPlugin()
-        expect(required(yield* catalog.get(Provider.ID.opencode)).settings?.apiKey).toBe("public")
-        expect(required(yield* catalog.get(Provider.ID.opencode)).activation).toBe("enabled")
-        expect((yield* catalog.available()).map((provider) => provider.id)).toContain(Provider.ID.opencode)
-        expect(required(yield* models.get(Provider.ID.opencode, Model.ID.make("free"))).enabled).toBe(true)
-      }),
-    ),
-  )
-
-  it.effect("treats output-only cost as free without credentials", () =>
-    withEnv({ OPENCODE_API_KEY: undefined }, () =>
-      Effect.gen(function* () {
-        const catalog = yield* Provider.Service
-        const models = yield* Model.Service
-        yield* catalog.transform((catalog) => {
-          catalog.update(Provider.ID.opencode, () => {})
-          catalog.models.update(Provider.ID.opencode, Model.ID.make("output-only"), (draft) => {
-            draft.cost = cost(0, 1)
+          catalog.models.update(Provider.ID.opencode, Model.ID.make("paid"), (draft) => {
+            draft.cost = cost(1)
           })
         })
         yield* addPlugin()
-        expect(required(yield* catalog.get(Provider.ID.opencode)).settings?.apiKey).toBe("public")
-        expect(required(yield* models.get(Provider.ID.opencode, Model.ID.make("output-only"))).enabled).toBe(true)
+        expect((yield* catalog.available()).map((provider) => provider.id)).not.toContain(Provider.ID.opencode)
       }),
     ),
   )

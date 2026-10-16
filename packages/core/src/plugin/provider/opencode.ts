@@ -338,10 +338,10 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
       if (!item) return
       const hasKey = Boolean(process.env.OPENCODE_API_KEY || snapshot.connection || item.provider.settings?.apiKey)
       providers.update(item.provider.id, (provider) => {
-        if (!hasKey) {
-          provider.activation = "enabled"
-          provider.settings = { ...provider.settings, apiKey: "public" }
-        }
+        // Elitza never force-enables OpenCode's hosted Zen without credentials: its
+        // free tier rejects non-official clients, so signed-out availability only
+        // produces dead models ("API key expired" / free-tier errors on every send).
+        if (!hasKey) provider.activation = "disabled"
       })
     })
     yield* ctx.model.transform((models) => {
