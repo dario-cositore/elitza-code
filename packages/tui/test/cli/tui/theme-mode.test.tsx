@@ -3,7 +3,7 @@ import { testRender } from "@opentui/solid"
 import { expect, test } from "bun:test"
 import { RGBA } from "@opentui/core"
 import { createTuiResolvedConfig } from "../../fixture/tui-runtime"
-import { getOpenCodeTheme } from "../../../src/theme"
+import { getElitzaTheme } from "../../../src/theme"
 import opencodeSource from "../../../src/theme/assets/opencode.json" with { type: "json" }
 import type { ThemeV1Json } from "@opencode/theme/tui/v1"
 import { ConfigProvider } from "../../../src/config"
@@ -29,8 +29,8 @@ test("uses an available mode while retaining the pinned preference", async () =>
   darkOnly.theme.background = "#111111"
   darkOnly.theme.text = "#eeeeee"
   const native = {
-    base: { ...getOpenCodeTheme().base, text: { ...getOpenCodeTheme().base.text, base: "#abcdef" } },
-    dark: { hue: getOpenCodeTheme().dark.hue },
+    base: { ...getElitzaTheme().base, text: { ...getElitzaTheme().base.text, base: "#abcdef" } },
+    dark: { hue: getElitzaTheme().dark.hue },
   } as const
   let themes: ReturnType<typeof useThemes> | undefined
 
@@ -89,8 +89,8 @@ test.each([
   [
     "token reference",
     {
-      base: { ...getOpenCodeTheme().base, text: { ...getOpenCodeTheme().base.text, base: "$missing" } },
-      light: getOpenCodeTheme().light,
+      base: { ...getElitzaTheme().base, text: { ...getElitzaTheme().base.text, base: "$missing" } },
+      light: getElitzaTheme().light,
     },
   ],
 ] as const)("falls back to OpenCode when configured V2 theme %s is invalid", async (_label, source) => {
@@ -121,7 +121,7 @@ test.each([
 
   try {
     await wait(() => themes?.ready === true)
-    expect(themes?.selected).toBe("opencode")
+    expect(themes?.selected).toBe("elitza")
     expect(failure?.name).toBe("invalid")
     expect(failure?.error).toBeInstanceOf(Error)
     expect(failure?.error.message.length).toBeGreaterThan(0)
@@ -153,7 +153,7 @@ test("dialog surfaces are absolute and can be inherited through the theme contex
 
   const app = await testRender(
     () => (
-      <ConfigProvider config={createTuiResolvedConfig({ theme: { name: "opencode", mode: "dark" } })}>
+      <ConfigProvider config={createTuiResolvedConfig({ theme: { name: "elitza", mode: "dark" } })}>
         <ThemeProvider mode="dark" source={{ discover: async () => ({}) }}>
           <Probe />
         </ThemeProvider>

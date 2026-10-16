@@ -11,15 +11,15 @@ let customThemes: Record<string, ThemeDocumentSource> = {}
 let systemTheme: ThemeDocumentSource | undefined
 const listeners = new Set<(themes: Record<string, ThemeDocumentSource>) => void>()
 const parsed = new WeakMap<object, ThemeDocument>()
-let opencodeTheme: (ThemeDocument & {
+let elitzaTheme: (ThemeDocument & {
   readonly light: ModeDefinition
   readonly dark: ModeDefinition
 }) | undefined
 
-export function getOpenCodeTheme() {
-  if (opencodeTheme) return opencodeTheme
-  const document = parseThemeDocument(opencode, "opencode") as NonNullable<typeof opencodeTheme>
-  opencodeTheme = document
+export function getElitzaTheme() {
+  if (elitzaTheme) return elitzaTheme
+  const document = parseThemeDocument(opencode, "elitza") as NonNullable<typeof elitzaTheme>
+  elitzaTheme = document
   return document
 }
 
@@ -27,12 +27,12 @@ function listThemes(): Record<string, ThemeDocumentSource> {
   // Priority: defaults < custom files < generated system.
   const themes: Record<string, ThemeDocumentSource> = {
     ...DEFAULT_THEMES,
-    opencode: getOpenCodeTheme(),
+    elitza: getElitzaTheme(),
     ...customThemes,
   }
   return {
     ...themes,
-    system: systemTheme ?? themes.system ?? themes.opencode,
+    system: systemTheme ?? themes.system ?? themes.elitza,
   }
 }
 

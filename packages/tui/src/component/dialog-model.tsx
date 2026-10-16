@@ -22,7 +22,7 @@ export function DialogModel(props: { providerID?: string }) {
   const providers = createMemo(
     () => new Map((data.location.provider.list(location.ref) ?? []).map((item) => [item.id, item])),
   )
-  const models = createMemo(() => data.location.model.list(location.ref) ?? [])
+  const models = createMemo(() => (data.location.model.list(location.ref) ?? []).filter(offered))
 
   const showExtra = createMemo(() => connected() && !props.providerID)
 
@@ -209,6 +209,16 @@ export function sortModelOptions<
 
     return a.title.localeCompare(b.title)
   })
+}
+
+// Elitza ships two model sources: the OpenRouter free endpoint and providers the
+// user connects themselves (BYOK — the server already restricts the model list to
+// available providers). OpenCode's hosted Zen/Go providers are force-enabled here
+// but gated to the official client, so they are always rejected from this fork.
+function offered(model: { providerID: string; id: string }) {
+  if (model.providerID === "opencode" || model.providerID === "opencode-go") return false
+  if (model.providerID === "openrouter") return model.id.endsWith(":free")
+  return true
 }
 
 function free(model: { cost: Array<{ input: number }> }) {
