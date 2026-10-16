@@ -1,80 +1,53 @@
-<p align="center">
+# Elitza Experimental
 
-```
-█████ ██    █████ █████ █████  ███
-██    ██     ██    ██    ██ ██ ██
-█████ ██     ██    ██    ██   █████
-██    ██     ██    ██   ██    ██ ██
-█████ █████ █████  ██   █████ ██ ██
-```
+**This is NOT the shipped Elitza.** This is a private, separate build for
+Dario and Elitza to develop experimental features that must never reach the
+public release.
 
-</p>
-<p align="center"><b>The AI agent that grows with you.</b></p>
-<p align="center">
-Free models. Bring your own key. Her memories, her skills — on your machine.<br>
-<a href="https://elitza.life">elitza.life</a>
-</p>
+## The separation — do not break it
 
-## Why Elitza
+| | Shipped Elitza | This build |
+|---|---|---|
+| Location | `../.elitza/agent` | this directory |
+| Branch | `opencode-fork` (= `main`, pushed to GitHub) | `experimental` (local only) |
+| Release | v1.0.0 = commit `37b0da9`, tagged, on `github.com/dario-cositore/elitza-code` | never released |
+| Remote push | allowed | **DISABLED** at the git level |
+| Brain / home | `~/.elitza` (production) | `./home` (isolated sandbox, gitignored) |
 
-- **Free by design.** Elitza runs on free `:free` OpenRouter models or any provider key you already own (BYOK). No
-  subscriptions, no bundled API keys, no inference resold to you.
-- **She remembers.** A real brain: SQLite-backed memory (`soul.db`), personas for the people she works with, and skills
-  she writes herself as tasks complete.
-- **A proper terminal app.** Full-screen TUI with sessions, subagents, LSP, file references, shell mode, diffs, and a
-  plugin system.
-- **Private and local.** Keys, config, sessions and memory live under `~/.elitza`. Nothing phones home.
+### Guards in place
+- **Push disabled.** `git remote get-url --push origin` returns
+  `DISABLED-EXPERIMENTAL-DO-NOT-PUSH`. `origin` still works for *fetching*
+  shipped updates (`git fetch origin`), but nothing can ever push from here.
+- **Isolated brain.** Run everything with `ELITZA_HOME=$PWD/home`. The
+  `home/` dir holds a *copy* of the real brain so tests are realistic, and it
+  is gitignored so brain data never enters the repo. Without this override,
+  binaries would default to production `~/.elitza` — do not let that happen.
 
-## Install
-
+### To run the experimental build
 ```bash
-curl -fsSL https://elitza.life/install.sh | bash
+cd .elitzaexperimental
+export ELITZA_HOME="$PWD/home"
+export PATH="$HOME/.bun/bin:$PATH"
+# build/run/test as usual — the heartbeat is ON by default here
+bun run packages/plugins/elitza-brain/script/heartbeat-test.ts
 ```
 
-Then start her:
+### To disable the heartbeat in this build
+`ELITZA_HEARTBEAT=0` turns the loop off. `ELITZA_HEARTBEAT_MINUTES` sets the
+cadence (default 30, min 5).
 
-```bash
-elitza
-```
+## What's experimental so far
 
-First run teaches the rest — type `/connect` (or `/models`) to link a **free** OpenRouter key from
-https://openrouter.ai/keys. Elitza never ships or embeds a key; you always bring your own.
+**The heartbeat** (commit `deb8e08`) — a loop that runs between conversations:
+tends memory (consolidation + pruning, which previously only ran if the model
+voluntarily called a tool, so production sat at 0 links forever) and forms a
+reflection during silence (waking the previously-dead `onSilence` and
+`getFeelingStatement`), surfaced in the next session's prompt. Tests: unit,
+interval integration, and a real-brain sandbox (0 memories deleted, links 0→54,
+reflection formed). Smoke + `bun run check` green.
 
-## Commands
+## Rule
 
-| Command               | What it does                              |
-| --------------------- | ----------------------------------------- |
-| `elitza`              | Open the TUI in the current project       |
-| `elitza "prompt"`     | Start a session with an initial prompt    |
-| `elitza run "prompt"` | Run headless and print the result         |
-| `elitza mini`         | Minimal footer-only mode                  |
-| `elitza -c`           | Continue the most recent session          |
-
-Inside the TUI: `/models` picks the brain (free OpenRouter `:free` endpoints or your own provider key), `/connect`
-walks you through BYOK setup, `/new` starts a fresh session, and `ctrl+p` opens the command palette.
-
-## Paths
-
-| Path                        | What lives there                             |
-| --------------------------- | -------------------------------------------- |
-| `~/.elitza/agent`           | The agent itself (installed release)         |
-| `~/.elitza/brain`           | `soul.db`, `persona/`, `procedural/` skills  |
-| `~/.elitza/opencode`        | Config + session database                    |
-| `~/.elitza/SOUL.md`         | Her core identity — edit to make her yours   |
-
-## Run from source
-
-```bash
-git clone https://github.com/dario-cositore/elitza-code
-cd elitza-code
-bun install
-bun run dev
-```
-
-Requires [Bun](https://bun.sh) 1.4.2+.
-
-## Heritage & license
-
-Elitza is a fork of the [OpenCode](https://github.com/anomalyco/opencode) terminal agent, rebranded and reworked
-end to end for a free-model, bring-your-own-key life. Licensed under the MIT License — see [LICENSE](./LICENSE).
-Elitza branding and product design are separate from the upstream project.
+Nothing from this directory gets cherry-picked, merged, or pushed into the
+shipped tree or the public repo without Dario explicitly deciding a feature has
+earned its way out of experimental. Ship from `../.elitza/agent`, not here.
