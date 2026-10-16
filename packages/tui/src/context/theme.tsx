@@ -112,7 +112,7 @@ type ThemeContextValue = {
 const [store, setStore] = createStore<State>({
   mode: "dark",
   lock: undefined,
-  active: "opencode",
+  active: "elitza",
   ready: false,
 })
 const [themeSources, setThemeSources] = createSignal(allThemes())
@@ -134,7 +134,7 @@ const themeContext = createSimpleContext({
         const mode = lock ?? renderer.themeMode ?? props.mode
         draft.mode = mode
         draft.lock = lock
-        draft.active = config.theme?.name ?? "opencode"
+        draft.active = config.theme?.name ?? "elitza"
         draft.ready = false
       }),
     )
@@ -161,7 +161,7 @@ const themeContext = createSimpleContext({
         .then((themes) => {
           setCustomThemes(themes)
         })
-        .catch(() => setStore("active", "opencode"))
+        .catch(() => setStore("active", "elitza"))
     }
 
     onMount(() => {
@@ -289,14 +289,14 @@ const themeContext = createSimpleContext({
     const initStarted = performance.now()
     const selected = createMemo(() => {
       const sources = themeSources()
-      const name = sources[store.active] ? store.active : "opencode"
+      const name = sources[store.active] ? store.active : "elitza"
       try {
         return loadTheme(sources[name], name, store.mode)
       } catch (error) {
-        if (name === "opencode") throw error
+        if (name === "elitza") throw error
         themeErrors.emit(name, error)
-        setStore("active", "opencode")
-        return loadTheme(sources.opencode, "opencode", store.mode)
+        setStore("active", "elitza")
+        return loadTheme(sources.elitza, "elitza", store.mode)
       }
     })
     const modes = () => selected().modes

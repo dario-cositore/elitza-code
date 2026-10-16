@@ -2,7 +2,7 @@ import { expect, test } from "bun:test"
 import { mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import type { TerminalColors } from "@opentui/core"
-import { allThemes, hasTheme, getOpenCodeTheme, parseTheme, resolveTheme } from "../src/theme"
+import { allThemes, hasTheme, getElitzaTheme, parseTheme, resolveTheme } from "../src/theme"
 import { discoverThemes } from "../src/theme/discovery"
 import { configDirectories } from "../src/util/config-directories"
 import { terminalMode } from "../src/theme/system"
@@ -17,9 +17,9 @@ test("rejects unrecognized theme structures", () => {
   expect(() => parseTheme({ version: 3 })).toThrow("Invalid theme")
 })
 
-test("registers opencode as a native V2 theme", () => {
-  expect(allThemes().opencode).toBe(getOpenCodeTheme())
-  expect(parseTheme(getOpenCodeTheme()).base).toBeDefined()
+test("registers elitza as a native V2 theme", () => {
+  expect(allThemes().elitza).toBe(getElitzaTheme())
+  expect(parseTheme(getElitzaTheme()).base).toBeDefined()
 })
 
 test("detects V1 themes from their theme field and caches migrations", () => {
@@ -36,8 +36,8 @@ test("detects V1 themes from their theme field and caches migrations", () => {
 
 test("decodes native V2 themes lazily once", () => {
   const source = {
-    base: getOpenCodeTheme().base,
-    light: { ...getOpenCodeTheme().light, categorical: ["red"] },
+    base: getElitzaTheme().base,
+    light: { ...getElitzaTheme().light, categorical: ["red"] },
   } as const
 
   const document = parseTheme(source)
@@ -72,7 +72,7 @@ test("replacement sources receive independent parse caches", () => {
 
 test("hasTheme checks theme presence", () => {
   expect(hasTheme("missing-theme")).toBe(false)
-  expect(hasTheme("opencode")).toBe(true)
+  expect(hasTheme("elitza")).toBe(true)
 })
 
 test("resolveTheme rejects circular color refs", () => {

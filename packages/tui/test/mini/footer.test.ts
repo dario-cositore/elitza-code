@@ -11,7 +11,7 @@ import type { MiniSettingChange, MiniSettings, RunAgent, RunTuiConfig, StreamCom
 import { createTuiResolvedConfig } from "../fixture/tui-runtime"
 import { tmpdir } from "../fixture/fixture"
 import { createFooterApiFixture } from "./fixture/footer-api"
-import { getOpenCodeTheme } from "../../src/theme"
+import { getElitzaTheme } from "../../src/theme"
 
 function progress(input: Partial<StreamCommit> = {}): StreamCommit {
   return {
@@ -372,8 +372,8 @@ test("explicit theme refresh reloads custom colors without a palette event", asy
       await Bun.write(
         path.join(tmp.path, "themes", "mini-refresh.json"),
         JSON.stringify({
-          base: { ...getOpenCodeTheme().base, text: { ...getOpenCodeTheme().base.text, base: color } },
-          dark: { hue: getOpenCodeTheme().dark.hue },
+          base: { ...getElitzaTheme().base, text: { ...getElitzaTheme().base.text, base: color } },
+          dark: { hue: getElitzaTheme().dark.hue },
         }),
       )
       await app.footer.refreshTheme()

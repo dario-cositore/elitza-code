@@ -54,9 +54,9 @@ export function SidebarOnboarding(props: { context: Plugin.Context; sessionID: s
               ✕
             </text>
           </box>
-          <text fg={props.context.theme.text.muted}>Elitza includes free models so you can start immediately.</text>
+          <text fg={props.context.theme.text.muted}>Free models need a free OpenRouter key.</text>
           <text fg={props.context.theme.text.muted}>
-            Connect from 75+ providers to use other models, including Claude, GPT, Gemini etc
+            Get one at openrouter.ai/keys, then connect. Or use Claude, GPT, Gemini etc
           </text>
           <box
             id="sidebar.footer.getting-started.connect"

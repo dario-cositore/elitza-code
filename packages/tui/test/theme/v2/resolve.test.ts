@@ -10,10 +10,10 @@ import {
   type ResolvedTheme,
   type ThemeDefinition,
 } from "@opencode/theme/tui"
-import { getOpenCodeTheme, parseTheme, type ThemeDocumentSource } from "../../../src/theme"
+import { getElitzaTheme, parseTheme, type ThemeDocumentSource } from "../../../src/theme"
 
-const opencodeLight = selectTheme(getOpenCodeTheme(), "light")
-const opencodeDark = selectTheme(getOpenCodeTheme(), "dark")
+const opencodeLight = selectTheme(getElitzaTheme(), "light")
+const opencodeDark = selectTheme(getElitzaTheme(), "dark")
 const chromaticHues = ["gray", "red", "orange", "green", "cyan", "blue", "purple"] as const
 const light: ThemeDefinition = {
   ...opencodeLight,
@@ -95,10 +95,10 @@ test("resolves arbitrary hue names across aliases, categorical colors, and token
 })
 
 test("validates hue relationships in every provided mode while parsing", () => {
-  const source = structuredClone(getOpenCodeTheme()) as ThemeDocumentSource
+  const source = structuredClone(getElitzaTheme()) as ThemeDocumentSource
   const darkMode = source.dark as Record<string, unknown>
   darkMode.hue = { ...(darkMode.hue as Record<string, unknown>), accent: "$hue.missing" }
-  const missingSemantic = structuredClone(getOpenCodeTheme()) as ThemeDocumentSource
+  const missingSemantic = structuredClone(getElitzaTheme()) as ThemeDocumentSource
   const lightMode = missingSemantic.light as Record<string, unknown>
   const lightHues = lightMode.hue as Record<string, unknown>
   delete lightHues.neutral

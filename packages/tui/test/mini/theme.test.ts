@@ -9,7 +9,7 @@ import {
   resolveRunTheme,
   type RunTheme,
 } from "../../src/mini/theme"
-import { DEFAULT_THEMES, getOpenCodeTheme, parseTheme } from "../../src/theme"
+import { DEFAULT_THEMES, getElitzaTheme, parseTheme } from "../../src/theme"
 import { generateSystem } from "../../src/theme/system"
 import { tmpdir } from "../fixture/fixture"
 
@@ -134,10 +134,10 @@ test.each(["light", "dark"] as const)("preserves %s monochrome terminal defaults
 
 test.each(["light", "dark"] as const)("uses shared %s defaults and named built-in themes", async (mode) => {
   const colors = terminalColors({}, mode)
-  for (const name of [undefined, "opencode", "tokyonight"] as const) {
+  for (const name of [undefined, "elitza", "tokyonight"] as const) {
     const theme = await resolveRunTheme(renderer({ colors }), { name, mode })
     const expected = resolveThemeDocument(
-      name === undefined || name === "opencode" ? getOpenCodeTheme() : parseTheme(DEFAULT_THEMES[name]),
+      name === undefined || name === "elitza" ? getElitzaTheme() : parseTheme(DEFAULT_THEMES[name]),
       mode,
     )
     try {
@@ -190,7 +190,7 @@ test.each(["light", "dark"] as const)("shares the %s system scheme while retaini
 test.each(["light", "dark"] as const)(
   "loads complete %s custom theme files",
   async (mode) => {
-    const base = selectTheme(getOpenCodeTheme(), mode)
+    const base = selectTheme(getElitzaTheme(), mode)
     const definition = {
       ...base,
       text: {
@@ -238,7 +238,7 @@ test.each(["light", "dark"] as const)(
 test.each(["light", "dark"] as const)(
   "falls back to shared %s defaults for unknown or invalid themes",
   async (mode) => {
-    const expected = resolveThemeDocument(getOpenCodeTheme(), mode)
+    const expected = resolveThemeDocument(getElitzaTheme(), mode)
     for (const source of [
       { [mode]: { categorical: [] } },
       { [mode]: { text: { base: "$missing" } } },
@@ -267,7 +267,7 @@ test.each(["light", "dark"] as const)("resolves dark-only Aura on an automatic %
   try {
     expectFooter(
       theme,
-      resolveThemeDocument(mode === "light" ? getOpenCodeTheme() : parseTheme(DEFAULT_THEMES.aura), mode),
+      resolveThemeDocument(mode === "light" ? getElitzaTheme() : parseTheme(DEFAULT_THEMES.aura), mode),
     )
     expect(rgba(theme.background).toInts()).toEqual(RGBA.fromHex(colors.defaultBackground!).toInts())
   } finally {
@@ -278,7 +278,7 @@ test.each(["light", "dark"] as const)("resolves dark-only Aura on an automatic %
 test.each(["light", "dark"] as const)(
   "falls back only for unsupported modes of a %s-only custom theme",
   async (mode) => {
-    const base = selectTheme(getOpenCodeTheme(), mode)
+    const base = selectTheme(getElitzaTheme(), mode)
     const definition = { ...base, text: { ...base.text, base: "#123456" } }
     const { hue, ...tokens } = definition
     const source = { base: tokens, [mode]: { hue } }
@@ -291,7 +291,7 @@ test.each(["light", "dark"] as const)(
       try {
         expectFooter(
           theme,
-          resolveThemeDocument(requested === mode ? parseTheme(source) : getOpenCodeTheme(), requested),
+          resolveThemeDocument(requested === mode ? parseTheme(source) : getElitzaTheme(), requested),
         )
       } finally {
         theme.block.syntax?.destroy()
@@ -301,7 +301,7 @@ test.each(["light", "dark"] as const)(
 )
 
 test.each(["light", "dark"] as const)("handles unavailable palettes in %s mode", async (mode) => {
-  const expected = resolveThemeDocument(getOpenCodeTheme(), mode)
+  const expected = resolveThemeDocument(getElitzaTheme(), mode)
   for (const input of [
     { fail: true },
     { colors: emptyColors },
@@ -312,7 +312,7 @@ test.each(["light", "dark"] as const)("handles unavailable palettes in %s mode",
     expect(fallback).toBe(mode === "light" ? RUN_THEME_FALLBACK_LIGHT : RUN_THEME_FALLBACK)
     expectFooter(fallback, expected)
   }
-  const theme = await resolveRunTheme(renderer({ fail: true }), { name: "opencode", mode })
+  const theme = await resolveRunTheme(renderer({ fail: true }), { name: "elitza", mode })
   try {
     expectFooter(theme, expected)
   } finally {
@@ -337,7 +337,7 @@ test("uses refreshed background brightness rather than stale mode or ANSI slot z
 })
 
 test.each(["light", "dark"] as const)("follows physical %s mode over opposite configuration", async (mode) => {
-  const expected = resolveThemeDocument(getOpenCodeTheme(), mode)
+  const expected = resolveThemeDocument(getElitzaTheme(), mode)
   for (const fail of [false, true]) {
     const theme = await resolveRunTheme(renderer({ colors: terminalColors({}, mode), themeMode: mode, fail }), {
       mode: mode === "light" ? "dark" : "light",
@@ -350,12 +350,12 @@ test.each(["light", "dark"] as const)("follows physical %s mode over opposite co
   }
 })
 
-test.each(["system", "opencode"])(
+test.each(["system", "elitza"])(
   "prefers a new renderer mode over cached %s colors after failed probes",
   async (name) => {
     const colors = terminalColors()
     const expected = resolveThemeDocument(
-      name === "system" ? parseTheme(generateSystem(colors, "light")) : getOpenCodeTheme(),
+      name === "system" ? parseTheme(generateSystem(colors, "light")) : getElitzaTheme(),
       "light",
     )
     const input = { colors, fail: false, themeMode: "dark" as "dark" | "light" }
@@ -396,7 +396,7 @@ test("retains a usable system palette after background-only and empty probes", a
   }
 })
 
-test.each(["system", "opencode"])(
+test.each(["system", "elitza"])(
   "retains and refreshes the %s scrollback palette across probe failures",
   async (name) => {
     const input = { fail: false, colors: terminalColors() }
