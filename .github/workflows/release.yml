@@ -1,0 +1,94 @@
+name: release
+run-name: "release ${{ github.ref_name }}"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  OPENCODE_CHANNEL: latest
+
+jobs:
+  build:
+    name: build (${{ matrix.settings.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - name: linux-x64
+            host: ubuntu-latest
+            target: elitza-linux-x64
+            smoke: true
+          - name: linux-arm64
+            host: ubuntu-latest
+            target: elitza-linux-arm64
+            smoke: false
+          - name: darwin-arm64
+            host: macos-latest
+            target: elitza-darwin-arm64
+            smoke: true
+          - name: darwin-x64
+            host: macos-latest
+            target: elitza-darwin-x64
+            smoke: false
+    runs-on: ${{ matrix.settings.host }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup Bun
+        uses: ./.github/actions/setup-bun
+
+      - name: Build
+        working-directory: packages/cli
+        env:
+          # Strip the leading v from the tag for the CLI version.
+          OPENCODE_VERSION: ${{ github.ref_name }}
+        run: OPENCODE_VERSION="${OPENCODE_VERSION#v}" bun script/build.ts --target=${{ matrix.settings.target }} --outdir=dist
+
+      - name: Smoke test
+        if: matrix.settings.smoke
+        working-directory: packages/cli
+        run: ./dist/cli-*/bin/elitza --version
+
+      - name: Package
+        working-directory: packages/cli
+        run: |
+          mkdir -p bundle
+          cp dist/cli-*/bin/elitza bundle/elitza
+          cp -R ../../packages/plugins/elitza-brain bundle/elitza-brain
+          rm -rf bundle/elitza-brain/node_modules bundle/elitza-brain/script bundle/elitza-brain/tsconfig.json
+          tar -czf ${{ matrix.settings.target }}.tar.gz -C bundle .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.settings.target }}
+          path: packages/cli/${{ matrix.settings.target }}.tar.gz
+          if-no-files-found: error
+
+  release:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" elitza-*.tar.gz \
+            --title "Elitza $GITHUB_REF_NAME" \
+            --notes "Install with:
+
+    curl -fsSL https://elitza.life/install.sh | bash
+
+Free models, bring your own key: https://openrouter.ai/keys"

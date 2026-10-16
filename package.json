@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "opencode",
-  "description": "AI-powered development tool",
-  "version": "2.0.30",
+  "name": "elitza",
+  "description": "Elitza — the AI agent that grows with you. Free models, bring your own key.",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.4.2",
@@ -13,11 +13,6 @@
     "dev:vite:live": "sh -c 'OPENCODE_TUI_CHANNEL=dev OPENCODE_PASSWORD=\"$(opencode service get password)\" exec bun run dev:vite \"$@\" --server \"$(opencode service status)\"' --",
     "dev:desktop": "bun --cwd packages/desktop dev",
     "dev:web": "bun --cwd packages/app dev",
-    "dev:console": "ulimit -n 10240 2>/dev/null; bun run --cwd packages/console/app dev",
-    "dev:stats": "bun sst shell --stage=production -- bun run --cwd packages/stats/app dev",
-    "dev:www": "bun run --cwd services/www dev",
-    "dev:storybook": "bun --cwd packages/storybook storybook",
-    "bench:devex": "bun run --cwd packages/app test:bench:devex",
     "lint": "oxlint && ast-grep scan -c script/ast-grep/gui-extensions/sgconfig.yml && bun script/sdk-docs.ts",
     "lint:changed": "bun script/lint-changed.ts",
     "lint:effect-patterns": "ast-grep scan -c script/ast-grep/sgconfig.yml packages/util/src packages/core/src packages/server/src packages/protocol/src packages/cli/src",
@@ -31,8 +26,6 @@
     "upgrade-opentui": "bun run script/upgrade-opentui.ts",
     "postinstall": "bun run --cwd packages/core fix-node-pty",
     "prepare": "husky",
-    "random": "echo 'Random script'",
-    "sso": "aws sso login --sso-session=opencode --no-browser",
     "test": "echo 'do not run tests from root' && exit 1"
   },
   "workspaces": {
