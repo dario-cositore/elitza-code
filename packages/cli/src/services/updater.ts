@@ -583,13 +583,14 @@ const make = Effect.gen(function* () {
   })
 
   const check = Effect.fn("cli.updater.check")(function* () {
-    // Elitza: self-update stays gated until our own release pipeline exists —
-    // OpenCode's endpoints would silently replace Elitza with stock OpenCode.
+    // Elitza: the built-in updater still speaks OpenCode's update endpoints and
+    // would silently replace Elitza with stock OpenCode. Updates go through our
+    // own release pipeline instead (re-run https://elitza.life/install.sh).
     // Set ELITZA_SELF_UPDATE=1 to exercise the updater during development.
     if (process.env.ELITZA_SELF_UPDATE !== "1")
       return {
         type: "unavailable" as const,
-        message: "Self-update ships with Elitza's release pipeline. Until then, grab the latest build at https://elitza.life.",
+        message: "In-app self-update is off. Update with: curl -fsSL https://elitza.life/install.sh | bash",
       }
     if (OPENCODE_LOCAL)
       return {
