@@ -100,6 +100,9 @@ describe("stats rendering", () => {
   })
 
   test("uses the Elitza palette in color mode", () => {
+    // Pin a dark background so ambient COLORFGBG (set by some terminals) cannot
+    // flip the palette to the light-terminal accent.
+    process.env.COLORFGBG = "0;0"
     const output = renderStats(stats, options({ color: true }))
     expect(output).toContain("\x1b[1;38;2;250;178;131m")
     expect(output).not.toContain("38;5;45")

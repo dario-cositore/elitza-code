@@ -90,14 +90,14 @@ type RenderOptions = {
   width: number
 }
 
-const colors = terminalPalette()
+const colors = () => terminalPalette()
 
 export function renderStats(stats: SessionStatsInfo, options: RenderOptions) {
   const totalTokens = TokenUsage.total(stats.tokens)
   const toolTotals = stats.tools.mode === "none" ? undefined : stats.tools.totals
   const terminalTools = toolTotals ? toolTotals.succeeded + toolTotals.failed : 0
   const toolRate = !toolTotals || terminalTools === 0 ? undefined : (toolTotals.succeeded / terminalTools) * 100
-  const primary = `1;${colors.primary}`
+  const primary = `1;${colors().primary}`
   const sessionLine = [
     metricCount(stats.sessions, "session", options.color),
     stats.subagents > 0 ? metricCount(stats.subagents, "subagent", options.color) : undefined,
@@ -180,7 +180,7 @@ function renderActivity(
   return [
     style(
       calendar.clipped ? `activity · last ${calendar.weeks.length} weeks` : "activity",
-      `1;${colors.primary}`,
+      `1;${colors().primary}`,
       color,
     ),
     `   ${style(months, "2", color)}`,
@@ -313,7 +313,7 @@ function formatDuration(value: number) {
 }
 
 function metricCount(value: number, noun: string, color: boolean) {
-  return `${style(formatNumber(value), `1;${colors.primary}`, color)} ${noun}${value === 1 ? "" : "s"}`
+  return `${style(formatNumber(value), `1;${colors().primary}`, color)} ${noun}${value === 1 ? "" : "s"}`
 }
 
 function style(value: string, code: string, color: boolean) {
@@ -324,20 +324,17 @@ function paintActivity(level: number, color: boolean) {
   const glyph = ["·", "░", "▒", "▓", "█"][level]
   if (!color) return glyph
   if (level === 0) return `\x1b[2m${glyph}\x1b[22m`
-  return `\x1b[${colors.activity[level - 1]}m${glyph}\x1b[39m`
+  return `\x1b[${colors().activity[level - 1]}m${glyph}\x1b[39m`
 }
 
 function terminalPalette() {
   const background = Number(process.env.COLORFGBG?.split(";").at(-1))
+  // Light terminals keep a blue accent; dark or unknown terminals (the common
+  // case — most emulators never set COLORFGBG) get Elitza orange.
   if (Number.isFinite(background) && background >= 7)
     return {
       primary: "38;2;59;125;216",
       activity: ["38;2;153;169;192", "38;2;122;155;200", "38;2;90;140;208", "38;2;59;125;216"],
     }
-  if (Number.isFinite(background))
-    return {
-      primary: "38;2;250;178;131",
-      activity: ["38;2;117;99;87", "38;2;161;125;102", "38;2;206;152;116", "38;2;250;178;131"],
-    }
-  return { primary: "36", activity: ["2;36", "36", "1;36", "1;96"] }
+  return { primary: "38;2;250;178;131", activity: ["38;2;117;99;87", "38;2;161;125;102", "38;2;206;152;116", "38;2;250;178;131"] }
 }
