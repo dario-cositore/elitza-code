@@ -1,5 +1,5 @@
 import { Prompt, type PromptRef } from "../component/prompt"
-import { createEffect, createMemo, createSignal, onMount, Show, untrack } from "solid-js"
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show, untrack } from "solid-js"
 import { Logo } from "../component/logo"
 import { useArgs } from "../context/args"
 import { useRouteData } from "../context/route"
@@ -15,12 +15,43 @@ import { useTheme } from "../context/theme"
 import { useUpdateNotification } from "../context/update-notification"
 import { useExit } from "../context/exit"
 import { FadeInText } from "../component/fade-in-text"
+import { tint } from "../theme/color"
 
 let once = false
 const placeholder = {
   normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
   shell: ["ls -la", "git status", "pwd"],
 }
+
+const tips = [
+  "Grab a free key at openrouter.ai/keys, then run /connect",
+  "Elitza learns as you work — memories build up in ~/.elitza",
+  "Switch brains anytime with /models — BYOK or OpenRouter :free",
+  "Make her yours — edit ~/.elitza/SOUL.md and personas",
+  "Type / for commands and @ for files — ctrl+p opens the palette",
+]
+
+const hints: [key: string, label: string][] = [
+  ["tab", "complete"],
+  ["@", "files"],
+  ["/", "commands"],
+  ["ctrl+p", "palette"],
+  ["ctrl+o", "sessions"],
+]
+
+// Deterministic starfield so every terminal renders the same sky and frame tests stay stable.
+const hash = (seed: number) => {
+  const a = Math.imul(seed ^ (seed >>> 16), 0x45d9f3b)
+  const b = Math.imul(a ^ (a >>> 16), 0x45d9f3b)
+  return ((b ^ (b >>> 16)) >>> 0) / 4294967296
+}
+
+const starField = Array.from({ length: 44 }, (_, index) => ({
+  x: hash(index + 1),
+  y: hash(index + 101),
+  char: (["·", "✦", "°", "."] as const)[index % 4],
+  accent: index % 5 === 0,
+}))
 
 export function Home() {
   const route = useRouteData("home")
@@ -32,7 +63,13 @@ export function Home() {
   const data = useData()
   const location = useLocation()
   const dimensions = useTerminalDimensions()
+  const theme = useTheme()
   const [logoWidth, setLogoWidth] = createSignal(0)
+  const [tipIndex, setTipIndex] = createSignal(0)
+  onMount(() => {
+    const timer = setInterval(() => setTipIndex((index) => (index + 1) % tips.length), 20000)
+    onCleanup(() => clearInterval(timer))
+  })
   // Global MCP elicitations can arrive without a session route, so keep them reachable from Home.
   const currentLocation = () => route.location ?? data.location.default()
   const forms = createMemo(() => data.session.form.list("global", currentLocation()) ?? [])
@@ -86,8 +123,31 @@ export function Home() {
         paddingLeft={dimensions().width < 44 ? 1 : 2}
         paddingRight={dimensions().width < 44 ? 1 : 2}
       >
+        <box position="absolute" left={0} top={0} right={0} bottom={0} zIndex={0}>
+          <For each={starField}>
+            {(star) => (
+              <text
+                position="absolute"
+                left={Math.round(star.x * (dimensions().width - 1))}
+                top={Math.round(star.y * (dimensions().height - 1))}
+                fg={
+                  star.accent
+                    ? tint(theme.background.base, theme.brand.base, 0.45)
+                    : tint(theme.background.base, theme.text.muted, 0.35)
+                }
+              >
+                {star.char}
+              </text>
+            )}
+          </For>
+        </box>
         <box flexGrow={1} minHeight={0} />
-        <box height={3} minHeight={0} flexShrink={1} />
+        <Show when={dimensions().height >= 12}>
+          <box height={1} flexShrink={0}>
+            <text fg={theme.text.muted}>Dario Cositore</text>
+          </box>
+        </Show>
+        <box height={2} minHeight={0} flexShrink={1} />
         <box
           flexShrink={0}
           onSizeChange={function () {
@@ -101,6 +161,43 @@ export function Home() {
         <box width="100%" maxWidth={75} zIndex={1000} paddingTop={1} flexShrink={0} position="relative">
           <Prompt ref={bind} placeholders={placeholder} disabled={forms().length > 0} />
         </box>
+        <Show when={dimensions().height >= 20}>
+          <Show when={dimensions().width >= 76}>
+            <box
+              width="100%"
+              maxWidth={75}
+              flexShrink={0}
+              paddingTop={1}
+              flexDirection="row"
+              justifyContent="center"
+              gap={3}
+            >
+              <For each={hints}>
+                {([key, label]) => (
+                  <text>
+                    <span style={{ fg: theme.text.base }}>{key}</span>
+                    <span style={{ fg: theme.text.muted }}> {label}</span>
+                  </text>
+                )}
+              </For>
+            </box>
+          </Show>
+          <Show when={dimensions().width >= 68}>
+            <box
+              width="100%"
+              maxWidth={75}
+              flexShrink={0}
+              flexDirection="row"
+              justifyContent="center"
+              paddingTop={1}
+            >
+              <text>
+                <span style={{ fg: theme.brand.base }}>● Tip</span>
+                <span style={{ fg: theme.text.base }}> {tips[tipIndex()]}</span>
+              </text>
+            </box>
+          </Show>
+        </Show>
         <box flexGrow={1} minHeight={0} />
       </box>
       <box width="100%" flexShrink={0}>

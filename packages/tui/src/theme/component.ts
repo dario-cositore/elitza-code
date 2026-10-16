@@ -14,6 +14,9 @@ export function createComponentTheme(
     get categorical() {
       return view().categorical
     },
+    get brand() {
+      return view().brand
+    },
     get text() {
       return view().text
     },

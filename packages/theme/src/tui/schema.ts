@@ -190,6 +190,7 @@ const DiffDefinition = Schema.Struct({
 export type DiffDefinition = Schema.Schema.Type<typeof DiffDefinition>
 
 const ThemeTokensDefinition = Schema.Struct({
+  brand: Schema.optional(Schema.Struct({ base: Schema.optional(ColorValue) })),
   text: Schema.optional(TextDefinition),
   background: Schema.optional(BackgroundDefinition),
   border: Schema.optional(Schema.Struct({ base: Schema.optional(ColorValue) })),
@@ -219,6 +220,7 @@ const CompleteTextFeedbackDefinition = Schema.Struct({ base: ColorValue, muted: 
 const CompleteBackgroundFeedbackDefinition = Schema.Struct({ base: ColorValue })
 
 const CompleteThemeTokensDefinition = Schema.Struct({
+  brand: Schema.Struct({ base: ColorValue }),
   text: Schema.Struct({
     base: ColorValue,
     muted: ColorValue,

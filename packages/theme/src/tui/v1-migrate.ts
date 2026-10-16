@@ -102,6 +102,7 @@ function migrateMode(theme: Theme, mode: Mode): ThemeDefinition {
   const backgroundRaisedMax = "$hue.neutral.500"
 
   return referenceHues({
+    brand: { base: primary },
     hue: {
       gray: neutralScale(theme),
       ...Object.fromEntries(
