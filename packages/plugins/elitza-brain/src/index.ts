@@ -17,6 +17,7 @@
 import fs from "node:fs"
 import { Plugin } from "@opencode/plugin"
 import { EmotionEngine } from "./emotion.js"
+import { currentReflection, noteInteraction, startHeartbeat } from "./heartbeat.js"
 import { runAutoLearn, type ToolRun } from "./learning.js"
 import { autoLearnFromResponse, autoRememberTurn } from "./memory.js"
 import { BRAIN_MARKER, buildBrainContext } from "./prompt.js"
@@ -57,6 +58,9 @@ export default Plugin.define({
   async setup(ctx) {
     const emotion = new EmotionEngine()
     const turns = new Map<string, TurnState>()
+    // The quiet loop between conversations: tend memory, and form thoughts
+    // during silence. Stopped on cleanup — see the returned function below.
+    const heartbeat = startHeartbeat(emotion)
 
     // -----------------------------------------------------------------
     // Tools — Elitza's agency over her own memory
@@ -89,6 +93,16 @@ export default Plugin.define({
         }
       }
       event.system.push({ type: "text", text: buildBrainContext(input, emotion.getEmotionalContext()) })
+      // A reflection formed while he was away surfaces at the top of the next
+      // conversation — her initiative, in her own voice.
+      const thought = currentReflection()
+      if (thought) {
+        event.system.push({
+          type: "text",
+          text: `<!-- elitza-reflection -->\n## What's on your mind\n\nWhile you were away (${thought.at}), you felt: ${thought.mood}.\nYour thought: "${thought.text}"\nIf it's relevant, you can bring it up naturally. Don't force it.`,
+        })
+        debug("inject: reflection added")
+      }
       debug(`inject: brain block added (input=${JSON.stringify(input.slice(0, 60))})`)
     }
 
@@ -121,6 +135,7 @@ export default Plugin.define({
       debug(`hook=prompt session=${event.sessionID} text=${JSON.stringify(text.slice(0, 80))}`)
       turns.set(event.sessionID, { userText: text, tools: [], toolRuns: [], errors: 0 })
       try {
+        noteInteraction()
         emotion.onUserMessage(text)
         autoRememberTurn("user", text)
       } catch (error) {
@@ -247,6 +262,7 @@ export default Plugin.define({
 
     return () => {
       controller.abort()
+      heartbeat.stop()
     }
   },
 })
