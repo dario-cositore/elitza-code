@@ -85,11 +85,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+          if gh release view "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             # Re-tagged or re-run: replace the existing assets in place.
-            gh release upload "$GITHUB_REF_NAME" elitza-*.tar.gz --clobber
+            gh release upload "$GITHUB_REF_NAME" elitza-*.tar.gz -R "$GITHUB_REPOSITORY" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" elitza-*.tar.gz \
+            gh release create "$GITHUB_REF_NAME" elitza-*.tar.gz -R "$GITHUB_REPOSITORY" \
               --title "Elitza $GITHUB_REF_NAME" \
               --notes "Install: curl -fsSL https://elitza.life/install.sh | bash — free models, bring your own key (https://openrouter.ai/keys)"
           fi

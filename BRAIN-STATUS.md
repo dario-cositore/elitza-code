@@ -228,6 +228,61 @@ embedded, first-run points at free OpenRouter key) → ⑤ un-hide + rewrite the
 page's hidden sections (bun from-source, correct maintenance commands, version)
 → ⑥ commit + push website (deploys Cloudflare Pages).
 
+## Release chain — shipped (2026-10-16 evening)
+
+**Repo → GitHub main:** fork pushed to `github.com/dario-cositore/elitza-code`
+main (fast-forward from legacy 6a62247). Stripped: 27 upstream workflows +
+publish-python-sdk + setup-git-committer + CODEOWNERS, the root `install`
+template, nix/sst infra, salesforce/, sdks/, the github-action page, specs/,
+perf/, 23 translated READMEs, STATS.md, V2_HTTP_API_AUDIT.md. Rewrote
+README/CONTRIBUTING/SECURITY/CHANGELOG for Elitza, emptied TEAM_MEMBERS,
+root package.json → name `elitza` @ 1.0.0, bun.lock root workspace renamed.
+Deferred (still upstream code, not user-visible on the landing page):
+services/{www,changelog,files,update}, packages/{console,stats,web,posts,ai}.
+
+**CI:** check.yml/test.yml retargeted to main on ubuntu-latest (unit suite +
+service-lifecycle smoke + lib builds; upstream e2e/storybook dropped for v1).
+New `.github/workflows/release.yml`: tag `v*` → matrix builds
+(elitza-linux-x64/arm64 on ubuntu, elitza-darwin-arm64/x64 on macos;
+OPENCODE_VERSION from the tag) → tarball `elitza-<target>.tar.gz` = binary +
+elitza-brain source (node_modules/.turbo/script stripped) → idempotent
+`gh release create | upload --clobber` with `-R` (re-tags replace assets).
+All four build jobs green on the first tag run, including cross-arch.
+
+**Build fixes CI caught:** service-smoke.ts resolved the old `opencode`
+binary name; highlights.test.ts parsed the upstream CHANGELOG format
+(fixture tests kept).
+
+**Service ports (new):** Elitza builds default to her own managed ports —
+latest 0xc142 (49474), local 0xc143 (49475) — upstream's latest port 0xc0de
+is where a stock opencode service sits; both can now run on one machine.
+service.test.ts updated.
+
+**Stats palette:** unknown background (COLORFGBG unset — CI and most
+terminals) renders Elitza orange instead of upstream cyan; palette resolves
+per render (was module-load) and the test pins a dark background.
+
+**Installer rewritten (elitza.life/install.sh + scripts/install-elitza.sh):**
+zero Python. Detects os/arch → downloads `elitza-{os}-{arch}.tar.gz` from the
+release (latest via API, pinned v1.0.0 fallback) → staged swap into
+~/.elitza/agent (source checkouts protected behind --force) → smoke-runs
+`--version` → seeds only what's missing (config with the free nemotron
+default + brain plugin path, SOUL.md, .env with an empty OPENROUTER_API_KEY
+slot, brain/personas dirs) → writes the ~/.local/bin/elitza launcher
+(isolates OPENCODE_CONFIG_DIR/XDG_* under ~/.elitza/opencode, sources
+~/.elitza/.env — mirrors production) → PATH wiring. Flags:
+--version/--no-modify-path/--binary/--uninstall/--force. **Local E2E proven**
+against a simulated release: fresh HOME → install → `elitza run` boots the
+service on 49474, loads elitza-brain from the tarball WITHOUT node_modules
+(all brain_* tools registered), creates soul_v2.db, and fails only with
+"No model is available" (empty key — the expected pre-/connect state).
+
+**Website (commit c9d8ee6, pushed once release assets are verified):**
+install-pause banner removed, OS tabs + "Other ways" un-hidden, direct
+downloads point at v1.0.0 assets, from-source = bun, maintenance = re-run
+the installer (self-update stays gated, `ELITZA_SELF_UPDATE=1` escape hatch;
+the gated message now points at the installer), meta description updated.
+
 ## Housekeeping notes
 
 - No commits/pushes without explicit permission.
