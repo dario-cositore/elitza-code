@@ -52,7 +52,21 @@ export function defaultPort(channel = OPENCODE_CHANNEL, platform = process.platf
   return port
 }
 
+declare const OPENCODE_CLI_NAME: string | undefined
+
+// Elitza keeps the opencode wire identifiers but ships under her own name —
+// including her own default service ports, so a stock opencode install and an
+// Elitza install can both run their background service on one machine (both
+// default to the "latest" channel, whose upstream port is 0xc0de / 49374).
+const ELITZA_CLI =
+  (typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME : "elitza") === "elitza"
+
 function channelPort(channel: string) {
+  if (ELITZA_CLI) {
+    if (channel === "latest" || channel === "dev" || channel === "beta" || channel === "next") return 0xc142 // 49474
+    if (channel === "local") return 0xc143 // 49475
+    return 10_000 + (Number.parseInt(Hash.fast(`elitza:${channel}`).slice(0, 8), 16) % 50_000)
+  }
   if (channel === "latest" || channel === "dev" || channel === "beta" || channel === "next") return 0xc0de
   if (channel === "local") return 0xc0df
   return 10_000 + (Number.parseInt(Hash.fast(channel).slice(0, 8), 16) % 50_000)
