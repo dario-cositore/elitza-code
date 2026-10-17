@@ -30,11 +30,11 @@ function run(target) {
   })
 }
 
-const envPath = process.env.OPENCODE_BIN_PATH
+const envPath = process.env.ELITZA_BIN_PATH
 const scriptDir = path.dirname(fs.realpathSync(__filename))
 const command = path.basename(__filename).replace(/\.cjs$/, "")
-const nodeBuild = command === "opencode-node"
-const sourceCommand = nodeBuild ? "opencode2-node" : "opencode"
+const nodeBuild = command === "elitza-node"
+const sourceCommand = nodeBuild ? "elitza2-node" : "elitza"
 const cached = path.join(scriptDir, `.${command}`)
 const platform = { darwin: "darwin", linux: "linux", win32: "windows" }[os.platform()] || os.platform()
 const arch = { x64: "x64", arm64: "arm64", arm: "arm" }[os.arch()] || os.arch()
