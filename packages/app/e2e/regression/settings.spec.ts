@@ -13,7 +13,7 @@ const sandboxes = Array.from({ length: 12 }, (_, index) => `${directory}/workspa
 const override =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect width='16' height='16' fill='red'/%3E%3C/svg%3E"
 
-const contributors = "https://api.github.com/repos/anomalyco/opencode/contributors?anon=1&per_page=1"
+const contributors = "https://api.github.com/repos/dario-cositore/elitza-code/contributors?anon=1&per_page=1"
 
 test.use({ serviceWorkers: "block" })
 
@@ -1360,7 +1360,7 @@ for (const viewport of [
   { name: "mobile", width: 390, height: 844, bottom: true },
 ]) {
   test(`settings layout (${viewport.name}): every page scrolls inside its panel with room below`, async ({ page }) => {
-    await page.route("https://api.github.com/repos/anomalyco/opencode/contributors?*", (route) =>
+    await page.route("https://api.github.com/repos/dario-cositore/elitza-code/contributors?*", (route) =>
       route.fulfill({ json: [] }),
     )
     const { settings } = await open(page)

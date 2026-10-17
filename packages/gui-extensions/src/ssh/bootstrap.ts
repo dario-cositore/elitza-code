@@ -117,7 +117,7 @@ export const bootstrap = Effect.fn("Ssh.bootstrap")(function* (input: {
 
     const target = output
       .split(/\r?\n/)
-      .findLast((line) => line.startsWith("OPENCODE_REMOTE_TARGET="))
+      .findLast((line) => line.startsWith("ELITZA_REMOTE_TARGET="))
       ?.split("=")[1]
 
     const url = yield* Effect.try({ try: () => RemoteCli.archiveUrl(target ?? "", version), catch: SshFailure.from })

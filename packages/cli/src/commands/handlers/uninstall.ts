@@ -154,8 +154,11 @@ const shellConfigs = Effect.fnUntraced(function* (home: string) {
 function cleanShellConfig(content: string) {
   const lines = content.split("\n")
   const entry = (line: string) =>
-    /^(?:export PATH=|fish_add_path\s)/.test(line.trim()) && line.includes(".opencode/bin")
-  return lines
-    .filter((line, index) => !entry(line) && !(line.trim() === "# opencode" && entry(lines[index + 1] ?? "")))
-    .join("\n")
+    /^(?:export PATH=|fish_add_path\s)/.test(line.trim()) && line.includes(".local/bin")
+  // Only the pair our installer writes — a `# Elitza` comment directly above a PATH
+  // entry — is ours to remove. A bare `.local/bin` line can belong to any other tool,
+  // and another agent's bin entry is never ours to touch, so the comment is what
+  // scopes the removal rather than the path it mentions.
+  const ours = (index: number) => lines[index]?.trim() === "# Elitza" && entry(lines[index + 1] ?? "")
+  return lines.filter((_, index) => !ours(index) && !ours(index - 1)).join("\n")
 }
