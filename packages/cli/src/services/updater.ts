@@ -67,6 +67,25 @@ const wingetArgs = [
   "--disable-interactivity",
 ]
 
+// Elitza ships her own release pipeline. Everything below this point still speaks
+// OpenCode's update endpoints, installs OpenCode's binaries, and removes OpenCode's
+// packages, so none of it may run against an Elitza install: `upgrade` would hand
+// Elitza over to OpenCode's installer, and `removal` would uninstall OpenCode from
+// the machine. Gating here rather than only at the two call sites keeps every
+// entry point covered — `apply` reaches `upgrade` through `install`, and the TUI
+// calls `apply` directly without going through `check`.
+// Set ELITZA_SELF_UPDATE=1 to exercise the updater during development.
+const gated = () => process.env.ELITZA_SELF_UPDATE !== "1"
+
+const elitzaUpgradeError = (retry: string) =>
+  new UpgradeError({
+    title: "Self-update is off in this Elitza build",
+    detail: "Elitza's built-in updater only knows OpenCode's release endpoints, so it cannot update Elitza safely.",
+    retry,
+  })
+
+const elitzaRetry = "Update with: curl -fsSL https://elitza.life/install.sh | bash"
+
 function conciseDetail(input: string) {
   const lines = stripVTControlCharacters(input)
     .trim()
@@ -258,6 +277,9 @@ const make = Effect.gen(function* () {
   }
 
   const removal = (method: Method) => {
+    // The removal commands target OpenCode's packages, so running them against an
+    // Elitza install would uninstall OpenCode from the machine.
+    if (gated()) return undefined
     const command = removalCommand(method)
     if (!command) return undefined
     return {
@@ -273,6 +295,7 @@ const make = Effect.gen(function* () {
   }
 
   const release = Effect.fnUntraced(function* (method?: Method) {
+    if (gated()) return yield* Effect.fail(elitzaUpgradeError(elitzaRetry))
     const distribution = method === "brew" ? "homebrew" : "npm"
     // Homebrew Core builds its formula on its own schedule, so the tap release does not describe it.
     const core = method === "brew" && installedFormula === "opencode"
@@ -423,6 +446,9 @@ const make = Effect.gen(function* () {
   }
 
   const upgrade = Effect.fnUntraced(function* (method: Method, input: string) {
+    // Every branch below installs OpenCode: the curl branch downloads and runs
+    // OpenCode's own installer, which writes ~/.opencode/bin. Refuse up front.
+    if (gated()) return yield* Effect.fail(elitzaUpgradeError(elitzaRetry))
     if (!parseReleaseVersion(input)) return yield* Effect.fail(new Error(`Invalid version: ${input}`))
     const version = input.trim().replace(/^v/, "")
     const packageName =
@@ -531,6 +557,18 @@ const make = Effect.gen(function* () {
   })
 
   const inspect = Effect.fnUntraced(function* () {
+    // Elitza: the background check speaks OpenCode's update endpoints, so it reports
+    // stock OpenCode's version as Elitza's latest and can hand the install to OpenCode's
+    // own installer. Updates go through ours instead (re-run https://elitza.life/install.sh).
+    // Set ELITZA_SELF_UPDATE=1 to exercise the updater during development, matching check().
+    if (process.env.ELITZA_SELF_UPDATE !== "1") {
+      yield* Effect.logInfo("update check skipped", {
+        reason: "elitza-installer",
+        version: OPENCODE_VERSION,
+        channel: OPENCODE_CHANNEL,
+      })
+      return undefined
+    }
     if (OPENCODE_LOCAL || ["1", "true"].includes(process.env.OPENCODE_DISABLE_AUTOUPDATE?.toLowerCase() ?? "")) {
       yield* Effect.logInfo("update check skipped", {
         reason: OPENCODE_LOCAL ? "local-install" : "disabled",

@@ -32,8 +32,6 @@
     "packages": [
       "packages/*",
       "packages/plugins/*",
-      "services/*",
-      "packages/console/*",
       "packages/stats/*"
     ],
     "catalog": {
