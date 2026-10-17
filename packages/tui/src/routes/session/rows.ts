@@ -1,4 +1,4 @@
-import type { SessionInboxEnqueued, SessionMessageAssistant, SessionMessageInfo } from "@opencode/client"
+import type { SessionInboxEnqueued, SessionMessageAssistant, SessionMessageInfo } from "@elitza/client"
 import { createEffect, on, onCleanup, type Accessor } from "solid-js"
 import { createStore, produce, reconcile } from "solid-js/store"
 import { useConfig } from "../../config"

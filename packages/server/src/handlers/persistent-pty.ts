@@ -1,11 +1,11 @@
-import { PersistentPty } from "@opencode/core/persistent-pty"
-import { PtyTicket } from "@opencode/core/pty/ticket"
-import { ForbiddenError, PtyNotFoundError, ServiceUnavailableError } from "@opencode/protocol/errors"
+import { PersistentPty } from "@elitza/core/persistent-pty"
+import { PtyTicket } from "@elitza/core/pty/ticket"
+import { ForbiddenError, PtyNotFoundError, ServiceUnavailableError } from "@elitza/protocol/errors"
 import {
   PTY_CONNECT_TICKET_QUERY,
   PTY_CONNECT_TOKEN_HEADER,
   PTY_CONNECT_TOKEN_HEADER_VALUE,
-} from "@opencode/protocol/groups/persistent-pty"
+} from "@elitza/protocol/groups/persistent-pty"
 import { Effect, Queue } from "effect"
 import { HttpServerRequest, HttpServerResponse } from "effect/http"
 import { HttpApiBuilder, HttpApiSchema } from "effect/http-api"

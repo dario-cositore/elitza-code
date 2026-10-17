@@ -101,8 +101,8 @@ try {
     ),
     Bun.write(
       join(consumer, "worker.js"),
-      `import { bodyDigest } from "@opencode/core/models-dev"
-import { OpenCodeWorkerd } from "@opencode/sdk/workerd"
+      `import { bodyDigest } from "@elitza/core/models-dev"
+import { OpenCodeWorkerd } from "@elitza/sdk/workerd"
 
 export class OpenCodeDO {
   constructor(state) {
@@ -191,10 +191,10 @@ try {
     Bun.write(
       join(consumer, "imports.mjs"),
       `const modules = await Promise.all([
-  import("@opencode/sdk"),
-  import("@opencode/sdk/effect"),
-  import("@opencode/sdk/workerd"),
-  import("@opencode/sdk/workerd/effect"),
+  import("@elitza/sdk"),
+  import("@elitza/sdk/effect"),
+  import("@elitza/sdk/workerd"),
+  import("@elitza/sdk/workerd/effect"),
 ])
 
 for (const module of modules) {
@@ -205,7 +205,7 @@ for (const module of modules) {
     ),
   ])
 
-  const sdk = archives.get("@opencode/sdk")
+  const sdk = archives.get("@elitza/sdk")
   if (!sdk) throw new Error("Packed SDK archive was not created")
   await $`npm install --ignore-scripts --no-audit --no-fund --package-lock=false ${sdk} wrangler@4.110.0`.cwd(consumer)
   const runtimes = (await $`npm ls effect --all --parseable`.cwd(consumer).text()).trim().split("\n")

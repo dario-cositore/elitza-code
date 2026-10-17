@@ -2,15 +2,15 @@ export * as Session from "./session.js"
 export * from "./session/schema.js"
 
 import { Effect, Layer, Schema, Context, Stream } from "effect"
-import { LLMClient } from "@opencode/ai"
-import { ListAnchor } from "@opencode/schema/session"
+import { LLMClient } from "@elitza/ai"
+import { ListAnchor } from "@elitza/schema/session"
 import { and, desc, eq } from "drizzle-orm"
 import { Project } from "./project.js"
-import { Model } from "@opencode/schema/model"
+import { Model } from "@elitza/schema/model"
 import { Location } from "./location.js"
 import type { FileSystem } from "./filesystem.js"
 import { SessionMessage } from "./session/message.js"
-import { PromptInput } from "@opencode/schema/prompt-input"
+import { PromptInput } from "@elitza/schema/prompt-input"
 import { Bus } from "./bus.js"
 import { Instance } from "./instance/service.js"
 import { Database } from "./database/database.js"
@@ -18,8 +18,8 @@ import { SessionProjector } from "./session/projector.js"
 import { SessionMessageTable } from "./session/sql.js"
 import { SessionSchema } from "./session/schema.js"
 import { RelativePath } from "./schema.js"
-import { Agent } from "@opencode/schema/agent"
-import type { Permission } from "@opencode/schema/permission"
+import { Agent } from "@elitza/schema/agent"
+import type { Permission } from "@elitza/schema/permission"
 import { App } from "./app.js"
 import { Slug } from "./util/slug.js"
 import path from "path"
@@ -39,8 +39,8 @@ import {
   SkillNotFoundError,
   SyntheticConflictError,
 } from "./session/error.js"
-import { Node } from "@opencode/util/effect/app-node"
-import { LayerNode } from "@opencode/util/effect/layer-node"
+import { Node } from "@elitza/util/effect/app-node"
+import { LayerNode } from "@elitza/util/effect/layer-node"
 import { SessionEvent } from "./session/event.js"
 import { SessionInbox } from "./session/inbox.js"
 import { InstructionState } from "./session/instruction-state.js"
@@ -58,9 +58,9 @@ import { Snapshot } from "./snapshot.js"
 import { Session } from "./session/session.js"
 import { SessionDiff, TurnRangeError } from "./session/diff.js"
 import { LocationServiceMap } from "./location-service-map.js"
-import { FSUtil } from "@opencode/util/fs-util"
-import type { EventLog } from "@opencode/schema/event-log"
-import type { FileDiff } from "@opencode/schema/file-diff"
+import { FSUtil } from "@elitza/util/fs-util"
+import type { EventLog } from "@elitza/schema/event-log"
+import type { FileDiff } from "@elitza/schema/file-diff"
 import { Job } from "./job.js"
 import type { Command } from "./command.js"
 import { SessionEnvironment } from "./session/environment.js"
@@ -236,7 +236,7 @@ export interface Interface {
   }
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Session") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Session") {}
 
 const layer = Layer.effect(
   Service,

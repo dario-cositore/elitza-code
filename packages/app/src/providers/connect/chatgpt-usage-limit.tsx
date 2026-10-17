@@ -1,7 +1,7 @@
-import { Button } from "@opencode/ui/button"
-import { useDialog } from "@opencode/ui/context/dialog"
-import { Dialog, DialogTitle } from "@opencode/ui/dialog"
-import { ProviderIcon } from "@opencode/ui/provider-icon"
+import { Button } from "@elitza/ui/button"
+import { useDialog } from "@elitza/ui/context/dialog"
+import { Dialog, DialogTitle } from "@elitza/ui/dialog"
+import { ProviderIcon } from "@elitza/ui/provider-icon"
 import { useLanguage } from "@/runtime/i18n/language"
 import { usePlatform } from "@/runtime/platform/platform"
 

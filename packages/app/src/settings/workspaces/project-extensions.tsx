@@ -1,7 +1,7 @@
-import { Icon } from "@opencode/ui/icon"
-import { Switch } from "@opencode/ui/switch"
-import { Tabs } from "@opencode/ui/tabs"
-import { Button } from "@opencode/ui/button"
+import { Icon } from "@elitza/ui/icon"
+import { Switch } from "@elitza/ui/switch"
+import { Tabs } from "@elitza/ui/tabs"
+import { Button } from "@elitza/ui/button"
 import { useQuery } from "@tanstack/solid-query"
 import {
   type Component,

@@ -1,5 +1,5 @@
 import { Schema } from "effect"
-import { LLM } from "@opencode/schema/llm"
+import { LLM } from "@elitza/schema/llm"
 import { ContentBlockID, ToolCallID } from "./ids.js"
 import {
   Message,

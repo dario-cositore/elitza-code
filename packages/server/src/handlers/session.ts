@@ -1,13 +1,13 @@
-import { Session } from "@opencode/core/session"
-import { SessionStats } from "@opencode/core/session/stats"
-import { SessionTitle } from "@opencode/core/session/title"
-import { SessionTransfer } from "@opencode/core/session/transfer"
-import { InstructionEntry } from "@opencode/core/session/instruction-entry"
-import { Form } from "@opencode/core/form"
+import { Session } from "@elitza/core/session"
+import { SessionStats } from "@elitza/core/session/stats"
+import { SessionTitle } from "@elitza/core/session/title"
+import { SessionTransfer } from "@elitza/core/session/transfer"
+import { InstructionEntry } from "@elitza/core/session/instruction-entry"
+import { Form } from "@elitza/core/form"
 import { DateTime, Effect, Stream } from "effect"
 import { HttpApiBuilder, HttpApiSchema } from "effect/http-api"
 import { Api } from "../api"
-import { SessionsCursor } from "@opencode/protocol/groups/session"
+import { SessionsCursor } from "@elitza/protocol/groups/session"
 import {
   ConflictError,
   CommandExecutionError,
@@ -21,8 +21,8 @@ import {
   ServiceUnavailableError,
   SessionBusyError,
   SkillNotFoundError,
-} from "@opencode/protocol/errors"
-import { AbsolutePath } from "@opencode/core/schema"
+} from "@elitza/protocol/errors"
+import { AbsolutePath } from "@elitza/core/schema"
 import { locationErrors } from "../location"
 import { failedMessageDecode, failedSnapshot, missingMessage, missingSession } from "./session-error"
 

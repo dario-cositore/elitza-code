@@ -1,5 +1,5 @@
-import { define } from "@opencode/plugin/effect/plugin"
-import type { AISDKHooks } from "@opencode/plugin/effect/aisdk"
+import { define } from "@elitza/plugin/effect/plugin"
+import type { AISDKHooks } from "@elitza/plugin/effect/aisdk"
 import { Effect } from "effect"
 
 export function createProviderPlugin(input: {

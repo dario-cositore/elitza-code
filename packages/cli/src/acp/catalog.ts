@@ -1,8 +1,8 @@
-import type { OpenCodeClient, OpenCodeEvent } from "@opencode/client/effect"
-import type { Agent } from "@opencode/schema/agent"
-import type { Command } from "@opencode/schema/command"
-import type { Model } from "@opencode/schema/model"
-import { FSUtil } from "@opencode/util/fs-util"
+import type { OpenCodeClient, OpenCodeEvent } from "@elitza/client/effect"
+import type { Agent } from "@elitza/schema/agent"
+import type { Command } from "@elitza/schema/command"
+import type { Model } from "@elitza/schema/model"
+import { FSUtil } from "@elitza/util/fs-util"
 import { Cause, Deferred, Effect, Exit, Schedule, Semaphore, Stream, SubscriptionRef } from "effect"
 import { ACPError } from "./error"
 

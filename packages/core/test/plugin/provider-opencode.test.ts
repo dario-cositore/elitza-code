@@ -1,28 +1,28 @@
 import { describe, expect } from "bun:test"
-import { LLM } from "@opencode/ai"
-import { LLMClient, RequestExecutor } from "@opencode/ai/route"
-import { ConfigPolicy } from "@opencode/schema/config/policy"
-import { Money } from "@opencode/schema/money"
+import { LLM } from "@elitza/ai"
+import { LLMClient, RequestExecutor } from "@elitza/ai/route"
+import { ConfigPolicy } from "@elitza/schema/config/policy"
+import { Money } from "@elitza/schema/money"
 import { Effect, Layer, Stream } from "effect"
 import { TestClock } from "effect/testing"
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http"
-import { Agent } from "@opencode/core/agent"
-import { App } from "@opencode/core/app"
-import { Config } from "@opencode/core/config"
-import { ConfigPolicyPlugin } from "@opencode/core/config/plugin/policy"
-import { Credential } from "@opencode/core/credential"
-import { Integration } from "@opencode/core/integration"
-import { ManagedPolicy } from "@opencode/core/managed-policy"
-import { Mcp } from "@opencode/core/mcp/index"
-import { Model } from "@opencode/core/model"
-import { ModelResolver } from "@opencode/core/model-resolver"
-import { Plugin } from "@opencode/core/plugin"
-import { PluginHooks } from "@opencode/core/plugin/hooks"
-import { PluginHost } from "@opencode/core/plugin/host"
-import { OpencodePlugin } from "@opencode/core/plugin/provider/opencode"
-import { Provider } from "@opencode/core/provider"
-import { Session } from "@opencode/core/session"
-import { WebSearch } from "@opencode/core/websearch"
+import { Agent } from "@elitza/core/agent"
+import { App } from "@elitza/core/app"
+import { Config } from "@elitza/core/config"
+import { ConfigPolicyPlugin } from "@elitza/core/config/plugin/policy"
+import { Credential } from "@elitza/core/credential"
+import { Integration } from "@elitza/core/integration"
+import { ManagedPolicy } from "@elitza/core/managed-policy"
+import { Mcp } from "@elitza/core/mcp/index"
+import { Model } from "@elitza/core/model"
+import { ModelResolver } from "@elitza/core/model-resolver"
+import { Plugin } from "@elitza/core/plugin"
+import { PluginHooks } from "@elitza/core/plugin/hooks"
+import { PluginHost } from "@elitza/core/plugin/host"
+import { OpencodePlugin } from "@elitza/core/plugin/provider/opencode"
+import { Provider } from "@elitza/core/provider"
+import { Session } from "@elitza/core/session"
+import { WebSearch } from "@elitza/core/websearch"
 import { withEnv } from "../fixture/env"
 import { emptyMcp } from "../fixture/mcp"
 import { drain } from "../lib/clock"
@@ -468,11 +468,11 @@ describe("OpencodePlugin", () => {
           const integrations = yield* Integration.Service
           yield* providers.transform((editor) => {
             editor.update(Provider.ID.openai, (provider) => {
-              provider.package = "@opencode/ai/providers/openai"
+              provider.package = "@elitza/ai/providers/openai"
               provider.integrationID = Integration.ID.make("openai")
             })
             editor.models.update(Provider.ID.openai, Model.ID.make("api-model"), (model) => {
-              model.package = "@opencode/ai/providers/openai"
+              model.package = "@elitza/ai/providers/openai"
               model.settings = { baseURL: "https://upstream.example/v1" }
               model.variants = [
                 {
@@ -504,7 +504,7 @@ describe("OpencodePlugin", () => {
             canonical: "openai",
             name: "Remote",
             integrationID: "opencode",
-            package: "@opencode/ai/providers/openai-compatible",
+            package: "@elitza/ai/providers/openai-compatible",
             settings: { baseURL: `${server.url.origin}/v1`, custom: "value" },
             headers: { "x-org-id": "org" },
           })
@@ -521,7 +521,7 @@ describe("OpencodePlugin", () => {
             capabilities: { tools: true, input: ["text", "image"], output: ["text"] },
             cost: [{ input: 1, output: 2, cache: { read: 0.1, write: 0 } }],
             limit: { context: 1000, output: 100 },
-            package: "@opencode/ai/providers/openai-compatible",
+            package: "@elitza/ai/providers/openai-compatible",
             settings: { baseURL: `${server.url.origin}/v1`, custom: "value", temperature: 0.5 },
             headers: { "x-org-id": "org" },
           })
@@ -532,7 +532,7 @@ describe("OpencodePlugin", () => {
             provider: "openai",
           })
           const override = required(yield* models.get(Provider.ID.make("remote"), Model.ID.make("override")))
-          expect(override.package).toBe("@opencode/ai/providers/anthropic")
+          expect(override.package).toBe("@elitza/ai/providers/anthropic")
           expect(override.settings?.baseURL).toBe(`${server.url.origin}/anthropic`)
           expect(model.variants).toEqual([
             {

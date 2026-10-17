@@ -1,8 +1,8 @@
-import type { ConnectionInfo } from "@opencode/client"
-import type { IntegrationApi } from "@opencode/client/effect/api"
-import { Connection } from "@opencode/schema/connection"
-import { Credential } from "@opencode/schema/credential"
-import { Form } from "@opencode/schema/form"
+import type { ConnectionInfo } from "@elitza/client"
+import type { IntegrationApi } from "@elitza/client/effect/api"
+import { Connection } from "@elitza/schema/connection"
+import { Credential } from "@elitza/schema/credential"
+import { Form } from "@elitza/schema/form"
 import type { Effect, Scope } from "effect"
 import type { Transform } from "./registration.js"
 

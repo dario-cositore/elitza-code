@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/simulation",
+  "name": "@elitza/simulation",
   "version": "2.0.30",
   "type": "module",
   "license": "MIT",
@@ -29,11 +29,11 @@
     "typecheck": "tsgo -b"
   },
   "dependencies": {
-    "@opencode/core": "workspace:*",
-    "@opencode/ai": "workspace:*",
-    "@opencode/plugin": "workspace:*",
-    "@opencode/protocol": "workspace:*",
-    "@opencode/util": "workspace:*",
+    "@elitza/core": "workspace:*",
+    "@elitza/ai": "workspace:*",
+    "@elitza/plugin": "workspace:*",
+    "@elitza/protocol": "workspace:*",
+    "@elitza/util": "workspace:*",
     "@opentui/core": "catalog:",
     "effect": "catalog:",
     "ws": "8.21.0"

@@ -1,5 +1,5 @@
-import type { AgentApi } from "@opencode/client/promise/api"
-import type { Agent } from "@opencode/schema/agent"
+import type { AgentApi } from "@elitza/client/promise/api"
+import type { Agent } from "@elitza/schema/agent"
 import type { Transform } from "./registration.js"
 import type { DeepMutable } from "./types.js"
 

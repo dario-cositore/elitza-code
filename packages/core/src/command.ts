@@ -1,17 +1,17 @@
 export * as Command from "./command.js"
 
-import { Command } from "@opencode/schema/command"
-import type { PromptInput } from "@opencode/schema/prompt-input"
-import type { Session } from "@opencode/schema/session"
-import type { SessionInbox } from "@opencode/schema/session-inbox"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { Command } from "@elitza/schema/command"
+import type { PromptInput } from "@elitza/schema/prompt-input"
+import type { Session } from "@elitza/schema/session"
+import type { SessionInbox } from "@elitza/schema/session-inbox"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
 import { Context, Effect, Layer, Schema } from "effect"
 import { Bus } from "./bus.js"
 import { State } from "./state.js"
 
 export const Info = Command.Info
 export type Info = Command.Info
-export { Event } from "@opencode/schema/command"
+export { Event } from "@elitza/schema/command"
 
 export interface Invocation {
   readonly sessionID: Session.ID
@@ -48,7 +48,7 @@ export interface Interface extends State.Transformable<Editor> {
   }) => Effect.Effect<void, NotFoundError | ExecutionError>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Command") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Command") {}
 
 export const layer = Layer.effect(
   Service,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import type { FileDiffInfo } from "@opencode/client/promise"
+import type { FileDiffInfo } from "@elitza/client/promise"
 import { createRoot } from "solid-js"
 import { createTurnDiffCache } from "./turn-diffs"
 

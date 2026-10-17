@@ -1,6 +1,6 @@
 export * as CodeModeWeb from "./web.js"
 
-import { Extension } from "@opencode/codemode"
+import { Extension } from "@elitza/codemode"
 
 const TIMEOUT_MS = 30_000
 

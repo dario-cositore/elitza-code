@@ -1,7 +1,7 @@
 export * as GlobTool from "./glob.js"
 
-import { ToolFailure } from "@opencode/ai"
-import type { Context } from "@opencode/plugin/effect/plugin"
+import { ToolFailure } from "@elitza/ai"
+import type { Context } from "@elitza/plugin/effect/plugin"
 import { Effect, Schema } from "effect"
 import path from "path"
 import { Environment } from "../../environment/index.js"

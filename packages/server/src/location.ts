@@ -1,10 +1,10 @@
-import { FileSystem } from "@opencode/core/filesystem"
-import { Location } from "@opencode/core/location"
-import { Plugin } from "@opencode/core/plugin"
-import { LocationServiceMap } from "@opencode/core/location-services"
-import { AbsolutePath } from "@opencode/core/schema"
-import { Session } from "@opencode/core/session"
-import { LocationNotFoundError, InvalidRequestError, ServiceUnavailableError } from "@opencode/protocol/errors"
+import { FileSystem } from "@elitza/core/filesystem"
+import { Location } from "@elitza/core/location"
+import { Plugin } from "@elitza/core/plugin"
+import { LocationServiceMap } from "@elitza/core/location-services"
+import { AbsolutePath } from "@elitza/core/schema"
+import { Session } from "@elitza/core/session"
+import { LocationNotFoundError, InvalidRequestError, ServiceUnavailableError } from "@elitza/protocol/errors"
 import { Effect, Layer, Schema } from "effect"
 import { HttpServerRequest } from "effect/http"
 import { HttpApiMiddleware } from "effect/http-api"
@@ -13,7 +13,7 @@ import { missingSession } from "./handlers/session-error"
 export type LocationServices = Layer.Success<ReturnType<(typeof LocationServiceMap.Service)["get"]>>
 
 export class LocationMiddleware extends HttpApiMiddleware.Service<LocationMiddleware, { provides: LocationServices }>()(
-  "@opencode/HttpApiLocation",
+  "@elitza/HttpApiLocation",
   { error: [LocationNotFoundError] },
 ) {}
 

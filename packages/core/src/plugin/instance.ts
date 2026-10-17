@@ -1,8 +1,8 @@
 export * as InstancePlugins from "./instance.js"
 
-import type { Plugin } from "@opencode/plugin/effect/plugin"
+import type { Plugin } from "@elitza/plugin/effect/plugin"
 import { Context, Layer } from "effect"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
 import type { Generation } from "../plugin.js"
 
 /**
@@ -22,7 +22,7 @@ export interface Interface {
   readonly all: () => readonly Generation[]
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/InstancePlugins") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/InstancePlugins") {}
 
 export const node = makeLocationNode({
   service: Service,

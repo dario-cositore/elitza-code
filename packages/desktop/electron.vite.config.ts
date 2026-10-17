@@ -13,7 +13,7 @@ function resolveChannel() {
   return "dev"
 }
 
-const appPlugin = (await import("@opencode/app/vite")).default
+const appPlugin = (await import("@elitza/app/vite")).default
 
 const sentry =
   process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT

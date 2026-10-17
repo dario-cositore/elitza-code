@@ -1,9 +1,9 @@
-import { SessionMessage } from "@opencode/core/session/message"
-import { Session } from "@opencode/core/session"
+import { SessionMessage } from "@elitza/core/session/message"
+import { Session } from "@elitza/core/session"
 import { Effect, Schema } from "effect"
 import { HttpApiBuilder } from "effect/http-api"
 import { Api } from "../api"
-import { InvalidCursorError } from "@opencode/protocol/errors"
+import { InvalidCursorError } from "@elitza/protocol/errors"
 import { failedMessageDecode, missingSession } from "./session-error"
 
 const DefaultMessagesLimit = 50

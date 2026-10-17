@@ -6,7 +6,7 @@ import {
   themeModes,
   type ResolvedTheme,
   type SurfaceName,
-} from "@opencode/theme/tui"
+} from "@elitza/theme/tui"
 import {
   allThemes,
   hasTheme,

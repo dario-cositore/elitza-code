@@ -1,5 +1,5 @@
 import { createRequire, isBuiltin } from "node:module"
-import type { MainSetup } from "@opencode/gui-extensions/sdk/main"
+import type { MainSetup } from "@elitza/gui-extensions/sdk/main"
 import { Option, Predicate, Schema } from "effect"
 import { ExtensionError } from "./error"
 
@@ -9,10 +9,10 @@ const native = createRequire(import.meta.url)
 // same objects the host checks against.
 const shared = new Map<string, () => Promise<object>>([
   ["effect", () => import("effect")],
-  ["@opencode/gui-extensions/sdk/main", () => import("@opencode/gui-extensions/sdk/main")],
-  ["@opencode/schema/rpc", () => import("@opencode/schema/rpc")],
-  ["@opencode/client", () => import("@opencode/client")],
-  ["@opencode/client/effect", () => import("@opencode/client/effect")],
+  ["@elitza/gui-extensions/sdk/main", () => import("@elitza/gui-extensions/sdk/main")],
+  ["@elitza/schema/rpc", () => import("@elitza/schema/rpc")],
+  ["@elitza/client", () => import("@elitza/client")],
+  ["@elitza/client/effect", () => import("@elitza/client/effect")],
 ])
 
 // Installed catalogs ship every locale inline; only built-ins load locales lazily.

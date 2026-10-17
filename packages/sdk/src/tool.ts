@@ -1,3 +1,3 @@
-export { RegistrationError } from "@opencode/core/tool"
-export { Error } from "@opencode/schema/tool"
-export type { ToolContext as Context, Info } from "@opencode/plugin/promise/tool"
+export { RegistrationError } from "@elitza/core/tool"
+export { Error } from "@elitza/schema/tool"
+export type { ToolContext as Context, Info } from "@elitza/plugin/promise/tool"

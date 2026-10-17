@@ -1,5 +1,5 @@
-import { Service, type Endpoint, type EnsureOptions } from "@opencode/client/effect/service"
-import { ClientError, isUnauthorizedError, OpenCode } from "@opencode/client/promise"
+import { Service, type Endpoint, type EnsureOptions } from "@elitza/client/effect/service"
+import { ClientError, isUnauthorizedError, OpenCode } from "@elitza/client/promise"
 import { OPENCODE_VERSION } from "../version"
 import { Effect, Redacted } from "effect"
 import { Env } from "../env"

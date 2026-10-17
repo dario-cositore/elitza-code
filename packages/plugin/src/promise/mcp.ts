@@ -1,5 +1,5 @@
-import type { McpApi } from "@opencode/client/promise/api"
-import type { Mcp } from "@opencode/schema/mcp"
+import type { McpApi } from "@elitza/client/promise/api"
+import type { Mcp } from "@elitza/schema/mcp"
 import type { Transform } from "./registration.js"
 import type { DeepMutable } from "./types.js"
 

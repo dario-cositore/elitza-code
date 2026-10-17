@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test"
 import { createSignal } from "solid-js"
 import { RGBA } from "@opentui/core"
-import { resolveTheme, selectTheme } from "@opencode/theme/tui"
+import { resolveTheme, selectTheme } from "@elitza/theme/tui"
 import { createComponentTheme } from "../../../src/theme/component"
 import { getElitzaTheme } from "../../../src/theme"
 

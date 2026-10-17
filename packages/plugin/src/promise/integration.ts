@@ -1,8 +1,8 @@
-import type { ConnectionInfo } from "@opencode/client"
-import type { IntegrationApi } from "@opencode/client/promise/api"
-import { Connection } from "@opencode/schema/connection"
-import { Credential } from "@opencode/schema/credential"
-import { Form } from "@opencode/schema/form"
+import type { ConnectionInfo } from "@elitza/client"
+import type { IntegrationApi } from "@elitza/client/promise/api"
+import { Connection } from "@elitza/schema/connection"
+import { Credential } from "@elitza/schema/credential"
+import { Form } from "@elitza/schema/form"
 import type { Transform } from "./registration.js"
 
 type IntegrationRef = { id: string; name: string }

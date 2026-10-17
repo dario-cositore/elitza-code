@@ -1,5 +1,5 @@
-import { Browser } from "@opencode/plugin-browser/rpc"
-import { DialogProvider } from "@opencode/ui/context/dialog"
+import { Browser } from "@elitza/plugin-browser/rpc"
+import { DialogProvider } from "@elitza/ui/context/dialog"
 import {
   batch,
   createSignal,

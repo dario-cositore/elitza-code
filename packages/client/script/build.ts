@@ -1,95 +1,95 @@
 import { NodeFileSystem } from "@effect/platform-node"
-import { compile, emitEffectImported, emitEffectShape, emitPromise, write } from "@opencode/httpapi-codegen"
-import { ClientApi, effectOmitEndpoints, groupNames, promiseOmitEndpoints } from "@opencode/protocol/client"
-import { Agent } from "@opencode/schema/agent"
-import { Command } from "@opencode/schema/command"
-import { Config } from "@opencode/schema/config"
-import { Credential } from "@opencode/schema/credential"
-import { Event } from "@opencode/schema/event"
-import { EventLog } from "@opencode/schema/event-log"
-import { FileDiff } from "@opencode/schema/file-diff"
-import { FileSystem } from "@opencode/schema/filesystem"
-import { Form } from "@opencode/schema/form"
-import { Instruction } from "@opencode/schema/instruction"
-import { InstructionEntry } from "@opencode/schema/instruction-entry"
-import { Integration } from "@opencode/schema/integration"
-import { Location } from "@opencode/schema/location"
-import { Mcp } from "@opencode/schema/mcp"
-import { Model } from "@opencode/schema/model"
-import { Money } from "@opencode/schema/money"
-import { Permission } from "@opencode/schema/permission"
-import { PermissionSaved } from "@opencode/schema/permission-saved"
-import { Plugin } from "@opencode/schema/plugin"
-import { Project } from "@opencode/schema/project"
-import { Worktree } from "@opencode/schema/worktree"
-import { AgentAttachment, FileAttachment, Prompt, PromptMention } from "@opencode/schema/prompt"
-import { PromptInput } from "@opencode/schema/prompt-input"
-import { Provider } from "@opencode/schema/provider"
-import { Pty } from "@opencode/schema/pty"
-import { PtyTicket } from "@opencode/schema/pty-ticket"
-import { Question } from "@opencode/schema/question"
-import { Reference } from "@opencode/schema/reference"
-import { AbsolutePath, RelativePath } from "@opencode/schema/schema"
-import { Session } from "@opencode/schema/session"
-import { SessionMessage } from "@opencode/schema/session-message"
-import { SessionInbox } from "@opencode/schema/session-inbox"
-import { Shell } from "@opencode/schema/shell"
-import { Skill } from "@opencode/schema/skill"
-import { Snapshot } from "@opencode/schema/snapshot"
-import { Vcs } from "@opencode/schema/vcs"
-import { WebSearch } from "@opencode/schema/websearch"
-import { Workspace } from "@opencode/schema/workspace"
-import { SessionsCursor } from "@opencode/protocol/groups/session"
+import { compile, emitEffectImported, emitEffectShape, emitPromise, write } from "@elitza/httpapi-codegen"
+import { ClientApi, effectOmitEndpoints, groupNames, promiseOmitEndpoints } from "@elitza/protocol/client"
+import { Agent } from "@elitza/schema/agent"
+import { Command } from "@elitza/schema/command"
+import { Config } from "@elitza/schema/config"
+import { Credential } from "@elitza/schema/credential"
+import { Event } from "@elitza/schema/event"
+import { EventLog } from "@elitza/schema/event-log"
+import { FileDiff } from "@elitza/schema/file-diff"
+import { FileSystem } from "@elitza/schema/filesystem"
+import { Form } from "@elitza/schema/form"
+import { Instruction } from "@elitza/schema/instruction"
+import { InstructionEntry } from "@elitza/schema/instruction-entry"
+import { Integration } from "@elitza/schema/integration"
+import { Location } from "@elitza/schema/location"
+import { Mcp } from "@elitza/schema/mcp"
+import { Model } from "@elitza/schema/model"
+import { Money } from "@elitza/schema/money"
+import { Permission } from "@elitza/schema/permission"
+import { PermissionSaved } from "@elitza/schema/permission-saved"
+import { Plugin } from "@elitza/schema/plugin"
+import { Project } from "@elitza/schema/project"
+import { Worktree } from "@elitza/schema/worktree"
+import { AgentAttachment, FileAttachment, Prompt, PromptMention } from "@elitza/schema/prompt"
+import { PromptInput } from "@elitza/schema/prompt-input"
+import { Provider } from "@elitza/schema/provider"
+import { Pty } from "@elitza/schema/pty"
+import { PtyTicket } from "@elitza/schema/pty-ticket"
+import { Question } from "@elitza/schema/question"
+import { Reference } from "@elitza/schema/reference"
+import { AbsolutePath, RelativePath } from "@elitza/schema/schema"
+import { Session } from "@elitza/schema/session"
+import { SessionMessage } from "@elitza/schema/session-message"
+import { SessionInbox } from "@elitza/schema/session-inbox"
+import { Shell } from "@elitza/schema/shell"
+import { Skill } from "@elitza/schema/skill"
+import { Snapshot } from "@elitza/schema/snapshot"
+import { Vcs } from "@elitza/schema/vcs"
+import { WebSearch } from "@elitza/schema/websearch"
+import { Workspace } from "@elitza/schema/workspace"
+import { SessionsCursor } from "@elitza/protocol/groups/session"
 import { Effect, Schema } from "effect"
 import { fileURLToPath } from "url"
 
 const promiseContract = compile(ClientApi, { groupNames, omitEndpoints: promiseOmitEndpoints })
 const effectContract = compile(ClientApi, { groupNames, omitEndpoints: effectOmitEndpoints })
 const effectTypeReferences = [
-  ...namespaceTypes("Agent", "@opencode/schema/agent", Agent),
-  ...namespaceTypes("Command", "@opencode/schema/command", Command),
-  ...namespaceTypes("Config", "@opencode/schema/config", Config),
-  ...namespaceTypes("Credential", "@opencode/schema/credential", Credential),
-  ...namespaceTypes("Event", "@opencode/schema/event", Event),
-  ...namespaceTypes("EventLog", "@opencode/schema/event-log", EventLog),
-  ...namespaceTypes("FileDiff", "@opencode/schema/file-diff", FileDiff),
-  ...namespaceTypes("FileSystem", "@opencode/schema/filesystem", FileSystem),
-  ...namespaceTypes("Form", "@opencode/schema/form", Form),
-  ...namespaceTypes("Instruction", "@opencode/schema/instruction", Instruction),
-  ...namespaceTypes("InstructionEntry", "@opencode/schema/instruction-entry", InstructionEntry),
-  ...namespaceTypes("Integration", "@opencode/schema/integration", Integration),
-  typeReference("Location.PublicRef", "@opencode/schema/location", Location.PublicRef),
-  typeReference("Location.PublicInfo", "@opencode/schema/location", Location.PublicInfo),
-  ...namespaceTypes("Mcp", "@opencode/schema/mcp", Mcp),
-  ...namespaceTypes("Model", "@opencode/schema/model", Model),
-  ...namespaceTypes("Money", "@opencode/schema/money", Money),
-  ...namespaceTypes("Permission", "@opencode/schema/permission", Permission),
-  ...namespaceTypes("PermissionSaved", "@opencode/schema/permission-saved", PermissionSaved),
-  ...namespaceTypes("Plugin", "@opencode/schema/plugin", Plugin),
-  ...namespaceTypes("Project", "@opencode/schema/project", Project),
-  ...namespaceTypes("Worktree", "@opencode/schema/worktree", Worktree),
-  ...namespaceTypes("PromptInput", "@opencode/schema/prompt-input", PromptInput),
-  ...namespaceTypes("Provider", "@opencode/schema/provider", Provider),
-  ...namespaceTypes("Pty", "@opencode/schema/pty", Pty),
-  ...namespaceTypes("PtyTicket", "@opencode/schema/pty-ticket", PtyTicket),
-  ...namespaceTypes("Question", "@opencode/schema/question", Question),
-  ...namespaceTypes("Reference", "@opencode/schema/reference", Reference),
-  ...namespaceTypes("Session", "@opencode/schema/session", Session),
-  ...namespaceTypes("SessionMessage", "@opencode/schema/session-message", SessionMessage),
-  ...namespaceTypes("SessionInbox", "@opencode/schema/session-inbox", SessionInbox),
-  ...namespaceTypes("Shell", "@opencode/schema/shell", Shell),
-  ...namespaceTypes("Skill", "@opencode/schema/skill", Skill),
-  ...namespaceTypes("Snapshot", "@opencode/schema/snapshot", Snapshot),
-  ...namespaceTypes("Vcs", "@opencode/schema/vcs", Vcs),
-  ...namespaceTypes("WebSearch", "@opencode/schema/websearch", WebSearch),
-  ...namespaceTypes("Workspace", "@opencode/schema/workspace", Workspace),
-  typeReference("Prompt", "@opencode/schema/prompt", Prompt),
-  typeReference("PromptMention", "@opencode/schema/prompt", PromptMention),
-  typeReference("FileAttachment", "@opencode/schema/prompt", FileAttachment),
-  typeReference("AgentAttachment", "@opencode/schema/prompt", AgentAttachment),
-  typeReference("AbsolutePath", "@opencode/schema/schema", AbsolutePath),
-  typeReference("RelativePath", "@opencode/schema/schema", RelativePath),
-  typeReference("SessionsCursor", "@opencode/protocol/groups/session", SessionsCursor),
+  ...namespaceTypes("Agent", "@elitza/schema/agent", Agent),
+  ...namespaceTypes("Command", "@elitza/schema/command", Command),
+  ...namespaceTypes("Config", "@elitza/schema/config", Config),
+  ...namespaceTypes("Credential", "@elitza/schema/credential", Credential),
+  ...namespaceTypes("Event", "@elitza/schema/event", Event),
+  ...namespaceTypes("EventLog", "@elitza/schema/event-log", EventLog),
+  ...namespaceTypes("FileDiff", "@elitza/schema/file-diff", FileDiff),
+  ...namespaceTypes("FileSystem", "@elitza/schema/filesystem", FileSystem),
+  ...namespaceTypes("Form", "@elitza/schema/form", Form),
+  ...namespaceTypes("Instruction", "@elitza/schema/instruction", Instruction),
+  ...namespaceTypes("InstructionEntry", "@elitza/schema/instruction-entry", InstructionEntry),
+  ...namespaceTypes("Integration", "@elitza/schema/integration", Integration),
+  typeReference("Location.PublicRef", "@elitza/schema/location", Location.PublicRef),
+  typeReference("Location.PublicInfo", "@elitza/schema/location", Location.PublicInfo),
+  ...namespaceTypes("Mcp", "@elitza/schema/mcp", Mcp),
+  ...namespaceTypes("Model", "@elitza/schema/model", Model),
+  ...namespaceTypes("Money", "@elitza/schema/money", Money),
+  ...namespaceTypes("Permission", "@elitza/schema/permission", Permission),
+  ...namespaceTypes("PermissionSaved", "@elitza/schema/permission-saved", PermissionSaved),
+  ...namespaceTypes("Plugin", "@elitza/schema/plugin", Plugin),
+  ...namespaceTypes("Project", "@elitza/schema/project", Project),
+  ...namespaceTypes("Worktree", "@elitza/schema/worktree", Worktree),
+  ...namespaceTypes("PromptInput", "@elitza/schema/prompt-input", PromptInput),
+  ...namespaceTypes("Provider", "@elitza/schema/provider", Provider),
+  ...namespaceTypes("Pty", "@elitza/schema/pty", Pty),
+  ...namespaceTypes("PtyTicket", "@elitza/schema/pty-ticket", PtyTicket),
+  ...namespaceTypes("Question", "@elitza/schema/question", Question),
+  ...namespaceTypes("Reference", "@elitza/schema/reference", Reference),
+  ...namespaceTypes("Session", "@elitza/schema/session", Session),
+  ...namespaceTypes("SessionMessage", "@elitza/schema/session-message", SessionMessage),
+  ...namespaceTypes("SessionInbox", "@elitza/schema/session-inbox", SessionInbox),
+  ...namespaceTypes("Shell", "@elitza/schema/shell", Shell),
+  ...namespaceTypes("Skill", "@elitza/schema/skill", Skill),
+  ...namespaceTypes("Snapshot", "@elitza/schema/snapshot", Snapshot),
+  ...namespaceTypes("Vcs", "@elitza/schema/vcs", Vcs),
+  ...namespaceTypes("WebSearch", "@elitza/schema/websearch", WebSearch),
+  ...namespaceTypes("Workspace", "@elitza/schema/workspace", Workspace),
+  typeReference("Prompt", "@elitza/schema/prompt", Prompt),
+  typeReference("PromptMention", "@elitza/schema/prompt", PromptMention),
+  typeReference("FileAttachment", "@elitza/schema/prompt", FileAttachment),
+  typeReference("AgentAttachment", "@elitza/schema/prompt", AgentAttachment),
+  typeReference("AbsolutePath", "@elitza/schema/schema", AbsolutePath),
+  typeReference("RelativePath", "@elitza/schema/schema", RelativePath),
+  typeReference("SessionsCursor", "@elitza/protocol/groups/session", SessionsCursor),
 ]
 
 await Effect.runPromise(
@@ -115,7 +115,7 @@ await Effect.runPromise(
           outputTypes: {
             "event.subscribe": {
               name: "OpenCodeEvent",
-              import: 'import type { OpenCodeEvent } from "@opencode/protocol/groups/event"',
+              import: 'import type { OpenCodeEvent } from "@elitza/protocol/groups/event"',
             },
           },
         }),

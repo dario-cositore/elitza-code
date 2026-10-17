@@ -1,10 +1,10 @@
 import { createEffect, createMemo, createSignal, on, onCleanup, Show } from "solid-js"
-import type { SessionStatus } from "@opencode/client/promise"
-import { useI18n } from "@opencode/ui/context/i18n"
-import { Card } from "@opencode/ui/card"
-import { Icon } from "@opencode/ui/icon"
-import { TextShimmer } from "@opencode/ui/text-shimmer"
-import { Tooltip } from "@opencode/ui/tooltip"
+import type { SessionStatus } from "@elitza/client/promise"
+import { useI18n } from "@elitza/ui/context/i18n"
+import { Card } from "@elitza/ui/card"
+import { Icon } from "@elitza/ui/icon"
+import { TextShimmer } from "@elitza/ui/text-shimmer"
+import { Tooltip } from "@elitza/ui/tooltip"
 import { SessionErrorMessage } from "./session-error"
 
 export function SessionRetry(props: { status: SessionStatus; show?: boolean }) {

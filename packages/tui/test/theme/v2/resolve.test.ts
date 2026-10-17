@@ -9,7 +9,7 @@ import {
   type Mode,
   type ResolvedTheme,
   type ThemeDefinition,
-} from "@opencode/theme/tui"
+} from "@elitza/theme/tui"
 import { getElitzaTheme, parseTheme, type ThemeDocumentSource } from "../../../src/theme"
 
 const opencodeLight = selectTheme(getElitzaTheme(), "light")

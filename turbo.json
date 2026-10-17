@@ -12,24 +12,24 @@
   "globalPassThroughEnv": ["CI", "OPENCODE_DISABLE_SHARE"],
   "tasks": {
     "typecheck": {},
-    "@opencode/cli#typecheck": {
-      "dependsOn": ["@opencode/core#typecheck"]
+    "@elitza/cli#typecheck": {
+      "dependsOn": ["@elitza/core#typecheck"]
     },
     "test:components": {
       "outputs": [],
       "cache": false
     },
-    "@opencode/sdk#typecheck": {
-      "dependsOn": ["@opencode/core#typecheck"]
+    "@elitza/sdk#typecheck": {
+      "dependsOn": ["@elitza/core#typecheck"]
     },
-    "@opencode/server#typecheck": {
-      "dependsOn": ["@opencode/core#typecheck"]
+    "@elitza/server#typecheck": {
+      "dependsOn": ["@elitza/core#typecheck"]
     },
-    "@opencode/simulation#typecheck": {
-      "dependsOn": ["@opencode/core#typecheck"]
+    "@elitza/simulation#typecheck": {
+      "dependsOn": ["@elitza/core#typecheck"]
     },
-    "@opencode/tui#typecheck": {
-      "dependsOn": ["@opencode/core#typecheck"]
+    "@elitza/tui#typecheck": {
+      "dependsOn": ["@elitza/core#typecheck"]
     },
     "build": {
       "dependsOn": ["transit"],
@@ -41,103 +41,103 @@
     "transit": {
       "dependsOn": ["^transit"]
     },
-    "@opencode/ai#test": {
+    "@elitza/ai#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/codemode#test": {
+    "@elitza/codemode#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/core#test": {
+    "@elitza/core#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/function#test": {
+    "@elitza/function#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/desktop#test": {
+    "@elitza/desktop#test": {
       "outputs": [],
       "cache": false
     },
-    "@opencode/httpapi-codegen#test": {
+    "@elitza/httpapi-codegen#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/server#test": {
+    "@elitza/server#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/cli#test": {
+    "@elitza/cli#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/tui#test": {
+    "@elitza/tui#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/latex#test": {
+    "@elitza/latex#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/app#test": {
+    "@elitza/app#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/ui#test": {
+    "@elitza/ui#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/session-ui#test": {
+    "@elitza/session-ui#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/client#test": {
+    "@elitza/client#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/gui-extensions#test": {
+    "@elitza/gui-extensions#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/http-recorder#test": {
+    "@elitza/http-recorder#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/merman#test": {
+    "@elitza/merman#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/plugin#test": {
+    "@elitza/plugin#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/plugin-browser#test": {
+    "@elitza/plugin-browser#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/script#test": {
+    "@elitza/script#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/sdk#test": {
+    "@elitza/sdk#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/simulation#test": {
+    "@elitza/simulation#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/theme#test": {
+    "@elitza/theme#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/util#test": {
+    "@elitza/util#test": {
       "dependsOn": ["transit"],
       "outputs": []
     },
-    "@opencode/sdk#verify:package": {
+    "@elitza/sdk#verify:package": {
       "outputs": []
     }
   }

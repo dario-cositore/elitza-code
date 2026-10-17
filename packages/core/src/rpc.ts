@@ -1,13 +1,13 @@
 export * as Rpc from "./rpc.js"
-export { define } from "@opencode/schema/rpc"
-export type { Definition, EventPayload, Failure } from "@opencode/schema/rpc"
+export { define } from "@elitza/schema/rpc"
+export type { Definition, EventPayload, Failure } from "@elitza/schema/rpc"
 
-import type { RpcClient, RpcDomain, RpcHandlers } from "@opencode/plugin/effect/rpc"
-import type { Rpc } from "@opencode/schema/rpc"
-import { Event } from "@opencode/schema/event"
-import type { Tool } from "@opencode/schema/tool"
+import type { RpcClient, RpcDomain, RpcHandlers } from "@elitza/plugin/effect/rpc"
+import type { Rpc } from "@elitza/schema/rpc"
+import { Event } from "@elitza/schema/event"
+import type { Tool } from "@elitza/schema/tool"
 import type { StandardSchemaV1 } from "@standard-schema/spec"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
 import { Context, Deferred, Effect, JsonSchema, Layer, Schema, SchemaRepresentation, Stream } from "effect"
 import { Bus } from "./bus.js"
 import { Location } from "./location.js"
@@ -20,7 +20,7 @@ export interface Interface {
   readonly close: Effect.Effect<void>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Rpc") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Rpc") {}
 
 class DeclaredError extends Error {
   constructor(

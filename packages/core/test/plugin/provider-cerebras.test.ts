@@ -1,9 +1,9 @@
 import { describe, expect } from "bun:test"
 import { Effect } from "effect"
-import { Plugin } from "@opencode/core/plugin"
-import { PluginHost } from "@opencode/core/plugin/host"
-import { CerebrasPlugin } from "@opencode/core/plugin/provider/cerebras"
-import { Provider } from "@opencode/core/provider"
+import { Plugin } from "@elitza/core/plugin"
+import { PluginHost } from "@elitza/core/plugin/host"
+import { CerebrasPlugin } from "@elitza/core/plugin/provider/cerebras"
+import { Provider } from "@elitza/core/provider"
 import { testEffect } from "../lib/effect"
 import { PluginTestLayer } from "./fixture"
 
@@ -21,7 +21,7 @@ describe("CerebrasPlugin", () => {
       const catalog = yield* Provider.Service
       yield* catalog.transform((catalog) => {
         catalog.update(Provider.ID.make("cerebras"), (item) => {
-          item.package = "@opencode/ai/providers/cerebras"
+          item.package = "@elitza/ai/providers/cerebras"
           item.headers = { ...item.headers, Existing: "1" }
         })
       })
@@ -48,7 +48,7 @@ describe("CerebrasPlugin", () => {
       const providerID = Provider.ID.make("custom-cerebras")
       yield* catalog.transform((catalog) => {
         catalog.update(providerID, (item) => {
-          item.package = "@opencode/ai/providers/cerebras"
+          item.package = "@elitza/ai/providers/cerebras"
           item.headers = { Existing: "1" }
         })
       })

@@ -2,14 +2,14 @@ import { describe, expect, test } from "bun:test"
 import { Clock, Effect, Schedule } from "effect"
 import { TestClock } from "effect/testing"
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http"
-import { Credential } from "@opencode/core/credential"
-import { Integration } from "@opencode/core/integration"
-import { Model } from "@opencode/core/model"
-import { Plugin } from "@opencode/core/plugin"
-import { PluginHost } from "@opencode/core/plugin/host"
-import { Provider } from "@opencode/core/provider"
-import { ProviderPlugins } from "@opencode/core/plugin/provider"
-import { DigitalOceanPlugin } from "@opencode/core/plugin/provider/digitalocean"
+import { Credential } from "@elitza/core/credential"
+import { Integration } from "@elitza/core/integration"
+import { Model } from "@elitza/core/model"
+import { Plugin } from "@elitza/core/plugin"
+import { PluginHost } from "@elitza/core/plugin/host"
+import { Provider } from "@elitza/core/provider"
+import { ProviderPlugins } from "@elitza/core/plugin/provider"
+import { DigitalOceanPlugin } from "@elitza/core/plugin/provider/digitalocean"
 import { drain } from "../lib/clock"
 import { testEffect } from "../lib/effect"
 import { PluginTestLayer } from "./fixture"
@@ -38,7 +38,7 @@ const discovery = Effect.gen(function* () {
   const models = yield* Model.Service
   yield* providers.transform((draft) => {
     draft.update(providerID, (provider) => {
-      provider.package = "@opencode/ai/providers/openai-compatible"
+      provider.package = "@elitza/ai/providers/openai-compatible"
       provider.settings = { baseURL: "https://inference.do-ai.run/v1" }
     })
     draft.models.update(providerID, Model.ID.make("snapshot-model"), () => {})
@@ -109,7 +109,7 @@ describe("DigitalOceanPlugin", () => {
       expect(yield* fixture.models.get(providerID, Model.ID.make("router:alpha"))).toMatchObject({
         name: "alpha",
         family: "digitalocean-inference-routers",
-        package: "@opencode/ai/providers/openai-compatible",
+        package: "@elitza/ai/providers/openai-compatible",
         settings: { baseURL: "https://inference.do-ai.run/v1" },
         capabilities: { tools: true, input: ["text"], output: ["text"] },
         limit: { context: 128_000, output: 8_192 },

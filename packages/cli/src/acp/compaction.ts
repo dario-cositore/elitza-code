@@ -1,7 +1,7 @@
 import type { SessionUpdate } from "@agentclientprotocol/sdk"
-import type { OpenCodeEvent } from "@opencode/client/effect"
-import type { SessionError } from "@opencode/schema/session-error"
-import { SessionMessage } from "@opencode/schema/session-message"
+import type { OpenCodeEvent } from "@elitza/client/effect"
+import type { SessionError } from "@elitza/schema/session-error"
+import { SessionMessage } from "@elitza/schema/session-message"
 
 const MarkerMeta = "opencode/compaction"
 

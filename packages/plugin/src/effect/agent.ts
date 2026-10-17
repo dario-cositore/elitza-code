@@ -1,5 +1,5 @@
-import type { AgentApi } from "@opencode/client/effect/api"
-import type { Agent } from "@opencode/schema/agent"
+import type { AgentApi } from "@elitza/client/effect/api"
+import type { Agent } from "@elitza/schema/agent"
 import type { Effect, Types } from "effect"
 import type { Transform } from "./registration.js"
 

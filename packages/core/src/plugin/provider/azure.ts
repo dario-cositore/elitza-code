@@ -1,9 +1,9 @@
 import { Clock, Effect, FiberHandle, Option, Schema, Semaphore, Stream } from "effect"
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http"
 import { ChildProcess } from "effect/process"
-import { define } from "@opencode/plugin/effect/plugin"
-import { Form } from "@opencode/schema/form"
-import { AppProcess } from "@opencode/util/process"
+import { define } from "@elitza/plugin/effect/plugin"
+import { Form } from "@elitza/schema/form"
+import { AppProcess } from "@elitza/util/process"
 import { App } from "../../app.js"
 import { Bus } from "../../bus.js"
 import { Credential } from "../../credential.js"
@@ -349,7 +349,7 @@ export function make(
         for (const item of evt.list()) {
           if (
             item.provider.id !== Provider.ID.azure &&
-            !item.provider.package.startsWith("@opencode/ai/providers/azure/")
+            !item.provider.package.startsWith("@elitza/ai/providers/azure/")
           )
             continue
           const resourceName = resourceFor(item.provider)
@@ -380,7 +380,7 @@ export function make(
         for (const item of models.provider.list()) {
           if (
             item.provider.id !== Provider.ID.azure &&
-            !item.provider.package.startsWith("@opencode/ai/providers/azure/")
+            !item.provider.package.startsWith("@elitza/ai/providers/azure/")
           )
             continue
           const resourceName = resourceFor(item.provider)
@@ -535,7 +535,7 @@ function catalogModel<T>(models: ReadonlyMap<string, T>, deployment: Deployment)
 }
 
 function responsesWebSocketCapable(provider: Provider.Info) {
-  if (provider.package !== "@opencode/ai/providers/azure/responses") return false
+  if (provider.package !== "@elitza/ai/providers/azure/responses") return false
   const settings = provider.settings
   if (settings?.useDeploymentBasedUrls === true) return false
   if (settings?.apiVersion !== undefined && settings.apiVersion !== "v1") return false

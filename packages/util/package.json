@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/util",
+  "name": "@elitza/util",
   "version": "2.0.30",
   "type": "module",
   "license": "MIT",

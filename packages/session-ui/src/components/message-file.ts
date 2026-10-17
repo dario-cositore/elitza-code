@@ -1,6 +1,6 @@
 import { bundledLanguagesInfo } from "shiki"
-import { getFilename } from "@opencode/util/path"
-import type { PromptFileAttachment } from "@opencode/client/promise"
+import { getFilename } from "@elitza/util/path"
+import type { PromptFileAttachment } from "@elitza/client/promise"
 
 export function attached(file: PromptFileAttachment) {
   if (file.mention) return false

@@ -1,10 +1,10 @@
 import { createMemo, createUniqueId, onCleanup, Show, type Accessor } from "solid-js"
 import { createStore } from "solid-js/store"
 import { createQuery, keepPreviousData } from "@tanstack/solid-query"
-import { Icon } from "@opencode/ui/icon"
-import { SessionFilePanelV2, SessionFilePanelV2Empty } from "@opencode/session-ui/v2/session-file-panel-v2"
-import { SessionReviewV2Sidebar, SessionReviewV2SidebarToggle } from "@opencode/session-ui/v2/session-review-v2"
-import { getFilename } from "@opencode/util/path"
+import { Icon } from "@elitza/ui/icon"
+import { SessionFilePanelV2, SessionFilePanelV2Empty } from "@elitza/session-ui/v2/session-file-panel-v2"
+import { SessionReviewV2Sidebar, SessionReviewV2SidebarToggle } from "@elitza/session-ui/v2/session-review-v2"
+import { getFilename } from "@elitza/util/path"
 import type { ChangeKind } from "../review/contract"
 import {
   createKeyed,

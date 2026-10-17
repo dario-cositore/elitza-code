@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/plugin",
+  "name": "@elitza/plugin",
   "version": "2.0.30",
   "type": "module",
   "license": "MIT",
@@ -29,21 +29,21 @@
   ],
   "dependencies": {
     "@ai-sdk/provider": "3.0.8",
-    "@opencode/ai": "workspace:*",
-    "@opencode/client": "workspace:*",
-    "@opencode/protocol": "workspace:*",
-    "@opencode/schema": "workspace:*",
-    "@opencode/util": "workspace:*",
+    "@elitza/ai": "workspace:*",
+    "@elitza/client": "workspace:*",
+    "@elitza/protocol": "workspace:*",
+    "@elitza/schema": "workspace:*",
+    "@elitza/util": "workspace:*",
     "effect": "catalog:"
   },
   "peerDependencies": {
-    "@opencode/theme": "workspace:*",
+    "@elitza/theme": "workspace:*",
     "@opentui/core": ">=0.5.17",
     "@opentui/solid": ">=0.5.17",
     "solid-js": ">=1.9.0"
   },
   "peerDependenciesMeta": {
-    "@opencode/theme": {
+    "@elitza/theme": {
       "optional": true
     },
     "@opentui/core": {
@@ -57,7 +57,7 @@
     }
   },
   "devDependencies": {
-    "@opencode/theme": "workspace:*",
+    "@elitza/theme": "workspace:*",
     "@opentui/core": "catalog:",
     "@opentui/solid": "catalog:",
     "@tsconfig/bun": "catalog:",

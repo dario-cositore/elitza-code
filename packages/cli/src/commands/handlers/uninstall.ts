@@ -1,6 +1,6 @@
 import { confirm, intro, log, outro, spinner } from "@clack/prompts"
-import { Service } from "@opencode/client/effect/service"
-import { Global } from "@opencode/util/global"
+import { Service } from "@elitza/client/effect/service"
+import { Global } from "@elitza/util/global"
 import { Effect, FileSystem, Schedule } from "effect"
 import path from "node:path"
 import { Commands } from "../commands"

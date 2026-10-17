@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test"
 import { Effect, Layer } from "effect"
 import { SqlClient } from "effect/sql"
 import { SqlError } from "effect/sql/SqlError"
-import { sqliteLayer } from "@opencode/core/database/sqlite.workerd"
-import type { DurableObjectStorage } from "@opencode/core/database/sqlite.workerd"
+import { sqliteLayer } from "@elitza/core/database/sqlite.workerd"
+import type { DurableObjectStorage } from "@elitza/core/database/sqlite.workerd"
 import { makeDurableObjectStorage } from "./fixture/durable-object-storage"
 import { tempGlobalLayer } from "./fixture/global"
 
@@ -79,7 +79,7 @@ describe("sqlite.workerd", () => {
 
   test("boots the full database layer with migrations over injected storage", async () => {
     const storage = makeDurableObjectStorage()
-    const core = await import("@opencode/core/database/database")
+    const core = await import("@elitza/core/database/database")
     await Effect.runPromise(
       Effect.scoped(
         Layer.build(

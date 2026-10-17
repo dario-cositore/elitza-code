@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test"
-import { AIError, HttpContext, InvalidRequestError, TransportError } from "@opencode/ai"
+import { AIError, HttpContext, InvalidRequestError, TransportError } from "@elitza/ai"
 import type {
   ChannelObservation,
   WebSocketChannelExchange,
   WebSocketConnection,
   WebSocketConnector,
-} from "@opencode/ai/route"
-import { SessionModelTransport } from "@opencode/core/session/model-transport"
-import { Session } from "@opencode/schema/session"
+} from "@elitza/ai/route"
+import { SessionModelTransport } from "@elitza/core/session/model-transport"
+import { Session } from "@elitza/schema/session"
 import { Cause, Deferred, Effect, Fiber, Metric, Queue, Stream } from "effect"
 import { TestClock } from "effect/testing"
 import { Headers } from "effect/http"

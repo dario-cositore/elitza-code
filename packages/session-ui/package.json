@@ -1,5 +1,5 @@
 {
-  "name": "@opencode/session-ui",
+  "name": "@elitza/session-ui",
   "version": "2.0.30",
   "private": true,
   "type": "module",
@@ -63,9 +63,9 @@
   },
   "dependencies": {
     "@kobalte/core": "catalog:",
-    "@opencode/client": "workspace:*",
-    "@opencode/ui": "workspace:*",
-    "@opencode/util": "workspace:*",
+    "@elitza/client": "workspace:*",
+    "@elitza/ui": "workspace:*",
+    "@elitza/util": "workspace:*",
     "@pierre/diffs": "catalog:",
     "@shikijs/stream": "catalog:",
     "@solid-primitives/event-listener": "catalog:",

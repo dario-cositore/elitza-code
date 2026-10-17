@@ -1,4 +1,4 @@
-import { Slug } from "@opencode/core/util/slug"
+import { Slug } from "@elitza/core/util/slug"
 import { type DialogContext } from "../ui/dialog"
 import { DialogPrompt } from "../ui/dialog-prompt"
 

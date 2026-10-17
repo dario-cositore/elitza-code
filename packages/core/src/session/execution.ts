@@ -5,7 +5,7 @@ import { Bus } from "../bus.js"
 import { Database } from "../database/database.js"
 import { Job } from "../job.js"
 import { Instance } from "../instance/service.js"
-import { makeGlobalNode } from "@opencode/util/effect/app-node"
+import { makeGlobalNode } from "@elitza/util/effect/app-node"
 import { SessionEvent } from "./event.js"
 import { SessionRunCoordinator } from "./run-coordinator.js"
 import { SessionRunner } from "./runner/index.js"
@@ -43,7 +43,7 @@ export interface Interface {
 }
 
 /** Routes execution from a Session ID to its selected instance's runner. */
-export class Service extends Context.Service<Service, Interface>()("@opencode/SessionExecution") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/SessionExecution") {}
 
 type InterruptReason = "user" | "shutdown" | "inactivity"
 

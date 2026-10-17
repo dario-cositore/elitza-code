@@ -1,25 +1,25 @@
 import { describe, expect } from "bun:test"
 import { and, asc, eq } from "drizzle-orm"
 import { Effect, Schema } from "effect"
-import { Database } from "@opencode/core/database/database"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Bus } from "@opencode/core/bus"
-import { Event } from "@opencode/schema/event"
-import { EventTable } from "@opencode/core/event/sql"
-import { Instructions } from "@opencode/core/instructions/index"
-import { Project } from "@opencode/core/project"
-import { ProjectTable } from "@opencode/core/project/sql"
-import { AbsolutePath } from "@opencode/core/schema"
-import { InstructionState } from "@opencode/core/session/instruction-state"
-import { SessionProjector } from "@opencode/core/session/projector"
-import { SessionSchema } from "@opencode/core/session/schema"
+import { Database } from "@elitza/core/database/database"
+import { AppNodeBuilder } from "@elitza/core/effect/app-node-builder"
+import { LayerNode } from "@elitza/util/effect/layer-node"
+import { Bus } from "@elitza/core/bus"
+import { Event } from "@elitza/schema/event"
+import { EventTable } from "@elitza/core/event/sql"
+import { Instructions } from "@elitza/core/instructions/index"
+import { Project } from "@elitza/core/project"
+import { ProjectTable } from "@elitza/core/project/sql"
+import { AbsolutePath } from "@elitza/core/schema"
+import { InstructionState } from "@elitza/core/session/instruction-state"
+import { SessionProjector } from "@elitza/core/session/projector"
+import { SessionSchema } from "@elitza/core/session/schema"
 import {
   InstructionBlobTable,
   InstructionStateTable,
   SessionMessageTable,
   SessionTable,
-} from "@opencode/core/session/sql"
+} from "@elitza/core/session/sql"
 import { testEffect } from "./lib/effect"
 
 const it = testEffect(

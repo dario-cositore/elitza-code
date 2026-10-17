@@ -15,8 +15,8 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@opencode/plugin": "workspace:*",
-    "@opencode/schema": "workspace:*"
+    "@elitza/plugin": "workspace:*",
+    "@elitza/schema": "workspace:*"
   },
   "devDependencies": {
     "@tsconfig/bun": "1.0.9",

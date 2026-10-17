@@ -1,6 +1,6 @@
 import { createMemo, For, Show } from "solid-js"
-import { Icon } from "@opencode/ui/icon"
-import { TitlebarItem } from "@opencode/gui-extensions/sdk"
+import { Icon } from "@elitza/ui/icon"
+import { TitlebarItem } from "@elitza/gui-extensions/sdk"
 import { useExtensionHost } from "./host"
 
 /** TitlebarItem contributions placed in the titlebar (the default placement). */

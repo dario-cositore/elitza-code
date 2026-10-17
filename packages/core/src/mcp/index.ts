@@ -1,13 +1,13 @@
 export * as Mcp from "./index.js"
 
-import { Mcp } from "@opencode/schema/mcp"
-import { McpEvent } from "@opencode/schema/mcp-event"
-import { ephemeral } from "@opencode/schema/event"
-import type { Session } from "@opencode/schema/session"
+import { Mcp } from "@elitza/schema/mcp"
+import { McpEvent } from "@elitza/schema/mcp-event"
+import { ephemeral } from "@elitza/schema/event"
+import type { Session } from "@elitza/schema/session"
 import { createHash } from "node:crypto"
 import { isDeepStrictEqual } from "node:util"
 import { Cause, Context, Effect, Exit, FiberSet, Latch, Layer, Schema, Scope, Semaphore, Stream, Types } from "effect"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
 import { Credential } from "../credential.js"
 import { Bus } from "../bus.js"
 import { Environment } from "../environment/index.js"
@@ -15,7 +15,7 @@ import { Form } from "../form.js"
 import { Integration } from "../integration.js"
 import { KeyedMutex } from "../effect/keyed-mutex.js"
 import { Location } from "../location.js"
-import { waitForAbort } from "@opencode/util/process"
+import { waitForAbort } from "@elitza/util/process"
 import { State } from "../state.js"
 import type { McpClient } from "./client.js"
 
@@ -138,7 +138,7 @@ export interface Interface extends State.Transformable<Editor> {
   }) => Effect.Effect<ResourceContent | undefined, Error>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/MCP") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/MCP") {}
 
 export const Options = Schema.Struct({
   clientInfo: Schema.optional(
