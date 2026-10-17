@@ -61,6 +61,19 @@ function fixture(
       ),
       (request) => Effect.sync(() => request.mockRestore()),
     )
+    // Install tests exercise the upgrade path, which refuses by default for users.
+    yield* Effect.acquireRelease(
+      Effect.sync(() => {
+        const previous = process.env.ELITZA_SELF_UPDATE
+        process.env.ELITZA_SELF_UPDATE = "1"
+        return previous
+      }),
+      (previous) =>
+        Effect.sync(() => {
+          if (previous === undefined) delete process.env.ELITZA_SELF_UPDATE
+          else process.env.ELITZA_SELF_UPDATE = previous
+        }),
+    )
     const global = Global.make({
       home: path.join(root, "home"),
       data: path.join(root, "data"),

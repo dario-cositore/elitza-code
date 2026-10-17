@@ -33,7 +33,7 @@ const typesafe = recordedTests({
 })
 
 const opencode = recordedTests({
-  prefix: "opencode-evaluation",
+  prefix: "hosted-evaluation",
   provider: "opencode",
   protocol: "system-one",
   requires: ["OPENCODE_API_KEY"],

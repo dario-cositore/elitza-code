@@ -7,7 +7,7 @@ export { localSource }
 
 export async function localPluginDirectories(cwd: string, configDirectory: string) {
   const projectDirectory = await localProjectDirectory(cwd)
-  const projectConfig = path.join(projectDirectory, ".opencode")
+  const projectConfig = path.join(projectDirectory, ".elitza")
   const directories = [configDirectory, ...projectConfigDirectories(projectDirectory, cwd)]
   const exists = await Promise.all(
     directories.map(async (directory) => {

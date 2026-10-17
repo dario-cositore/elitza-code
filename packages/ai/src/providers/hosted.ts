@@ -28,4 +28,4 @@ export const configure = (input: Options = {}) => {
 export const provider = configure()
 export const experimental = provider.experimental
 
-export * as OpenCode from "./opencode.js"
+export * as OpenCode from "./hosted.js"

@@ -8,7 +8,7 @@ import {
   type ResolvedTheme,
 } from "@elitza/theme/tui"
 import { DEFAULT_THEMES, getElitzaTheme, resolveTheme as resolveV1 } from "../../../src/theme"
-import opencodeSource from "../../../src/theme/assets/opencode.json" with { type: "json" }
+import opencodeSource from "../../../src/theme/assets/elitza.json" with { type: "json" }
 import type { ThemeV1Json } from "@elitza/theme/tui/v1"
 
 const opencodeV1 = opencodeSource as ThemeV1Json

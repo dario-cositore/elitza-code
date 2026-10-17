@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url"
 import { getNodeAssets } from "@opentui/core/node-assets"
 import { attentionSoundAssets, type NodeTarget, photonWasmAsset, shellParserWasmAssets } from "../src/node/target"
 import { collectFiles } from "./files"
-import { resolveOpencodePty } from "./opencode-pty"
+import { resolveOpencodePty } from "./pty"
 
 const dir = path.resolve(import.meta.dirname, "..")
 

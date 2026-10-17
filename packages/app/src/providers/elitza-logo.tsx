@@ -1,7 +1,7 @@
 export function ElitzaLogo(props: { class?: string }) {
   return (
     <svg
-      data-component="opencode-logo"
+      data-component="elitza-logo"
       aria-hidden="true"
       class={props.class}
       viewBox="0 0 16 16"

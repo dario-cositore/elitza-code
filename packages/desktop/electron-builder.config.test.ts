@@ -57,13 +57,13 @@ test.each(channels)("channel identity for $channel", ({ channel, appId }) => {
   for (const fpm of [config.deb?.fpm, config.rpm?.fpm]) {
     expect(fpm).toContainEqual(expect.stringContaining(`/usr/share/metainfo/${appId}.metainfo.xml`))
     expect(
-      fpm?.some((entry) => entry.endsWith("opencode-desktop.desktop=/usr/share/applications/opencode-desktop.desktop")),
+      fpm?.some((entry) => entry.endsWith("elitza-desktop.desktop=/usr/share/applications/elitza-desktop.desktop")),
     ).toBe(channel === "prod")
   }
 })
 
 test("legacy Linux launcher stays hidden", async () => {
-  const desktop = await Bun.file(path.join(import.meta.dirname, "resources/linux/opencode-desktop.desktop")).text()
+  const desktop = await Bun.file(path.join(import.meta.dirname, "resources/linux/elitza-desktop.desktop")).text()
   expect(desktop).toContain("Exec=/opt/Elitza/ai.opencode.desktop %U")
   expect(desktop).toContain("Icon=ai.opencode.desktop")
   expect(desktop).toContain("StartupWMClass=ai.opencode.desktop")

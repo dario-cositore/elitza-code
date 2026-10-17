@@ -46,10 +46,10 @@ describe("SkillPlugin.Plugin", () => {
         expect.objectContaining({
           id: "report",
           name: "Report",
-          description: expect.stringContaining("opencode issue"),
+          description: expect.stringContaining("Elitza issue"),
         }),
       )
-      expect(report?.content).toContain("- opencode version: 1.2.3")
+      expect(report?.content).toContain("- Elitza version: 1.2.3")
       expect(report?.content).toContain("- install/channel: beta")
     }),
   )

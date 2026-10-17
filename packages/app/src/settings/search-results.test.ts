@@ -82,8 +82,8 @@ describe("settings search index", () => {
   test("retains project avatars and excludes color when a custom icon owns its appearance", () => {
     const withIcon = { ...project, icon: { color: "orange", override: "data:image/png;base64,example" } }
     const items = index({ servers: [{ ...servers[0], projects: [withIcon] }] })
-    expect(rankSettings("opencode", items, root)[0].projectInfo).toEqual(withIcon)
-    expect(rankSettings("opencode color", items, root)).toEqual([])
+    expect(rankSettings("Elitza", items, root)[0].projectInfo).toEqual(withIcon)
+    expect(rankSettings("Elitza color", items, root)).toEqual([])
   })
 })
 
@@ -99,10 +99,10 @@ describe("settings search ranking", () => {
   })
 
   test("qualifies project settings by project name and supports explicit server names", () => {
-    const matches = rankSettings("opencode name", index(), root)
+    const matches = rankSettings("Elitza name", index(), root)
     expect(matches.map((item) => item.view.target)).toEqual(["settings-project-name", "settings-project-name"])
-    expect(rankSettings("Build server opencode name", index(), root).map((item) => item.server)).toEqual(["remote"])
-    expect(rankSettings("opencode skills", index(), root).map((item) => item.view.subtab)).toEqual(["skills", "skills"])
+    expect(rankSettings("Build server Elitza name", index(), root).map((item) => item.server)).toEqual(["remote"])
+    expect(rankSettings("Elitza skills", index(), root).map((item) => item.view.subtab)).toEqual(["skills", "skills"])
   })
 
   test("project names alone find projects, including names that are setting labels", () => {
@@ -112,7 +112,7 @@ describe("settings search ranking", () => {
         .filter((item) => item.project)
         .map((item) => item.entity),
     ).toEqual([true])
-    expect(rankSettings("opencode", index(), root).map((item) => item.entity)).toEqual([true, true])
+    expect(rankSettings("Elitza", index(), root).map((item) => item.entity)).toEqual([true, true])
   })
 
   test("normalizes whitespace, case, and Unicode in qualified names", () => {
@@ -137,7 +137,7 @@ describe("settings search ranking", () => {
       parent: "server",
     }
 
-    expect(rankSettings("opencode name", index(), origin).map((item) => item.server)).toEqual(["remote", "local"])
+    expect(rankSettings("Elitza name", index(), origin).map((item) => item.server)).toEqual(["remote", "local"])
   })
 
   test("supports synonyms and fuzzy title matches while rejecting unrelated queries", () => {
