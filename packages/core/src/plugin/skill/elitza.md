@@ -77,18 +77,21 @@ autocomplete:
 }
 ```
 
-Global configuration lives at `~/.config/opencode/opencode.json(c)` and applies
-to every project for that user. Project configuration can live in any directory
-as `opencode.json(c)` or `.opencode/opencode.json(c)`, including nested packages
-in a monorepo.
+Global configuration lives at `~/.config/opencode/opencode.json(c)` or its
+`elitza.json(c)` names and applies to every project for that user. Project
+configuration can live in any directory as `elitza.json(c)` or
+`.elitza/elitza.json(c)`; legacy `opencode.json(c)` and `.opencode/opencode.json(c)`
+files load as fallbacks, including nested packages in a monorepo.
 
 During ordinary project discovery, Elitza searches the current Location
 directory and every ancestor through the filesystem root, including directories
 above the detected project or repository root. It merges direct
-`opencode.json(c)` files from the farthest ancestor to the current directory,
-then does the same for `.opencode/opencode.json(c)` files. This means every
-discovered `.opencode` config overrides every discovered direct config. Global
-filesystem configuration has lower precedence than these discovered documents.
+`opencode.json(c)` and `elitza.json(c)` files from the farthest ancestor to the
+current directory, then does the same for `.opencode/opencode.json(c)` and
+`.elitza/elitza.json(c)` files. Within one directory, `elitza` files override
+their legacy `opencode` equivalents, and every discovered project-directory
+config overrides every discovered direct config. Global filesystem
+configuration has lower precedence than these discovered documents.
 
 Common configuration fields include `model`, `default_agent`, `permissions`,
 `agents`, `commands`, `plugins`, `providers`, `mcp`, `skills`, `instructions`,
@@ -140,7 +143,8 @@ plugins, integrations, or other behavior from V1 to V2, read the full
 [migration guide](https://opencode.ai/v2/docs/migrate-v1) before acting. In
 the repository, its source is `services/www/src/docs/content/migrate-v1.mdx`.
 
-V1 config files and `.opencode/` definitions are intended to remain compatible.
+V1 config files and `.opencode/` definitions remain supported as legacy
+fallbacks alongside `.elitza/` and `elitza.json(c)`.
 The only intentional breaking changes are the server API and plugin API. Native
 V2 config uses more ergonomic shapes, but conversion is optional. When the user
 requests conversion, inspect the complete configuration, preserve behavior and

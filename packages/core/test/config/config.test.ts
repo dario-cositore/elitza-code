@@ -1275,7 +1275,16 @@ describe("Config", () => {
               {
                 type: "entries",
                 path: tmp.path,
-                names: [".agents", ".claude", ".opencode", "opencode.json", "opencode.jsonc"],
+                names: [
+                ".agents",
+                ".claude",
+                ".elitza",
+                ".opencode",
+                "elitza.json",
+                "elitza.jsonc",
+                "opencode.json",
+                "opencode.jsonc",
+              ],
               },
             ])
           }).pipe(Effect.provide(testLayer(tmp.path, undefined, undefined, undefined, Watcher.testLayer)))
@@ -1858,7 +1867,16 @@ describe("Config", () => {
             expect(yield* watcher.subscriptions()).toContainEqual({
               path: tmp.path,
               type: "entries",
-              names: [".agents", ".claude", ".opencode", "opencode.json", "opencode.jsonc"],
+              names: [
+                ".agents",
+                ".claude",
+                ".elitza",
+                ".opencode",
+                "elitza.json",
+                "elitza.jsonc",
+                "opencode.json",
+                "opencode.jsonc",
+              ],
             })
           }).pipe(Effect.provide(testLayer(tmp.path)))
         }),
@@ -1953,6 +1971,46 @@ describe("Config", () => {
           )
         })
       }),
+    ),
+  )
+
+  it.live("prefers elitza config names over legacy opencode names", () =>
+    Effect.acquireDisposable(Effect.promise(() => tmpdir())).pipe(
+      Effect.flatMap((tmp) =>
+        Effect.gen(function* () {
+          yield* Effect.promise(async () => {
+            await fs.mkdir(path.join(tmp.path, ".opencode"), { recursive: true })
+            await fs.mkdir(path.join(tmp.path, ".elitza"), { recursive: true })
+            await Promise.all([
+              fs.writeFile(path.join(tmp.path, "opencode.json"), JSON.stringify({ $schema: "direct-legacy" })),
+              fs.writeFile(path.join(tmp.path, "elitza.json"), JSON.stringify({ $schema: "direct" })),
+              fs.writeFile(
+                path.join(tmp.path, ".opencode", "opencode.json"),
+                JSON.stringify({ $schema: "dot-legacy" }),
+              ),
+              fs.writeFile(path.join(tmp.path, ".elitza", "elitza.json"), JSON.stringify({ $schema: "dot" })),
+            ])
+          })
+
+          return yield* Effect.gen(function* () {
+            const config = yield* Config.Service
+            const entries = (yield* config.entries()).filter((entry) => !entry.path || inFixture(tmp.path, entry.path))
+            const documents = entries.filter((entry) => entry.type === "document")
+
+            expect(documents.map((document) => document.info.$schema)).toEqual([
+              "direct-legacy",
+              "direct",
+              "dot-legacy",
+              "dot",
+            ])
+            expect(entries.filter((entry) => entry.type === "directory").map((entry) => entry.path)).toEqual([
+              AbsolutePath.make(path.join(tmp.path, "global")),
+              AbsolutePath.make(path.join(tmp.path, ".opencode")),
+              AbsolutePath.make(path.join(tmp.path, ".elitza")),
+            ])
+          }).pipe(Effect.provide(testLayer(tmp.path)))
+        }),
+      ),
     ),
   )
 })

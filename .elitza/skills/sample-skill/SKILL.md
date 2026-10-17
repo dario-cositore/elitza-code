@@ -26,6 +26,6 @@ This is a minimal project-local opencode skill. It exists as a reference for how
 When this skill is relevant, keep responses direct and actionable:
 
 ```text
-I created a project-local skill at .opencode/skills/sample-skill/SKILL.md.
+I created a project-local skill at .elitza/skills/sample-skill/SKILL.md.
 Restart opencode for the new skill to be discovered by future sessions.
 ```

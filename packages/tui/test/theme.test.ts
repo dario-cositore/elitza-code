@@ -6,7 +6,7 @@ import { allThemes, hasTheme, getElitzaTheme, parseTheme, resolveTheme } from ".
 import { discoverThemes } from "../src/theme/discovery"
 import { configDirectories } from "../src/util/config-directories"
 import { terminalMode } from "../src/theme/system"
-import opencodeSource from "../src/theme/assets/opencode.json" with { type: "json" }
+import opencodeSource from "../src/theme/assets/elitza.json" with { type: "json" }
 import type { ThemeV1Json } from "@elitza/theme/tui/v1"
 import { tmpdir } from "./fixture/fixture"
 

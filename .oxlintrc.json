@@ -159,6 +159,7 @@
     ".continue/**",
     ".cursor/**",
     ".gemini/**",
+    ".elitza/**",
     ".opencode/**",
     ".pi/**",
     ".roo/**",
