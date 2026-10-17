@@ -103,24 +103,24 @@ for (const target of targets) {
   await copyNodeAssets(assets)
   await writeFile(path.join("dist-node", "assets", appArchiveAsset), appArchive)
   await build(mainConfig(input))
-  await assertTextImportsInlined("dist-node/opencode.mjs")
-  if (bundleOnly) await verifyArtifact("dist-node/opencode.mjs")
+  await assertTextImportsInlined("dist-node/elitza.mjs")
+  if (bundleOnly) await verifyArtifact("dist-node/elitza.mjs")
 
   const host = target.platform === process.platform && target.arch === process.arch
   if (host) {
     if (!builder) throw new Error("Node SEA builder is unavailable")
-    run(builder, [...nodeExecArgv, "dist-node/opencode.mjs", "--version"])
-    run(builder, [...nodeExecArgv, "dist-node/opencode.mjs", "--help"])
+    run(builder, [...nodeExecArgv, "dist-node/elitza.mjs", "--version"])
+    run(builder, [...nodeExecArgv, "dist-node/elitza.mjs", "--help"])
   }
   if (bundleOnly) continue
 
   const name = `cli-node-${targetName(target)}`
-  const binary = target.platform === "win32" ? "opencode2-node.exe" : "opencode2-node"
+  const binary = target.platform === "win32" ? "elitza2-node.exe" : "elitza2-node"
   const output = path.join(outdir, name, "bin", binary)
   if (!builder) throw new Error("Node SEA builder is unavailable")
   await mkdir(path.dirname(output), { recursive: true })
   const config = {
-    main: "dist-node/opencode.mjs",
+    main: "dist-node/elitza.mjs",
     mainFormat: "module",
     executable: await resolveTargetNode(target, builder),
     output: path.relative(dir, output),
@@ -226,7 +226,7 @@ async function resolveTargetNode(target: NodeTarget, host?: string) {
 }
 
 async function smoke(output: string) {
-  const root = await mkdtemp(path.join(os.tmpdir(), "opencode-node-smoke-"))
+  const root = await mkdtemp(path.join(os.tmpdir(), "elitza-node-smoke-"))
   const executable = path.join(root, path.basename(output))
   await copyFile(output, executable)
   if (process.platform !== "win32") await chmod(executable, 0o755)

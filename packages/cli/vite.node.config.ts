@@ -292,7 +292,7 @@ export function mainConfig(input: NodeBuildInput): UserConfig {
       emptyOutDir: false,
       minify: true,
       rollupOptions: {
-        output: output("opencode.mjs", nodePrelude(input)),
+        output: output("elitza.mjs", nodePrelude(input)),
       },
     },
   })
