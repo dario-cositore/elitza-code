@@ -8,7 +8,7 @@ import { timelinePresets } from "../timeline/detail"
 import { type ContextGroupPart, CurrentContextToolGroup } from "./tool-renderer"
 
 export default {
-  title: "OpenCode/Work/Read group",
+  title: "Elitza/Work/Read group",
   id: "current-read-group",
   component: CurrentContextToolGroup,
   args: { width: 600 },

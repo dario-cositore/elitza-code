@@ -1,5 +1,5 @@
 import { Service, type Endpoint, type EnsureOptions } from "@elitza/client/effect/service"
-import { ClientError, isUnauthorizedError, OpenCode } from "@elitza/client/promise"
+import { ClientError, isUnauthorizedError, Elitza } from "@elitza/client/promise"
 import { OPENCODE_VERSION } from "../version"
 import { Effect, Redacted } from "effect"
 import { Env } from "../env"
@@ -27,7 +27,7 @@ export const resolve = Effect.fn("cli.server-connection.resolve")(function* (arg
       url: args.server,
       auth: password ? { type: "basic" as const, username: "opencode", password: Redacted.value(password) } : undefined,
     } satisfies Endpoint
-    const client = OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
+    const client = Elitza.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
     const health = yield* Effect.tryPromise({
       try: () => client.server.info({ signal: AbortSignal.timeout(5_000) }),
       catch: (cause) => connectError(endpoint, cause),
@@ -67,7 +67,7 @@ export const shutdownPersistentPty = Effect.fn("cli.server-connection.shutdown-p
 ) {
   const endpoint = yield* Service.discover({ ...options, version: undefined })
   if (!endpoint) return
-  const client = OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
+  const client = Elitza.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
   yield* Effect.tryPromise(() => client.experimental.persistentPty.shutdown())
 })
 

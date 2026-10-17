@@ -20,8 +20,8 @@ const manifestVersion = "1.12.0"
 
 const packages = [
   {
-    identifier: "Anomaly.OpenCode",
-    name: "OpenCode CLI",
+    identifier: "Anomaly.Elitza",
+    name: "Elitza CLI",
     moniker: "opencode",
     description: "The open source AI coding agent for the terminal.",
     installer: [
@@ -39,9 +39,9 @@ const packages = [
     ],
   },
   {
-    identifier: "Anomaly.OpenCode.Desktop",
+    identifier: "Anomaly.Elitza.Desktop",
     // Matches the display name the installer registers with Windows, without its version suffix.
-    name: "OpenCode",
+    name: "Elitza",
     moniker: "opencode-desktop",
     description: "The open source AI coding agent as a desktop app.",
     installer: [
@@ -106,7 +106,7 @@ async function prepare(input: (typeof packages)[number]) {
       ...header("defaultLocale"),
       "PackageLocale: en-US",
       // Matches the publisher the desktop installer registers with Windows.
-      "Publisher: OpenCode",
+      "Publisher: Elitza",
       "PublisherUrl: https://anoma.ly/",
       "PublisherSupportUrl: https://github.com/dario-cositore/elitza-code/issues",
       `PackageName: ${input.name}`,
@@ -197,7 +197,7 @@ async function submit(input: Awaited<ReturnType<typeof prepare>>) {
         title,
         head: `${fork.owner.login}:${branch}`,
         base: "master",
-        body: `Published by the [OpenCode](https://github.com/dario-cositore/elitza-code) release workflow${run ? ` in ${run}` : ""}.`,
+        body: `Published by the [Elitza](https://github.com/dario-cositore/elitza-code) release workflow${run ? ` in ${run}` : ""}.`,
       },
     }),
   )

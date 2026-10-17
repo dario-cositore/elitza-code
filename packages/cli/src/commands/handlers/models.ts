@@ -1,4 +1,4 @@
-import { OpenCode } from "@elitza/client"
+import { Elitza } from "@elitza/client"
 import { Service } from "@elitza/client/effect/service"
 import { Effect, Option } from "effect"
 import { EOL } from "node:os"
@@ -13,7 +13,7 @@ export default Runtime.handler(
       server: Option.getOrUndefined(input.server),
       standalone: input.standalone,
     })
-    const client = OpenCode.make({
+    const client = Elitza.make({
       baseUrl: server.endpoint.url,
       headers: Service.headers(server.endpoint),
     })

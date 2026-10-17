@@ -34,7 +34,7 @@ import type { Credential } from "@elitza/schema/credential"
 import type { PermissionSaved } from "@elitza/schema/permission-saved"
 import type { FileSystem } from "@elitza/schema/filesystem"
 import type { Command } from "@elitza/schema/command"
-import type { OpenCodeEvent } from "@elitza/protocol/groups/event"
+import type { ElitzaEvent } from "@elitza/protocol/groups/event"
 import type { Pty } from "@elitza/schema/pty"
 import type { PtyTicket } from "@elitza/schema/pty-ticket"
 import type { Reference } from "@elitza/schema/reference"
@@ -1804,7 +1804,7 @@ export interface RpcApi<E = never> {
   readonly call: RpcCallOperation<E>
 }
 
-export type EventSubscribeOutput = OpenCodeEvent
+export type EventSubscribeOutput = ElitzaEvent
 export type EventSubscribeOperation<E = never> = () => Stream.Stream<EventSubscribeOutput, E>
 
 export interface EventApi<E = never> {

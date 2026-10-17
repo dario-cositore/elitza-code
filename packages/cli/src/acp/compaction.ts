@@ -1,5 +1,5 @@
 import type { SessionUpdate } from "@agentclientprotocol/sdk"
-import type { OpenCodeEvent } from "@elitza/client/effect"
+import type { ElitzaEvent } from "@elitza/client/effect"
 import type { SessionError } from "@elitza/schema/session-error"
 import { SessionMessage } from "@elitza/schema/session-message"
 
@@ -25,7 +25,7 @@ type Compaction =
 export type Tracked = ReadonlyMap<string, Started>
 
 type LifecycleEvent = Extract<
-  OpenCodeEvent,
+  ElitzaEvent,
   { readonly type: "session.compaction.started" | "session.compaction.ended" | "session.compaction.failed" }
 >
 type OpeningEvent = Extract<

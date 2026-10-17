@@ -13,7 +13,7 @@ All paths below are relative to `packages/app` unless they start with `packages/
 
 - **No opencode backend.** Each shard leg runs `bun --cwd packages/app test:e2e:built --shard=<n>/2` (`test.yml:274-279`). It builds once and starts one Bun static server, `e2e/utils/serve.ts`, on `127.0.0.1:${PLAYWRIGHT_PORT ?? 3000}`. All 5 workers share it (`playwright.config.ts:23-27`).
   - `serve.ts` keeps vite preview's SPA fallback rules. Do not move built e2e back to vite preview. On case-insensitive file systems it synchronously reads the whole `dist/_assets` directory (about 3,100 files) for every asset request, so every worker's page loads wait in line. The `e2e/performance` configs still use it to keep their baselines comparable.
-- **The API is an in-memory mock per page,** running in the test worker. `mockOpenCodeServer` (`e2e/utils/mock-server.ts:202`):
+- **The API is an in-memory mock per page,** running in the test worker. `mockElitzaServer` (`e2e/utils/mock-server.ts:202`):
   - answers `page.route("**/api/**")` with an Effect HttpApi handler;
   - fakes `/api/event` SSE with an init-script `fetch` override;
   - serves PTY sockets through `routeWebSocket`.
@@ -23,7 +23,7 @@ All paths below are relative to `packages/app` unless they start with `packages/
   - `setupTimeline` (`e2e/utils/timeline.ts:209`) for streamed timelines, `mockServers` (`mock-server.ts:495`) for several origins;
   - `seed` (`e2e/utils/app.ts:61`) for storage, `holdRoute` (`app.ts:207`) to hold requests until you release them.
 - **Deliver events** with the mock's `push`, which buffers until the app connects, or with `installSseTransport` (`e2e/utils/sse-transport.ts:60`), whose `send` resolves on delivery. After `page.reload()`, await `transport.waitForConnection()` before sending (`e2e/regression/timeline-stream.spec.ts:1700-1702`).
-- **Windows-only failures are races, not Windows code paths.** Mock directories are `C:/OpenCode/<name>` on every OS (`workspace.ts:33`), and nothing touches the disk. Lazy chunks, stylesheets and responses finish out of order more often on the Windows runners.
+- **Windows-only failures are races, not Windows code paths.** Mock directories are `C:/Elitza/<name>` on every OS (`workspace.ts:33`), and nothing touches the disk. Lazy chunks, stylesheets and responses finish out of order more often on the Windows runners.
 
 ## Isolation
 
@@ -31,7 +31,7 @@ All paths below are relative to `packages/app` unless they start with `packages/
 - **Handlers mutate the objects you pass.** Creating a session pushes into `sessions` (`mock-server.ts:839`). Renaming writes `session.title` (`:1340`), and VCS init writes `project.vcs` (`:1019`).
   - Call `session()`/`project()` inside the test.
   - `mockWorkspace` and `openSession` copy what you pass (`workspace.ts:36-48`).
-  - `mockOpenCodeServer` and `mockServers` use your objects as they are. Module-level fixtures like `multi-server.spec.ts:10-19` are therefore shared by every test in the file.
+  - `mockElitzaServer` and `mockServers` use your objects as they are. Module-level fixtures like `multi-server.spec.ts:10-19` are therefore shared by every test in the file.
 - **Timeline builders keep state per test attempt** (`timeline.ts:165-198`). Call stateful builders such as `assistantMessage` or `partUpdated` inside the test. Only pure ones such as `toolPart` belong at module scope.
 - **Seed before the first `goto`.** `seed` writes storage once per tab behind a `sessionStorage` marker, so reloads keep what the app stored (`app.ts:59-90`). It cannot reset state mid-test.
 

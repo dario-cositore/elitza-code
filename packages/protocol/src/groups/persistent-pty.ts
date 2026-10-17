@@ -110,7 +110,7 @@ export const PersistentPtyGroup = HttpApiGroup.make("server.experimental")
       OpenApi.annotations({
         identifier: "persistentPty.connect",
         summary: "Connect to a persistent PTY",
-        description: "Stream persistent PTY output through the OpenCode server.",
+        description: "Stream persistent PTY output through the Elitza server.",
         transform: (operation) => ({
           ...operation,
           "x-websocket": true,

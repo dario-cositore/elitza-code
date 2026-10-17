@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { $ } from "bun"
-import { OpenCode } from "@elitza/client"
+import { Elitza } from "@elitza/client"
 import { Service } from "@elitza/client/service"
 import { parse } from "@elitza/script/highlights"
 import { rm } from "fs/promises"
@@ -63,7 +63,7 @@ if (!base) throw new Error("No stable V2 release tag was found")
 console.log(`Comparing ${commitRange(base, values.to)}`)
 await generateReview(base, values.to)
 
-if (!(await Bun.file(review).exists())) throw new Error("OpenCode did not create RELEASE_REVIEW.md")
+if (!(await Bun.file(review).exists())) throw new Error("Elitza did not create RELEASE_REVIEW.md")
 if (values.print) {
   process.stdout.write(await Bun.file(review).text())
   process.exit(0)
@@ -107,7 +107,7 @@ console.log(`Triggered the ${version} release`)
 
 async function generateReview(base: string, head: string) {
   const endpoint = await Service.ensure()
-  const client = OpenCode.make({
+  const client = Elitza.make({
     baseUrl: endpoint.url,
     headers: Service.headers(endpoint),
     fetch: ((request: RequestInfo | URL, init?: RequestInit) =>
@@ -116,7 +116,7 @@ async function generateReview(base: string, head: string) {
   const controller = new AbortController()
   const events = client.event.subscribe({ signal: controller.signal })[Symbol.asyncIterator]()
   const connected = await events.next()
-  if (connected.done) throw new Error("OpenCode event stream disconnected")
+  if (connected.done) throw new Error("Elitza event stream disconnected")
 
   const session = await client.session.create({
     title: `Review ${version} release`,
@@ -135,12 +135,12 @@ async function generateReview(base: string, head: string) {
   const completed = (async () => {
     while (true) {
       const next = await events.next()
-      if (next.done) throw new Error("OpenCode event stream disconnected during release review")
+      if (next.done) throw new Error("Elitza event stream disconnected during release review")
       if (!("sessionID" in next.value.data) || next.value.data.sessionID !== session.id) continue
       if (next.value.type === "session.execution.succeeded") return
       if (next.value.type === "session.execution.failed") throw new Error(next.value.data.error.message)
       if (next.value.type === "session.execution.interrupted")
-        throw new Error(`OpenCode release review was interrupted: ${next.value.data.reason}`)
+        throw new Error(`Elitza release review was interrupted: ${next.value.data.reason}`)
     }
   })()
 
@@ -150,7 +150,7 @@ async function generateReview(base: string, head: string) {
     const messages = await client.message.list({ sessionID: session.id, limit: 100, order: "desc" })
     const response = messages.data.find((message) => message.type === "assistant")
     const text = response?.content.flatMap((part) => (part.type === "text" ? [part.text] : [])).join("\n")
-    if (!text) throw new Error("OpenCode did not return a release review")
+    if (!text) throw new Error("Elitza did not return a release review")
     await Bun.write(review, text)
   } finally {
     controller.abort()

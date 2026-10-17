@@ -1,6 +1,6 @@
 export * as PromiseSdk from "./promise"
 
-import { OpenCode, type OpenCodeClient } from "@elitza/client"
+import { Elitza, type ElitzaClient } from "@elitza/client"
 import type { Plugin } from "@elitza/plugin"
 import { Session } from "@elitza/schema/session"
 import { Effect, Schema } from "effect"
@@ -23,10 +23,10 @@ export interface CreateOptions
   readonly instances?: InstanceOptions
 }
 
-export type Interface = Omit<OpenCodeClient, "plugin"> & {
-  readonly sessions: OpenCodeClient["session"]
-  readonly events: OpenCodeClient["event"]
-  readonly plugin: ((plugin: Plugin.Plugin) => Promise<void>) & OpenCodeClient["plugin"]
+export type Interface = Omit<ElitzaClient, "plugin"> & {
+  readonly sessions: ElitzaClient["session"]
+  readonly events: ElitzaClient["event"]
+  readonly plugin: ((plugin: Plugin.Plugin) => Promise<void>) & ElitzaClient["plugin"]
   readonly close: () => Promise<void>
   readonly [Symbol.asyncDispose]: () => Promise<void>
 }
@@ -53,7 +53,7 @@ export async function create(options: CreateOptions = {}, embed: EmbeddedHost.Em
       embed,
     ),
   )
-  const client = OpenCode.make({ baseUrl: "http://opencode.local", fetch: host.fetch })
+  const client = Elitza.make({ baseUrl: "http://opencode.local", fetch: host.fetch })
   const register = async (plugin: Plugin.Plugin) => {
     const { PluginPromise } = await import("@elitza/core/plugin/promise")
     return host.runtime.runPromise(host.plugins.register(PluginPromise.fromPromise(plugin)))

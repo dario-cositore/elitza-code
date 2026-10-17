@@ -95,19 +95,19 @@ try {
         main: "worker.js",
         compatibility_date: "2026-07-15",
         compatibility_flags: ["nodejs_compat"],
-        durable_objects: { bindings: [{ name: "OPENCODE", class_name: "OpenCodeDO" }] },
-        migrations: [{ tag: "v1", new_sqlite_classes: ["OpenCodeDO"] }],
+        durable_objects: { bindings: [{ name: "OPENCODE", class_name: "ElitzaDO" }] },
+        migrations: [{ tag: "v1", new_sqlite_classes: ["ElitzaDO"] }],
       }),
     ),
     Bun.write(
       join(consumer, "worker.js"),
       `import { bodyDigest } from "@elitza/core/models-dev"
-import { OpenCodeWorkerd } from "@elitza/sdk/workerd"
+import { ElitzaWorkerd } from "@elitza/sdk/workerd"
 
-export class OpenCodeDO {
+export class ElitzaDO {
   constructor(state) {
     this.configurations = 0
-    this.opencode = state.blockConcurrencyWhile(() => OpenCodeWorkerd.create({
+    this.opencode = state.blockConcurrencyWhile(() => ElitzaWorkerd.create({
       storage: state.storage,
       app: { version: "packed-workerd" },
       models: { fetch: false },
@@ -171,7 +171,7 @@ const miniflare = new Miniflare({
   compatibilityFlags: ["nodejs_compat"],
   modules: true,
   scriptPath: fileURLToPath(new URL("./dist/worker.js", import.meta.url)),
-  durableObjects: { OPENCODE: { className: "OpenCodeDO", useSQLite: true } },
+  durableObjects: { OPENCODE: { className: "ElitzaDO", useSQLite: true } },
 })
 
 try {
@@ -198,7 +198,7 @@ try {
 ])
 
 for (const module of modules) {
-  const api = module.OpenCode ?? module.OpenCodeWorkerd
+  const api = module.Elitza ?? module.ElitzaWorkerd
   if (typeof api?.create !== "function") throw new Error("Packed SDK entrypoint is missing create()")
 }
 `,

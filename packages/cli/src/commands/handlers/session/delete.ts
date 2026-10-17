@@ -1,4 +1,4 @@
-import { OpenCode } from "@elitza/client"
+import { Elitza } from "@elitza/client"
 import { Service } from "@elitza/client/effect/service"
 import { Effect, Option } from "effect"
 import { EOL } from "node:os"
@@ -14,7 +14,7 @@ const handler = Effect.fn("cli.session.delete")(function* (
     server: Option.getOrUndefined(input.server),
     standalone: input.standalone,
   })
-  const client = OpenCode.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
+  const client = Elitza.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
   yield* Effect.tryPromise({
     try: (signal) => client.session.remove({ sessionID: input.sessionID }, { signal }),
     catch: (cause) => cause,

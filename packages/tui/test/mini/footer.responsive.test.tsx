@@ -103,7 +103,7 @@ test.each([false, true])(
       app.footer.event({
         type: "models",
         providers: [
-          { id: "opencode", name: "Anomaly / OpenCode", models: { "gpt-5.6-sol": { name: "GPT-5.6 Sol (50% Off)" } } },
+          { id: "opencode", name: "Anomaly / Elitza", models: { "gpt-5.6-sol": { name: "GPT-5.6 Sol (50% Off)" } } },
         ],
       })
       app.footer.event({
@@ -124,7 +124,7 @@ test.each([false, true])(
         const model = width === 112 ? "GPT-5.6 Sol (50% Off) [max]" : mono ? "GPT-5.6... [max]" : "GPT-5.6\u2026 [max]"
         expect(row).toBe(
           (width === 112
-            ? ["Build", model, "14.1K (1%)", "Anomaly / OpenCode", "$0.04", "ctrl+p menu"]
+            ? ["Build", model, "14.1K (1%)", "Anomaly / Elitza", "$0.04", "ctrl+p menu"]
             : width === 40
               ? ["Build", model, "1% ctx"]
               : ["Build", model]

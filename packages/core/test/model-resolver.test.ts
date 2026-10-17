@@ -1226,7 +1226,7 @@ describe("ModelResolver", () => {
     ModelResolver.fromCatalogModel(
       model(Provider.aisdk("@openrouter/ai-sdk-provider"), {
         settings: {
-          appName: "OpenCode",
+          appName: "Elitza",
           appUrl: "https://opencode.ai",
           extraBody: { transforms: ["middle-out"], provider: { sort: "price" } },
         },

@@ -174,7 +174,7 @@ export function provider(...models: ModelSeed[]) {
     all: [
       {
         id: "opencode",
-        name: "OpenCode",
+        name: "Elitza",
         models: Object.fromEntries(all.map((model) => [model.id, { limit: { context: 200_000 }, ...model }])),
       },
     ],

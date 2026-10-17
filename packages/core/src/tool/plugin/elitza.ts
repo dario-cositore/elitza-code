@@ -1,4 +1,4 @@
-export * as OpenCodeTools from "./opencode.js"
+export * as ElitzaTools from "./elitza.js"
 
 import { SystemPart, ToolFailure } from "@elitza/ai"
 import type { Context } from "@elitza/plugin/effect/plugin"
@@ -86,7 +86,7 @@ const ModelsOutput = Schema.Struct({
 
 export const Plugin = {
   id: "opencode.tools",
-  effect: Effect.fn("OpenCodeTools.Plugin")(function* (ctx: Context) {
+  effect: Effect.fn("ElitzaTools.Plugin")(function* (ctx: Context) {
     const access = yield* FileAccess.Service
     const permission = yield* Permission.Service
     const hook = (event: SessionHooks["context"]) =>
@@ -105,7 +105,7 @@ export const Plugin = {
         draft.namespace({
           name: "opencode",
           description:
-            "Tools for managing OpenCode itself, such as working with sessions and worktrees, searching the available models, and reading MCP resources.",
+            "Tools for managing Elitza itself, such as working with sessions and worktrees, searching the available models, and reading MCP resources.",
         })
         draft.add({
           name: "session_rename",

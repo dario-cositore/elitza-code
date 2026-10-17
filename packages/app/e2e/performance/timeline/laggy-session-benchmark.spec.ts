@@ -2,7 +2,7 @@ import { readFileSync, mkdirSync, writeFileSync } from "node:fs"
 import type { SessionMessageInfo } from "@elitza/client/promise"
 import { base64Encode } from "@elitza/util/encode"
 import { timelineCategories, timelinePresets } from "@elitza/session-ui/timeline/detail"
-import { mockOpenCodeServer } from "../../utils/mock-server"
+import { mockElitzaServer } from "../../utils/mock-server"
 import { expectSessionTitle } from "../../utils/waits"
 import { benchmark, expect } from "../benchmark"
 import { measureSessionSwitch, waitForStableTimeline } from "./session-tab-switch-probe"
@@ -74,7 +74,7 @@ for (const mode of ["compact", "ungrouped"] as const) {
     const directory = session.info.location.directory
 
     if (process.env.LAGGY_HTTP !== "1")
-      await mockOpenCodeServer(page, {
+      await mockElitzaServer(page, {
         directory,
         project: {
           id: session.info.projectID,

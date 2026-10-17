@@ -8,7 +8,7 @@ import { PersistentPty } from "@elitza/schema/persistent-pty"
 import { Session } from "@elitza/schema/session"
 import { Effect, Exit, Schema, Scope } from "effect"
 import { HttpServer } from "effect/http"
-import { OpenCode } from "../../client/src/promise/index"
+import { Elitza } from "../../client/src/promise/index"
 import { it } from "../../core/test/lib/effect"
 import { ServerProcess } from "../src/process"
 
@@ -31,7 +31,7 @@ smoke(
         fs: { filewatcher: false },
       })
       const base = HttpServer.formatAddress(server.address)
-      const client = OpenCode.make({ baseUrl: base, headers: { authorization: `Basic ${btoa("opencode:secret")}` } })
+      const client = Elitza.make({ baseUrl: base, headers: { authorization: `Basic ${btoa("opencode:secret")}` } })
       const sessionID = "ses_terminal_read"
       expect(yield* Effect.promise(() => client.experimental.persistentPty.read({ sessionID }))).toBeNull()
       expect(existsSync(fixture.directory)).toBeFalse()
@@ -132,7 +132,7 @@ smoke(
   20_000,
 )
 
-async function waitForRead(client: ReturnType<typeof OpenCode.make>, sessionID: string, ptyID: string) {
+async function waitForRead(client: ReturnType<typeof Elitza.make>, sessionID: string, ptyID: string) {
   for (let attempt = 0; attempt < 100; attempt++) {
     const result = await client.experimental.persistentPty.read({ sessionID })
     if (result?.ptyID === ptyID) return result

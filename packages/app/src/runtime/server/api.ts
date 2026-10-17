@@ -1,4 +1,4 @@
-import { OpenCode, type OpenCodeClient } from "@elitza/client/promise"
+import { Elitza, type ElitzaClient } from "@elitza/client/promise"
 import type { ServerConnection } from "@/runtime/server/registry"
 import { decode64 } from "@/runtime/persistence/base64"
 
@@ -22,8 +22,8 @@ export function authFromToken(token: string | null) {
 export function createApiForServer(input: {
   server: ServerConnection.HttpBase
   fetch?: typeof globalThis.fetch
-}): OpenCodeClient {
-  return OpenCode.make({
+}): ElitzaClient {
+  return Elitza.make({
     baseUrl: input.server.url,
     fetch: input.fetch,
     headers: input.server.password
@@ -36,4 +36,4 @@ export function createApiForServer(input: {
   })
 }
 
-export type ServerApi = OpenCodeClient
+export type ServerApi = ElitzaClient

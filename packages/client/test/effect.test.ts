@@ -7,7 +7,7 @@ import {
   Event,
   Location,
   Model,
-  OpenCode,
+  Elitza,
   Prompt,
   Session,
   SessionMessage,
@@ -30,7 +30,7 @@ test("server.info decodes the readiness response", async () => {
     ),
   )
   const result = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
     return yield* client.server.info()
   }).pipe(Effect.provideService(HttpClient.HttpClient, httpClient), Effect.runPromise)
 
@@ -54,7 +54,7 @@ test("vcs.base decodes nullable review-base metadata", async () => {
       Effect.succeed(HttpClientResponse.fromWeb(request, Response.json({ location, data }))),
     )
     const result = await Effect.gen(function* () {
-      const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+      const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
       return yield* client.vcs.base({ location: { directory: AbsolutePath.make("/repo") } })
     }).pipe(Effect.provideService(HttpClient.HttpClient, httpClient), Effect.runPromise)
     expect(result.data).toEqual(data)
@@ -67,7 +67,7 @@ test("session.get returns the decoded Effect projection", async () => {
     Effect.succeed(HttpClientResponse.fromWeb(request, Response.json(session))),
   )
   const result = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
     return yield* client.session.get({ sessionID: Session.ID.make("ses_test") })
   }).pipe(Effect.provideService(HttpClient.HttpClient, httpClient), Effect.runPromise)
 
@@ -91,7 +91,7 @@ test("session instructions methods use the public HTTP contract", async () => {
     )
   })
   const result = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
     const listed = yield* client.session.instructions.entry.list({ sessionID: Session.ID.make("ses_test") })
     yield* client.session.instructions.entry.put({
       sessionID: Session.ID.make("ses_test"),
@@ -139,7 +139,7 @@ test("event.subscribe exposes and decodes the native Effect event stream", async
     ),
   )
   const events = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
     return yield* client.event.subscribe().pipe(Stream.runCollect)
   }).pipe(Effect.provideService(HttpClient.HttpClient, httpClient), Effect.runPromise)
 
@@ -164,7 +164,7 @@ test("shared event source runs with the Effect context captured by make", async 
     }),
   )
   const client = await Effect.runPromise(
-    OpenCode.make({ baseUrl: "http://localhost:3000" }).pipe(
+    Elitza.make({ baseUrl: "http://localhost:3000" }).pipe(
       Effect.provideService(HttpClient.HttpClient, httpClient),
       Effect.provideService(Token, "captured"),
     ),
@@ -184,7 +184,7 @@ test("event.subscribe terminates on Effect protocol decode failures", async () =
     ),
   )
   const error = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
     return yield* client.event.subscribe().pipe(Stream.runCollect, Effect.flip)
   }).pipe(Effect.provideService(HttpClient.HttpClient, httpClient), Effect.runPromise)
 
@@ -243,7 +243,7 @@ test("session methods retain decoded Effect inputs and outputs", async () => {
     )
   })
   const result = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
     const page = yield* client.session.list({ limit: 10 })
     const active = yield* client.session.active()
     const created = yield* client.session.create({
@@ -313,7 +313,7 @@ test("session.log retains the typed SessionNotFoundError", async () => {
     ),
   )
   const error = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Elitza.make({ baseUrl: "http://localhost:3000" })
     return yield* client.session.log({ sessionID: Session.ID.make("ses_missing") }).pipe(Stream.runCollect, Effect.flip)
   }).pipe(Effect.provideService(HttpClient.HttpClient, httpClient), Effect.runPromise)
 

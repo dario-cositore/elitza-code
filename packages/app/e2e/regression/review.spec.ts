@@ -1,8 +1,8 @@
-import type { OpenCodeEvent, SessionMessageInfo } from "@elitza/client/promise"
+import type { ElitzaEvent, SessionMessageInfo } from "@elitza/client/promise"
 import { expect, test, type Locator, type Page } from "@playwright/test"
 import { base64Encode } from "@elitza/util/encode"
 import { SERVER, holdRoute, project, provider, session, workspaceKey } from "../utils/app"
-import { mockOpenCodeServer } from "../utils/mock-server"
+import { mockElitzaServer } from "../utils/mock-server"
 import { fileDiff, fileNode, openSession } from "../utils/workspace"
 import { expectSessionTitle } from "../utils/waits"
 
@@ -116,7 +116,7 @@ test("a rejected Git init releases its session's button without showing an error
 
 test("open file tab browses, searches, and tracks missing files", async ({ page }) => {
   const searches: { query: string; dirs?: string; limit?: number }[] = []
-  const directory = "C:/OpenCode/ReviewOpenFile"
+  const directory = "C:/Elitza/ReviewOpenFile"
   const files = Array.from({ length: 80 }, (_, index) => `file-${String(index).padStart(2, "0")}.ts`)
 
   const workspace = await openSession(page, {
@@ -263,7 +263,7 @@ for (const listed of [false, true]) {
   test(`the open file heading names a subfolder session ${listed ? "after its sidebar project" : "after its folder"}`, async ({
     page,
   }) => {
-    const root = "C:/OpenCode/BrowserRepo"
+    const root = "C:/Elitza/BrowserRepo"
     const directory = `${root}/packages/app`
     await openSession(page, {
       name: "BrowserRepo",
@@ -300,7 +300,7 @@ test("context closes the side region only when its button opened it", async ({ p
       storage: {
         "opencode.global.dat:layout": {
           sessionTabs: {
-            [`local\u0000${base64Encode("C:/OpenCode/ReviewContextOpener")}/ses_reviewcontextopener`]: {
+            [`local\u0000${base64Encode("C:/Elitza/ReviewContextOpener")}/ses_reviewcontextopener`]: {
               all: ["btw"],
               active: "btw",
             },
@@ -413,7 +413,7 @@ test("context hides free-model cost but keeps paid-model zero cost", async ({ pa
 })
 
 test("file tree expands Windows paths and scrolls long names in both directions", async ({ page }) => {
-  const directory = "C:/OpenCode/OpenFileExpand"
+  const directory = "C:/Elitza/OpenFileExpand"
   const longFilename = "a-very-long-file-name-that-must-overflow-the-file-sidebar-instead-of-being-truncated.ts"
   const longPath = `frontend/${longFilename}`
   await openSession(page, {
@@ -502,7 +502,7 @@ test("file tree expands Windows paths and scrolls long names in both directions"
 })
 
 test("a restored file tab keeps the file tree on Files Changed", async ({ page }) => {
-  const directory = "C:/OpenCode/TreeRestore"
+  const directory = "C:/Elitza/TreeRestore"
   await openSession(page, {
     name: "TreeRestore",
     vcsDiff: [fileDiff("src/changed.ts")],
@@ -723,7 +723,7 @@ test("image gestures anchor zoom, pan, and reset independently of the pane", asy
 
 test("image files load into the review panel and keep it painted while loading", async ({ page }) => {
   await page.setViewportSize({ width: 960, height: 900 })
-  const directory = "C:/OpenCode/ReviewImage"
+  const directory = "C:/Elitza/ReviewImage"
   const image = "assets/preview.png"
   const read = Promise.withResolvers<void>()
   const release = Promise.withResolvers<void>()
@@ -817,7 +817,7 @@ test("image files load into the review panel and keep it painted while loading",
 test("video files over 25 MB play in the viewer, expand into the theatre overlay, and collapse on Escape without remounting", async ({
   page,
 }) => {
-  const directory = "C:/OpenCode/ReviewVideo"
+  const directory = "C:/Elitza/ReviewVideo"
   const file = "arcade-update-draft.mp4"
 
   const head = Buffer.from(
@@ -905,7 +905,7 @@ test("restores review state and the side-panel tab per session", async ({ page }
     { id: "ses_review_state_c", title: "Gamma review state" },
   ]
 
-  const directory = "C:/OpenCode/ReviewState"
+  const directory = "C:/Elitza/ReviewState"
   await openSession(page, {
     name: "ReviewState",
     sessions,
@@ -1023,7 +1023,7 @@ test("shows and restores last turn changes from the session diff", async ({ page
 })
 
 test("keeps the review state a session stored before extensions", async ({ page }) => {
-  const directory = "C:/OpenCode/ReviewLegacy"
+  const directory = "C:/Elitza/ReviewLegacy"
   await openSession(page, {
     name: "ReviewLegacy",
     vcs: { current: "feature", default: "dev" },
@@ -1072,10 +1072,10 @@ test("keeps the review state a session stored before extensions", async ({ page 
 })
 
 test("desktop review waits for the session's stored mode before it loads changes", async ({ page }) => {
-  const directory = "C:/OpenCode/ReviewDesktop"
+  const directory = "C:/Elitza/ReviewDesktop"
   const id = "ses_review_desktop"
   const title = "Desktop review"
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     directory,
     project: project({ id: "proj_review_desktop", directory }),
     provider: provider(),
@@ -1285,7 +1285,7 @@ async function statusInset(status: Locator, side: "left" | "right") {
   }, side)
 }
 
-function filesystemEvent(directory: string, file: string, event: "add" | "change" | "unlink"): OpenCodeEvent {
+function filesystemEvent(directory: string, file: string, event: "add" | "change" | "unlink"): ElitzaEvent {
   return {
     id: `evt_${file}_${event}`,
     created: 1,

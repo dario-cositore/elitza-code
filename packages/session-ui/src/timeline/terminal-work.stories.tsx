@@ -20,7 +20,7 @@ import { storyDocument, storyTool } from "../storybook/current-session-scenarios
 import { SessionTimeline } from "./session-timeline"
 
 export default {
-  title: "OpenCode/Work/Terminal",
+  title: "Elitza/Work/Terminal",
   id: "current-session-terminal-work",
   component: SessionTimeline,
   parameters: {

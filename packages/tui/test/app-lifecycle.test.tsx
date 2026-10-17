@@ -424,7 +424,7 @@ test("session title generated while an untitled session is loading remains visib
 
     const generated = titles.lastIndexOf("OC | Generated title")
     expect(generated).toBeGreaterThan(-1)
-    expect(titles.slice(generated + 1)).not.toContain("OpenCode")
+    expect(titles.slice(generated + 1)).not.toContain("Elitza")
     setup.renderer.destroy()
     await task
   } finally {

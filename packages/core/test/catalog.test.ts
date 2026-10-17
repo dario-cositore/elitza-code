@@ -570,7 +570,7 @@ describe("Provider and Model", () => {
     }),
   )
 
-  it.effect("defaults to big-pickle when only free OpenCode models are available", () =>
+  it.effect("defaults to big-pickle when only free Elitza models are available", () =>
     Effect.gen(function* () {
       const providers = yield* Provider.Service
       const models = yield* Model.Service

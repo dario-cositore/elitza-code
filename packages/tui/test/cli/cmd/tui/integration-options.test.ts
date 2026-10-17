@@ -21,8 +21,8 @@ describe("integrationOptions", () => {
         integration({ id: "openai", name: "OpenAI" }),
         integration({ id: "custom-z", name: "Zebra" }),
         integration({ id: "anthropic", name: "Anthropic" }),
-        integration({ id: "opencode", name: "OpenCode Zen" }),
-        integration({ id: "opencode-go", name: "OpenCode Go" }),
+        integration({ id: "opencode", name: "Elitza Zen" }),
+        integration({ id: "opencode-go", name: "Elitza Go" }),
       ]).map((item) => item.id),
     ).toEqual(["opencode-go", "opencode", "openai", "anthropic", "mistral", "custom-z"])
   })
@@ -33,8 +33,8 @@ describe("integrationOptions", () => {
         integration({ id: "openai", name: "OpenAI" }),
         integration({ id: "linear", name: "Linear", metadata: { source: "mcp" } }),
         integration({ id: "github", name: "GitHub", metadata: { source: "mcp" } }),
-        integration({ id: "opencode", name: "OpenCode Zen" }),
-        integration({ id: "opencode-go", name: "OpenCode Go" }),
+        integration({ id: "opencode", name: "Elitza Zen" }),
+        integration({ id: "opencode-go", name: "Elitza Go" }),
       ]).map((item) => item.id),
     ).toEqual(["github", "linear", "opencode-go", "opencode", "openai"])
   })

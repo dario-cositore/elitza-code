@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import type { OpenCodeEvent } from "@elitza/client"
+import type { ElitzaEvent } from "@elitza/client"
 import { createData } from "@elitza/client/solid"
 import { createGlobalEmitter } from "@solid-primitives/event-bus"
 import { createRoot, createSignal } from "solid-js"
@@ -9,7 +9,7 @@ import { createApi, createFetch, directory, json } from "../fixture/tui-client"
 function setup(options: { keep?: string[]; current?: string; limit?: number } = {}) {
   return createRoot((dispose) => {
     const events = createGlobalEmitter<{
-      [Type in OpenCodeEvent["type"]]: Extract<OpenCodeEvent, { type: Type }>
+      [Type in ElitzaEvent["type"]]: Extract<ElitzaEvent, { type: Type }>
     }>()
     const api = createApi(
       createFetch((url) => {

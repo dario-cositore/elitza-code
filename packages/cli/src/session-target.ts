@@ -1,4 +1,4 @@
-import type { LocationGetOutput, ModelRef, OpenCodeClient, SessionInfo } from "@elitza/client/promise"
+import type { LocationGetOutput, ModelRef, ElitzaClient, SessionInfo } from "@elitza/client/promise"
 import { Model } from "@elitza/schema/model"
 import { errorMessage } from "./util/error"
 
@@ -13,7 +13,7 @@ export type SessionTarget = {
 }
 
 export type SessionTargetPreparation = (input: {
-  client: OpenCodeClient
+  client: ElitzaClient
   location: LocationGetOutput
   session: SessionInfo | undefined
   model: ModelRef | undefined
@@ -30,7 +30,7 @@ export class SessionTargetMutationError extends Error {
 }
 
 export async function resolveSessionTarget(input: {
-  client: OpenCodeClient
+  client: ElitzaClient
   location?: { directory?: string; workspace?: string }
   continue?: boolean
   session?: string
@@ -95,7 +95,7 @@ export function parseSessionTargetModel(value?: string): ModelRef | undefined {
 }
 
 async function selectSession(input: {
-  client: OpenCodeClient
+  client: ElitzaClient
   location?: { directory?: string }
   continue?: boolean
   session?: string
@@ -131,7 +131,7 @@ async function selectSession(input: {
   }
 }
 
-export function findSession(client: OpenCodeClient, sessionID: string, signal?: AbortSignal) {
+export function findSession(client: ElitzaClient, sessionID: string, signal?: AbortSignal) {
   return client.session.get({ sessionID }, ...requestOptions(signal)).catch((error) => {
     if (error && typeof error === "object" && "_tag" in error && error._tag === "SessionNotFoundError") return undefined
     throw error
@@ -139,7 +139,7 @@ export function findSession(client: OpenCodeClient, sessionID: string, signal?: 
 }
 
 async function latestSession(
-  client: OpenCodeClient,
+  client: ElitzaClient,
   location: LocationGetOutput,
   cursor?: string,
   signal?: AbortSignal,
@@ -160,7 +160,7 @@ async function latestSession(
   return latestSession(client, location, page.cursor.next, signal)
 }
 
-function resolveLocation(client: OpenCodeClient, location?: { directory?: string }, signal?: AbortSignal) {
+function resolveLocation(client: ElitzaClient, location?: { directory?: string }, signal?: AbortSignal) {
   if (!location && !signal) return client.location.get()
   if (!location) return client.location.get(undefined, { signal })
   return client.location.get({ location }, ...requestOptions(signal))

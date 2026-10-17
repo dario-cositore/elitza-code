@@ -1,6 +1,6 @@
 import { confirm, intro, log, outro } from "@clack/prompts"
 import { Effect, Option } from "effect"
-import { OpenCode, type IntegrationInfo, type IntegrationOAuthMethod, type McpServer } from "@elitza/client"
+import { Elitza, type IntegrationInfo, type IntegrationOAuthMethod, type McpServer } from "@elitza/client"
 import { Commands } from "../../commands"
 import { Runtime } from "../../../framework/runtime"
 import { Service } from "@elitza/client/effect/service"
@@ -22,7 +22,7 @@ const authenticate = Effect.fn("cli.mcp.auth.run")(function* (name?: string) {
   if (!name) yield* requireInteractive("Pass an MCP server name when running without an interactive terminal")
   intro("Authenticate an MCP server")
   const { endpoint } = yield* ServerConnection.resolve()
-  const client = OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
+  const client = Elitza.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
   const integrations = yield* loadIntegrations(client)
   const servers = yield* request((signal) => client.mcp.list({ location }, { signal }))
   const choices = mcpAuthChoices(servers.data, integrations)

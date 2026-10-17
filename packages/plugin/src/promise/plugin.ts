@@ -1,4 +1,4 @@
-import type { OpenCodeClient } from "@elitza/client"
+import type { ElitzaClient } from "@elitza/client"
 import type { CredentialApi, GenerateApi, PluginApi } from "@elitza/client/promise/api"
 import type { Location } from "@elitza/schema/location"
 import type { PluginOptions } from "../options.js"
@@ -33,7 +33,7 @@ export interface Context {
   readonly credential: Pick<CredentialApi, "activate">
   readonly event: EventDomain
   readonly experimental: {
-    readonly terminal: Pick<OpenCodeClient["experimental"]["persistentPty"], "read">
+    readonly terminal: Pick<ElitzaClient["experimental"]["persistentPty"], "read">
   }
   readonly integration: IntegrationDomain
   readonly mcp: MCPDomain

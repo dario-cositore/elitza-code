@@ -1,6 +1,6 @@
 import type {
   JsonValue,
-  OpenCodeEvent,
+  ElitzaEvent,
   SessionInfo,
   SessionMessageAssistant,
   SessionMessageInfo,
@@ -14,11 +14,11 @@ import type { TimelineDetail } from "@elitza/session-ui/timeline/detail"
 import { expect, test, type Page, type TestInfo } from "@playwright/test"
 import { Schema } from "effect"
 import { SERVER, seed, sessionHref } from "./app"
-import { mockOpenCodeServer, type MockServerConfig } from "./mock-server"
+import { mockElitzaServer, type MockServerConfig } from "./mock-server"
 import { installSseTransport } from "./sse-transport"
 import { expectSessionReady } from "./waits"
 
-export const directory = "C:/OpenCode/TimelineStability"
+export const directory = "C:/Elitza/TimelineStability"
 
 export const projectID = "proj_timeline_stability"
 
@@ -133,9 +133,9 @@ type TimelineServerInput = Partial<
 
 export type TimelineMessage = SessionMessageUser | SessionMessageAssistant
 
-export type TimelineEvent = OpenCodeEvent | readonly OpenCodeEvent[]
+export type TimelineEvent = ElitzaEvent | readonly ElitzaEvent[]
 
-export type EventPayload = OpenCodeEvent
+export type EventPayload = ElitzaEvent
 
 export type ToolStatus = ToolSeed["state"]["status"]
 
@@ -248,7 +248,7 @@ export async function setupTimeline(
     keepalive: input.keepalive,
   })
 
-  const mock = await mockOpenCodeServer(page, {
+  const mock = await mockElitzaServer(page, {
     ...input,
     directory,
     project: project(),
@@ -337,7 +337,7 @@ function timelineEvents(input: TimelineEvent) {
   return (Array.isArray(input) ? input : [input]).map(validateTimelineEvent)
 }
 
-function describeEvent(event: OpenCodeEvent) {
+function describeEvent(event: ElitzaEvent) {
   if (event.type.startsWith("session.tool.")) {
     const data = event.data as { id?: string }
 
@@ -349,40 +349,40 @@ function describeEvent(event: OpenCodeEvent) {
 
 export function event(
   type: "session.status",
-  data: Extract<OpenCodeEvent, { type: "session.status" }>["data"],
-): OpenCodeEvent {
+  data: Extract<ElitzaEvent, { type: "session.status" }>["data"],
+): ElitzaEvent {
   return makeEvent(type, data)
 }
 
-export function compactionStarted(data: Extract<OpenCodeEvent, { type: "session.compaction.started" }>["data"]) {
+export function compactionStarted(data: Extract<ElitzaEvent, { type: "session.compaction.started" }>["data"]) {
   return makeEvent("session.compaction.started", data)
 }
 
-export function compactionDelta(data: Extract<OpenCodeEvent, { type: "session.compaction.delta" }>["data"]) {
+export function compactionDelta(data: Extract<ElitzaEvent, { type: "session.compaction.delta" }>["data"]) {
   return makeEvent("session.compaction.delta", data)
 }
 
-export function compactionEnded(data: Extract<OpenCodeEvent, { type: "session.compaction.ended" }>["data"]) {
+export function compactionEnded(data: Extract<ElitzaEvent, { type: "session.compaction.ended" }>["data"]) {
   return makeEvent("session.compaction.ended", data)
 }
 
-export function compactionFailed(data: Extract<OpenCodeEvent, { type: "session.compaction.failed" }>["data"]) {
+export function compactionFailed(data: Extract<ElitzaEvent, { type: "session.compaction.failed" }>["data"]) {
   return makeEvent("session.compaction.failed", data)
 }
 
-export function toolInputStarted(data: Extract<OpenCodeEvent, { type: "session.tool.input.started" }>["data"]) {
+export function toolInputStarted(data: Extract<ElitzaEvent, { type: "session.tool.input.started" }>["data"]) {
   return makeEvent("session.tool.input.started", data)
 }
 
-export function toolInputEnded(data: Extract<OpenCodeEvent, { type: "session.tool.input.ended" }>["data"]) {
+export function toolInputEnded(data: Extract<ElitzaEvent, { type: "session.tool.input.ended" }>["data"]) {
   return makeEvent("session.tool.input.ended", data)
 }
 
-export function toolCalled(data: Extract<OpenCodeEvent, { type: "session.tool.called" }>["data"]) {
+export function toolCalled(data: Extract<ElitzaEvent, { type: "session.tool.called" }>["data"]) {
   return makeEvent("session.tool.called", data)
 }
 
-export function validateTimelineEvent(input: unknown): OpenCodeEvent {
+export function validateTimelineEvent(input: unknown): ElitzaEvent {
   if (!input || typeof input !== "object") throw new Error("Timeline event must be an object")
 
   if (!("type" in input) || typeof input.type !== "string") throw new Error("Timeline event requires a type")
@@ -390,7 +390,7 @@ export function validateTimelineEvent(input: unknown): OpenCodeEvent {
 
   if (!definition) throw new Error(`Unknown timeline event: ${input.type}`)
 
-  return Schema.decodeUnknownSync(definition)(input) as OpenCodeEvent
+  return Schema.decodeUnknownSync(definition)(input) as ElitzaEvent
 }
 
 export function validateTimelineMessages(input: readonly TimelineMessage[]): TimelineMessage[] {
@@ -495,7 +495,7 @@ export function historyMessages(count: number): TimelineMessage[] {
   }).flat()
 }
 
-export function partUpdated(part: PartSeed<"assistant">): readonly OpenCodeEvent[] {
+export function partUpdated(part: PartSeed<"assistant">): readonly ElitzaEvent[] {
   const messageID = part.messageID ?? assistantID
   const startedParts = scenario().startedParts
   const started = startedParts.has(part.id)
@@ -910,13 +910,13 @@ function messageContent(
   }
 }
 
-function toolEvents(part: ToolSeed, messageID: string): readonly OpenCodeEvent[] {
+function toolEvents(part: ToolSeed, messageID: string): readonly ElitzaEvent[] {
   const toolStates = scenario().toolStates
   const previous = toolStates.get(part.id)
 
   if (previous === "completed" || previous === "error") return []
 
-  const events: OpenCodeEvent[] = []
+  const events: ElitzaEvent[] = []
 
   if (!previous) {
     events.push(
@@ -1028,10 +1028,10 @@ function partRef(id: string, messageID: string, type: PartRef["type"]): PartRef 
   return ref
 }
 
-function makeEvent<Type extends OpenCodeEvent["type"]>(
+function makeEvent<Type extends ElitzaEvent["type"]>(
   type: Type,
-  data: Extract<OpenCodeEvent, { type: Type }>["data"],
-): OpenCodeEvent {
+  data: Extract<ElitzaEvent, { type: Type }>["data"],
+): ElitzaEvent {
   const state = scenario()
   const sequence = ++state.eventSequence
   const id = `evt_timeline_${String(sequence).padStart(4, "0")}`
@@ -1048,7 +1048,7 @@ function makeEvent<Type extends OpenCodeEvent["type"]>(
         }
       : base
 
-  return Schema.decodeUnknownSync(definition)(input) as unknown as OpenCodeEvent
+  return Schema.decodeUnknownSync(definition)(input) as unknown as ElitzaEvent
 }
 
 function jsonRecord(value: Record<string, unknown> | undefined): Record<string, JsonValue> {
@@ -1080,7 +1080,7 @@ function provider() {
     all: [
       {
         id: "opencode",
-        name: "OpenCode",
+        name: "Elitza",
         models: { "claude-opus-4-6": { id: "claude-opus-4-6", name: "Claude Opus 4.6", limit: { context: 200_000 } } },
       },
       {

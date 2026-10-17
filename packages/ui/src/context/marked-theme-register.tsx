@@ -1,10 +1,10 @@
 import { registerCustomTheme } from "@pierre/diffs"
-import { OpenCodeTheme } from "./marked-theme"
+import { ElitzaTheme } from "./marked-theme"
 
 let registered = false
 
-export function registerOpenCodeTheme() {
+export function registerElitzaTheme() {
   if (registered) return
   registered = true
-  registerCustomTheme("OpenCode", () => Promise.resolve(OpenCodeTheme))
+  registerCustomTheme("Elitza", () => Promise.resolve(ElitzaTheme))
 }

@@ -48,7 +48,7 @@ const implementAndVerify = () => (
 )
 
 export default {
-  title: "OpenCode/Session/Complete workspace",
+  title: "Elitza/Session/Complete workspace",
   id: "app-current-session-surface",
   component: SessionPreview,
   parameters: {

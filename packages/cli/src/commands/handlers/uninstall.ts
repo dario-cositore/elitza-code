@@ -70,7 +70,7 @@ export default Runtime.handler(
       )
     }
 
-    // Links that keep an older OpenCode replaceable may still run; move them so the cache can go.
+    // Links that keep an older Elitza replaceable may still run; move them so the cache can go.
     if (process.platform === "win32") yield* RetainedImage.relocate(global.cache, global.tmp)
     const errors: string[] = []
     progress.start("Removing Cache...")

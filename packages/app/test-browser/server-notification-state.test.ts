@@ -1,7 +1,7 @@
 import { beforeAll, expect, mock, setSystemTime, test, vi } from "bun:test"
 import { createEffect, createRoot } from "solid-js"
 import { createStore } from "solid-js/store"
-import type { OpenCodeEvent } from "@elitza/client/promise"
+import type { ElitzaEvent } from "@elitza/client/promise"
 import type { ServerConnection } from "@/runtime/server/registry"
 import { ServerScope } from "@/runtime/server/scope"
 import type { Tab } from "@/shell/tabs/tabs"
@@ -62,7 +62,7 @@ test.each([
 ] as const)("system alert for %s requires an open session tab", async (type, title) => {
   alerts.length = 0
   tabs.store = [{ type: "session", server, sessionId: "another-session" }]
-  const listeners = new Array<(event: OpenCodeEvent) => void>()
+  const listeners = new Array<(event: ElitzaEvent) => void>()
 
   const emit = (id: string) =>
     listeners.forEach((listener) =>
@@ -75,7 +75,7 @@ test.each([
       sdk: {
         scope: ServerScope.local,
         event: {
-          listen: (listener: (event: OpenCodeEvent) => void) => {
+          listen: (listener: (event: ElitzaEvent) => void) => {
             listeners.push(listener)
 
             return () => {}

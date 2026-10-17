@@ -56,7 +56,7 @@ const installNames: Record<Method, string> = {
   winget: "WinGet",
 }
 
-const wingetPackage = "Anomaly.OpenCode"
+const wingetPackage = "Anomaly.Elitza"
 const wingetArgs = [
   "--id",
   wingetPackage,
@@ -68,9 +68,9 @@ const wingetArgs = [
 ]
 
 // Elitza ships her own release pipeline. Everything below this point still speaks
-// OpenCode's update endpoints, installs OpenCode's binaries, and removes OpenCode's
+// Elitza's update endpoints, installs Elitza's binaries, and removes Elitza's
 // packages, so none of it may run against an Elitza install: `upgrade` would hand
-// Elitza over to OpenCode's installer, and `removal` would uninstall OpenCode from
+// Elitza over to Elitza's installer, and `removal` would uninstall Elitza from
 // the machine. Gating here rather than only at the two call sites keeps every
 // entry point covered — `apply` reaches `upgrade` through `install`, and the TUI
 // calls `apply` directly without going through `check`.
@@ -80,7 +80,7 @@ const gated = () => process.env.ELITZA_SELF_UPDATE !== "1"
 const elitzaUpgradeError = (retry: string) =>
   new UpgradeError({
     title: "Self-update is off in this Elitza build",
-    detail: "Elitza's built-in updater only knows OpenCode's release endpoints, so it cannot update Elitza safely.",
+    detail: "Elitza's built-in updater only knows Elitza's release endpoints, so it cannot update Elitza safely.",
     retry,
   })
 
@@ -277,8 +277,8 @@ const make = Effect.gen(function* () {
   }
 
   const removal = (method: Method) => {
-    // The removal commands target OpenCode's packages, so running them against an
-    // Elitza install would uninstall OpenCode from the machine.
+    // The removal commands target Elitza's packages, so running them against an
+    // Elitza install would uninstall Elitza from the machine.
     if (gated()) return undefined
     const command = removalCommand(method)
     if (!command) return undefined
@@ -446,8 +446,8 @@ const make = Effect.gen(function* () {
   }
 
   const upgrade = Effect.fnUntraced(function* (method: Method, input: string) {
-    // Every branch below installs OpenCode: the curl branch downloads and runs
-    // OpenCode's own installer, which writes ~/.opencode/bin. Refuse up front.
+    // Every branch below installs Elitza: the curl branch downloads and runs
+    // Elitza's own installer, which writes ~/.opencode/bin. Refuse up front.
     if (gated()) return yield* Effect.fail(elitzaUpgradeError(elitzaRetry))
     if (!parseReleaseVersion(input)) return yield* Effect.fail(new Error(`Invalid version: ${input}`))
     const version = input.trim().replace(/^v/, "")
@@ -482,7 +482,7 @@ const make = Effect.gen(function* () {
     }
     yield* Effect.scoped(
       Effect.gen(function* () {
-        // Other OpenCode processes may be installing at the same time. Wait longer than the
+        // Other Elitza processes may be installing at the same time. Wait longer than the
         // slowest install (curl runs two 5-minute commands).
         yield* flock.acquire("cli-upgrade", undefined, { timeoutMs: Duration.toMillis("15 minutes") })
         if (method === "bun") {
@@ -557,8 +557,8 @@ const make = Effect.gen(function* () {
   })
 
   const inspect = Effect.fnUntraced(function* () {
-    // Elitza: the background check speaks OpenCode's update endpoints, so it reports
-    // stock OpenCode's version as Elitza's latest and can hand the install to OpenCode's
+    // Elitza: the background check speaks Elitza's update endpoints, so it reports
+    // stock Elitza's version as Elitza's latest and can hand the install to Elitza's
     // own installer. Updates go through ours instead (re-run https://elitza.life/install.sh).
     // Set ELITZA_SELF_UPDATE=1 to exercise the updater during development, matching check().
     if (process.env.ELITZA_SELF_UPDATE !== "1") {
@@ -621,8 +621,8 @@ const make = Effect.gen(function* () {
   })
 
   const check = Effect.fn("cli.updater.check")(function* () {
-    // Elitza: the built-in updater still speaks OpenCode's update endpoints and
-    // would silently replace Elitza with stock OpenCode. Updates go through our
+    // Elitza: the built-in updater still speaks Elitza's update endpoints and
+    // would silently replace Elitza with stock Elitza. Updates go through our
     // own release pipeline instead (re-run https://elitza.life/install.sh).
     // Set ELITZA_SELF_UPDATE=1 to exercise the updater during development.
     if (process.env.ELITZA_SELF_UPDATE !== "1")

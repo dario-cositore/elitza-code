@@ -18,7 +18,7 @@ export class Repository extends Schema.Class<Repository>("Git.Repository")({
   commonDirectory: AbsolutePath,
 }) {}
 
-// Included from $GIT_DIR/config via include.path (git >= 1.7.10); OpenCode owns
+// Included from $GIT_DIR/config via include.path (git >= 1.7.10); Elitza owns
 // this file entirely, so updates are plain rewrites with no config parsing.
 const snapshotConfigFile = "opencode.gitconfig"
 const snapshotConfigInclude = `[include]
@@ -744,7 +744,7 @@ const layer = Layer.effect(
       ).pipe(Effect.ignore, Effect.ensuring(fs.remove(temporary, { force: true }).pipe(Effect.ignore)))
     })
 
-    // Stores created by earlier releases would otherwise keep their original settings; only OpenCode's include file is rewritten, never `config`.
+    // Stores created by earlier releases would otherwise keep their original settings; only Elitza's include file is rewritten, never `config`.
     const ensureSnapshotConfig = Effect.fnUntraced(function* (repository: Repository) {
       const file = path.join(repository.gitDirectory, snapshotConfigFile)
       const current = yield* fs.readFileStringSafe(file).pipe(Effect.orElseSucceed(() => undefined))

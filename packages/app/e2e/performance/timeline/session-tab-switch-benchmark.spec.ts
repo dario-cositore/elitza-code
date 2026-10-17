@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test"
-import { mockOpenCodeServer } from "../../utils/mock-server"
+import { mockElitzaServer } from "../../utils/mock-server"
 import { expectSessionTitle } from "../../utils/waits"
 import { benchmark, benchmarkDiagnostics, expect } from "../benchmark"
 import { fixture, installStressSessionTabs, installTimelineSettings } from "../../utils/session-fixture"
@@ -91,7 +91,7 @@ async function prepareSessionTabs(page: Page) {
   })
 
   if (process.env.OPENCODE_PERFORMANCE_HTTP_FIXTURE !== "1")
-    await mockOpenCodeServer(page, {
+    await mockElitzaServer(page, {
       sessions: fixture.sessions,
       provider: fixture.provider,
       directory: fixture.directory,

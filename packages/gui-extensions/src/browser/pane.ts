@@ -1,6 +1,6 @@
 import { NodeHttpClient } from "@effect/platform-node"
 import { Browser } from "@elitza/plugin-browser/rpc"
-import { OpenCode } from "@elitza/client/effect"
+import { Elitza } from "@elitza/client/effect"
 import { SessionID } from "@elitza/schema/session-id"
 import electron, { type BrowserWindow } from "electron"
 import { Deferred, Effect, ManagedRuntime, Queue, Schedule, Schema, Stream } from "effect"
@@ -143,7 +143,7 @@ export function createBrowserPane(input: {
 
             // The renderer never holds the managed sidecar's password; Node requests bypass
             // the webRequest header injection, so the host resolves the credential here in main.
-            const client = yield* OpenCode.make({ baseUrl: server.url }).pipe(
+            const client = yield* Elitza.make({ baseUrl: server.url }).pipe(
               Effect.provideService(
                 HttpClient.HttpClient,
                 Object.keys(server.headers).length

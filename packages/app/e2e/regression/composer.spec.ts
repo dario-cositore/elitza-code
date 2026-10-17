@@ -277,7 +277,7 @@ test("shows the dropzone and attaches a dropped file", async ({ page }) => {
     .toEqual([
       {
         path: expect.stringMatching(/\/uploads\/[0-9a-f-]{36}\/dropzone\.txt$/),
-        directory: "C:/OpenCode/ComposerDraft",
+        directory: "C:/Elitza/ComposerDraft",
         body: "Dropzone fixture",
       },
     ])
@@ -419,7 +419,7 @@ test("marks a Console provider with its workspace only when it is also connected
     name: "ComposerConsoleProviders",
     provider: {
       all: [
-        managed("opencode", "opencode", "OpenCode", model("console-model", "Console Model")),
+        managed("opencode", "opencode", "Elitza", model("console-model", "Console Model")),
         managed("console-google", "google", "Google", model("managed-gemini", "Managed Gemini")),
         managed("console-openai", "openai", "OpenAI", model("managed-gpt", "Managed GPT")),
         { id: "google", canonical: "google", name: "Google", models: model("direct-gemini", "Direct Gemini") },
@@ -451,7 +451,7 @@ test("marks a Console provider with its workspace only when it is also connected
   await expect(headings.filter({ hasText: /^GoogleAnomaly$/ })).toHaveCount(1)
   await expect(headings.filter({ hasText: /^Google$/ })).toHaveCount(1)
   await expect(headings.filter({ hasText: /^OpenAI$/ })).toHaveCount(1)
-  await expect(headings.filter({ hasText: /^OpenCode$/ })).toHaveCount(1)
+  await expect(headings.filter({ hasText: /^Elitza$/ })).toHaveCount(1)
   await expect(menu.getByText(/Anomaly \//)).toHaveCount(0)
 })
 

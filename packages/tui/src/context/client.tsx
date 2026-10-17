@@ -1,4 +1,4 @@
-import type { OpenCodeClient, OpenCodeEvent } from "@elitza/client"
+import type { ElitzaClient, ElitzaEvent } from "@elitza/client"
 import { createClientConnection, createPersistentPtyClient } from "@elitza/client/solid"
 import { createGlobalEmitter } from "@solid-primitives/event-bus"
 import { onCleanup } from "solid-js"
@@ -6,15 +6,15 @@ import { createSimpleContext } from "./helper"
 import { useLog } from "./log"
 
 type ManagedService = {
-  reconnect: (signal: AbortSignal) => Promise<{ api: OpenCodeClient; url?: string }>
+  reconnect: (signal: AbortSignal) => Promise<{ api: ElitzaClient; url?: string }>
   restart: () => Promise<void>
 }
 
-type ClientEventMap = { [Type in OpenCodeEvent["type"]]: Extract<OpenCodeEvent, { type: Type }> }
+type ClientEventMap = { [Type in ElitzaEvent["type"]]: Extract<ElitzaEvent, { type: Type }> }
 
 export const { use: useClient, provider: ClientProvider } = createSimpleContext({
   name: "Client",
-  init: (props: { api: OpenCodeClient; url?: string; service?: ManagedService }) => {
+  init: (props: { api: ElitzaClient; url?: string; service?: ManagedService }) => {
     const log = useLog({ component: "client" })
     const service = props.service
     const events = createGlobalEmitter<ClientEventMap>()

@@ -75,15 +75,15 @@ describe("auth command", () => {
     expect(requests.indexOf("/api/model/default")).toBeLessThan(requests.indexOf("/api/integration"))
   })
 
-  test("lists OpenCode Go before Zen and preserves the remaining integration order", async () => {
+  test("lists Elitza Go before Zen and preserves the remaining integration order", async () => {
     using server = authServer((request, url) => {
       if (url.pathname === "/api/integration") {
         return Response.json(
           located(
             [
-              { id: "opencode", name: "OpenCode Zen" },
+              { id: "opencode", name: "Elitza Zen" },
               { id: "anthropic", name: "Anthropic" },
-              { id: "opencode-go", name: "OpenCode Go" },
+              { id: "opencode-go", name: "Elitza Go" },
             ].map((integration) => ({
               ...integration,
               methods: [],
@@ -102,7 +102,7 @@ describe("auth command", () => {
         .trim()
         .split("\n")
         .map((line) => line.split(/\s{2,}/)[0]),
-    ).toEqual(["OpenCode Go", "OpenCode Zen", "Anthropic"])
+    ).toEqual(["Elitza Go", "Elitza Zen", "Anthropic"])
   })
 
   test("runs command authentication without interactive input", async () => {

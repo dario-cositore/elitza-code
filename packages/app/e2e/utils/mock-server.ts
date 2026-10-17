@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test"
-import type { OpenCodeEvent, SessionMessageInfo } from "@elitza/client/promise"
+import type { ElitzaEvent, SessionMessageInfo } from "@elitza/client/promise"
 import { Permission } from "@elitza/schema/permission"
 import { Worktree } from "@elitza/schema/worktree"
 import { Duration, Effect, Layer, Option, Predicate, Schema } from "effect"
@@ -87,7 +87,7 @@ export interface MockServerConfig {
   onMessage?: (input: { sessionID: string; messageID: string }) => void
   onRevertStage?: (input: { sessionID: string; messageID: string }) => void
   onSession?: (sessionID: string) => void
-  events?: () => OpenCodeEvent[]
+  events?: () => ElitzaEvent[]
   eventRetry?: number
   // Idle event streams send a comment every 15 s like the real server. Set false only to test the client's stall watchdog.
   keepalive?: boolean
@@ -199,7 +199,7 @@ type MockStreamWindow = Window & {
   __mockServerStreams?: Record<string, MockStream>
 }
 
-export async function mockOpenCodeServer(page: Page, config: MockServerConfig) {
+export async function mockElitzaServer(page: Page, config: MockServerConfig) {
   const server = config.server ?? SERVER
 
   mockedOrigins(page).add(server)
@@ -296,7 +296,7 @@ export async function mockOpenCodeServer(page: Page, config: MockServerConfig) {
 
   // Delivers events on this server's mock stream; buffered until the app connects.
   // An origin served by an SSE transport receives the events as one burst on its active connection.
-  const push = (payloads: readonly OpenCodeEvent[]) =>
+  const push = (payloads: readonly ElitzaEvent[]) =>
     page.evaluate<void, { server: string; payloads: readonly unknown[] }>(
       ({ server, payloads }) => {
         // SAFETY: only the init script, `installSseTransport`, and benchmarks write these globals, in the declared shapes.
@@ -313,7 +313,7 @@ export async function mockOpenCodeServer(page: Page, config: MockServerConfig) {
     )
 
   // Server-side events the mock publishes itself; delivery failures other than a missing document fail the test.
-  const emit = (events: OpenCodeEvent[]) =>
+  const emit = (events: ElitzaEvent[]) =>
     void push(events).catch((cause: unknown) => {
       if (page.isClosed() || retryableDelivery(cause)) return
       throw cause
@@ -321,7 +321,7 @@ export async function mockOpenCodeServer(page: Page, config: MockServerConfig) {
 
   if (config.events) {
     // Batches stay queued until the page accepts them; failures other than a missing document fail the test.
-    const pending: OpenCodeEvent[] = []
+    const pending: ElitzaEvent[] = []
     const pump = { busy: false, pending }
 
     const timer = setInterval(() => {
@@ -502,7 +502,7 @@ export async function mockServers(page: Page, servers: Record<string, Omit<MockS
           keepalive: config.keepalive,
         })
 
-        const mock = await mockOpenCodeServer(page, { ...config, server: origin })
+        const mock = await mockElitzaServer(page, { ...config, server: origin })
 
         return [origin, { transport, pty: mock.pty }] as const
       }),
@@ -511,7 +511,7 @@ export async function mockServers(page: Page, servers: Record<string, Omit<MockS
 }
 
 // `emit` publishes the events a real server sends after a mutation (without a page, nothing is published).
-export function createMockServerHandler(config: MockServerConfig, emit: (events: OpenCodeEvent[]) => void = () => {}) {
+export function createMockServerHandler(config: MockServerConfig, emit: (events: ElitzaEvent[]) => void = () => {}) {
   const pty = createPty(config)
 
   const web = HttpRouter.toWebHandler(
@@ -705,7 +705,7 @@ function mockHandlers(
     nextCursor: number
     sessionCreates: number
     pty: ReturnType<typeof createPty>
-    emit: (events: OpenCodeEvent[]) => void
+    emit: (events: ElitzaEvent[]) => void
     // MCP status overrides by `<directory>\n<server>`, and OAuth attempt creation times by attempt ID.
     mcp: Map<string, MockMcpStatus>
     attempts: Map<string, number>

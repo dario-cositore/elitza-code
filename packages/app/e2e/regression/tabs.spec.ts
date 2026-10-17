@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test"
-import type { OpenCodeEvent, SessionMessageInfo } from "@elitza/client/promise"
+import type { ElitzaEvent, SessionMessageInfo } from "@elitza/client/promise"
 import {
   NO_PROVIDER,
   REMOTE_SERVER,
@@ -28,7 +28,7 @@ test("tab strip keeps draft tabs as wide as session tabs and navigates on mouse 
   const workspace = await mockWorkspace(page, {
     name: "Tabs",
     sessions: [a, b],
-    seed: { tabs: [a.id, { draft: "draft_tab_width", directory: "C:/OpenCode/Tabs" }, b.id] },
+    seed: { tabs: [a.id, { draft: "draft_tab_width", directory: "C:/Elitza/Tabs" }, b.id] },
   })
 
   await page.goto(sessionHref(a.id))
@@ -297,7 +297,7 @@ test("icon-only inactive tabs retain their avatar and attention badge instead of
 
 test("vertical tabs resize, scroll, show shortcut hints, and navigate", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 480 })
-  const directory = "C:/OpenCode/Tabs"
+  const directory = "C:/Elitza/Tabs"
   await mockWorkspace(page, {
     name: "Tabs",
     sessions: [a, b],
@@ -595,7 +595,7 @@ test("inactive tabs stay busy while work waits in their inbox, and pulse on a ne
         inboxID: "inb_tab_c_prompt",
         item: { type: "user", payload: { text: "Another client's prompt" }, delivery: "queue" },
       },
-    } satisfies Extract<OpenCodeEvent, { type: "session.inbox.enqueued" }>,
+    } satisfies Extract<ElitzaEvent, { type: "session.inbox.enqueued" }>,
   ])
 
   await expect(tab(c.id)).toHaveAttribute("data-test-pulsed", "")
@@ -784,10 +784,10 @@ test("five loaded workspace tabs stay rendered and reactive through repeated swi
 
 test("each session tab shows its own file tab after a switch to a session in another folder", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  const directory = "C:/OpenCode/FolderSwitch"
+  const directory = "C:/Elitza/FolderSwitch"
   const alpha = { id: "ses_folderswitch_alpha", title: "Folder switch alpha" }
   const beta = { id: "ses_folderswitch_beta", title: "Folder switch beta" }
-  const other = { id: "ses_folderswitch_other", title: "Folder switch other", directory: "C:/OpenCode/FolderOther" }
+  const other = { id: "ses_folderswitch_other", title: "Folder switch other", directory: "C:/Elitza/FolderOther" }
   await openSession(page, {
     name: "FolderSwitch",
     sessions: [alpha, beta, other],
@@ -834,7 +834,7 @@ test("each session tab shows its own file tab after a switch to a session in ano
 
 test("tab shortcuts cycle side-panel tabs when the side panel is focused with multiple tabs", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  const directory = "C:/OpenCode/SidePanelTabs"
+  const directory = "C:/Elitza/SidePanelTabs"
   const alpha = { id: "ses_side_tabs_alpha", title: "Side tabs alpha" }
   const beta = { id: "ses_side_tabs_beta", title: "Side tabs beta" }
   await openSession(page, {
@@ -900,7 +900,7 @@ test("tab shortcuts cycle side-panel tabs when the side panel is focused with mu
 test("the Windows titlebar menu pastes through the desktop edit action", async ({ page }) => {
   await mockWorkspace(page, { name: "WindowsMenu", sessions: [] })
   await page.goto(`/e2e/utils/windows-menu.html?${new URLSearchParams({ server: SERVER })}`)
-  await page.getByRole("button", { name: "OpenCode menu", exact: true }).click()
+  await page.getByRole("button", { name: "Elitza menu", exact: true }).click()
   await page.getByRole("menuitem", { name: "Edit", exact: true }).click()
   const paste = page.getByRole("menuitem", { name: /^Paste/ })
   await expect(paste).toHaveText("PasteCtrl+V")

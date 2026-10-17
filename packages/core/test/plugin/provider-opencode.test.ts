@@ -138,7 +138,7 @@ describe("OpencodePlugin", () => {
         {
           id: Integration.MethodID.make("device"),
           type: "oauth",
-          label: "OpenCode Console account",
+          label: "Elitza Console account",
           form: [
             { key: "server", type: "string", format: "uri", hidden: true, default: "https://opencode.ai/console" },
           ],
@@ -260,7 +260,7 @@ describe("OpencodePlugin", () => {
             if (orgID === "org-missing") {
               expect(status).toMatchObject({
                 status: "failed",
-                message: "OpenCode organization not found: org-missing",
+                message: "Elitza organization not found: org-missing",
               })
               expect(yield* credentials.list(integrationID)).toEqual([])
               expect(config).toEqual([])
@@ -350,7 +350,7 @@ describe("OpencodePlugin", () => {
                 }),
               ).toEqual(stored.value)
               expect(requests).toEqual(["/auth/device/token", "/api/v2/config"])
-              // The refresh and the config fetch both say which OpenCode is asking.
+              // The refresh and the config fetch both say which Elitza is asking.
               expect(agents).toEqual(["opencode/beta/1.2.3/test", "opencode/beta/1.2.3/test"])
             }).pipe(Effect.provideService(App.Metadata, App.make({ name: "test", version: "1.2.3", channel: "beta" }))),
           ({ server }) => Effect.promise(() => server.stop(true)),
@@ -358,7 +358,7 @@ describe("OpencodePlugin", () => {
     )
   }
 
-  it.effect("rejects non-HTTP OpenCode servers", () =>
+  it.effect("rejects non-HTTP Elitza servers", () =>
     Effect.gen(function* () {
       yield* addPlugin()
       const integrations = yield* Integration.Service
@@ -370,11 +370,11 @@ describe("OpencodePlugin", () => {
         })
         .pipe(Effect.flip)
       expect(error).toBeInstanceOf(Integration.AuthorizationError)
-      expect(String(error.cause)).toContain("Invalid OpenCode server URL: expected HTTP(S)")
+      expect(String(error.cause)).toContain("Invalid Elitza server URL: expected HTTP(S)")
     }),
   )
 
-  it.effect("rejects non-string OpenCode servers", () =>
+  it.effect("rejects non-string Elitza servers", () =>
     Effect.gen(function* () {
       yield* addPlugin()
       const integrations = yield* Integration.Service
@@ -390,7 +390,7 @@ describe("OpencodePlugin", () => {
     }),
   )
 
-  it.live("loads native V2 providers and models from the connected OpenCode server", () =>
+  it.live("loads native V2 providers and models from the connected Elitza server", () =>
     Effect.acquireUseRelease(
       Effect.sync(() => {
         const authorization: Array<string | null> = []
@@ -633,20 +633,20 @@ describe("OpencodePlugin", () => {
           yield* drain
           expect(state.requests).toBe(2)
           expect(rebuilds).toEqual({ provider: initial.provider + 1, websearch: initial.websearch + 1 })
-          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "OpenCode Web Search" })
+          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "Elitza Web Search" })
 
           yield* TestClock.adjust("1 minute")
           yield* drain
           expect(state.requests).toBe(3)
           expect(rebuilds).toEqual({ provider: initial.provider + 1, websearch: initial.websearch + 1 })
-          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "OpenCode Web Search" })
+          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "Elitza Web Search" })
 
           state.failing = true
           yield* TestClock.adjust("1 minute")
           yield* drain
           expect(state.requests).toBe(4)
           expect(rebuilds).toEqual({ provider: initial.provider + 1, websearch: initial.websearch + 1 })
-          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "OpenCode Web Search" })
+          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "Elitza Web Search" })
 
           state.failing = false
           state.advertised = false
@@ -1237,7 +1237,7 @@ describe("OpencodePlugin", () => {
 
           expect((yield* integrations.get(Integration.ID.make("opencode")))?.connections[0]?.status).toEqual({
             status: "needs_auth",
-            message: "Reconnect OpenCode Console to continue",
+            message: "Reconnect Elitza Console to continue",
           })
           expect((yield* credentials.get(credential.id))?.value).toMatchObject({ refresh: "revoked" })
         }),
@@ -1280,7 +1280,7 @@ describe("OpencodePlugin", () => {
           yield* addPlugin().pipe(inProcess(server))
           yield* drain
 
-          expect(yield* status()).toEqual({ status: "needs_auth", message: "Reconnect OpenCode Console to continue" })
+          expect(yield* status()).toEqual({ status: "needs_auth", message: "Reconnect Elitza Console to continue" })
           expect((yield* credentials.get(credential.id))?.value).toMatchObject({ access: "revoked" })
 
           state.revoked = false
@@ -1293,7 +1293,7 @@ describe("OpencodePlugin", () => {
     ),
   )
 
-  it.live("loads and executes hosted web search from the connected OpenCode server", () =>
+  it.live("loads and executes hosted web search from the connected Elitza server", () =>
     Effect.acquireUseRelease(
       Effect.sync(() => {
         const requests: Array<{
@@ -1336,7 +1336,7 @@ describe("OpencodePlugin", () => {
                 results: [
                   {
                     url: "https://github.com/dario-cositore/elitza-code",
-                    title: "OpenCode",
+                    title: "Elitza",
                     content: "Open source AI coding agent.",
                     time: { published: 1_700_000_000_000 },
                   },
@@ -1369,16 +1369,16 @@ describe("OpencodePlugin", () => {
           yield* addPlugin()
           expect(yield* websearch.providers()).toContainEqual({
             id: WebSearch.ID.make("opencode"),
-            name: "OpenCode Web Search",
+            name: "Elitza Web Search",
           })
-          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "OpenCode Web Search" })
+          expect(yield* websearch.default()).toEqual({ id: WebSearch.ID.make("opencode"), name: "Elitza Web Search" })
           expect(yield* websearch.query({ query: "effect web search" })).toEqual(
             new WebSearch.Response({
               providerID: WebSearch.ID.make("opencode"),
               results: [
                 {
                   url: "https://github.com/dario-cositore/elitza-code",
-                  title: "OpenCode",
+                  title: "Elitza",
                   content: "Open source AI coding agent.",
                   time: { published: 1_700_000_000_000 },
                 },
@@ -1503,7 +1503,7 @@ describe("OpencodePlugin", () => {
 
           expect(yield* websearch.default()).toEqual({
             id: WebSearch.ID.make("managed-search"),
-            name: "OpenCode Web Search",
+            name: "Elitza Web Search",
           })
           expect(yield* websearch.query({ query: "default Console" })).toEqual(
             new WebSearch.Response({ providerID: WebSearch.ID.make("managed-search"), results: [] }),

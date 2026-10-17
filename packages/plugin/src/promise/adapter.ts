@@ -220,7 +220,7 @@ export function fromPromise(plugin: Plugin) {
     id: plugin.id,
     effect: (host) =>
       Effect.gen(function* () {
-        const [{ ClientApi }, { OpenCodeEvent }] = yield* Effect.promise(() =>
+        const [{ ClientApi }, { ElitzaEvent }] = yield* Effect.promise(() =>
           Promise.all([import("@elitza/protocol/client"), import("@elitza/protocol/groups/event")]),
         )
         const AgentEndpoints = ClientApi.groups["server.agent"].endpoints
@@ -331,7 +331,7 @@ export function fromPromise(plugin: Plugin) {
             subscribe: (options) =>
               streams(
                 host.event.subscribe().pipe(
-                  Stream.mapEffect((event) => Schema.encodeUnknownEffect(OpenCodeEvent)(event)),
+                  Stream.mapEffect((event) => Schema.encodeUnknownEffect(ElitzaEvent)(event)),
                   Stream.map((event) => event as unknown as PromiseEvent),
                 ),
                 options,

@@ -243,16 +243,16 @@ describe("HttpApiCodegen.generate", () => {
       {
         outputTypes: {
           "session.events": {
-            name: "OpenCodeEvent",
-            import: 'import type { OpenCodeEvent } from "@example/protocol/event"',
+            name: "ElitzaEvent",
+            import: 'import type { ElitzaEvent } from "@example/protocol/event"',
           },
         },
       },
     )
     const source = output.files[0]?.content
 
-    expect(source).toContain('import type { OpenCodeEvent } from "@example/protocol/event"')
-    expect(source).toContain("export type SessionEventsOutput = OpenCodeEvent")
+    expect(source).toContain('import type { ElitzaEvent } from "@example/protocol/event"')
+    expect(source).toContain("export type SessionEventsOutput = ElitzaEvent")
   })
 
   test("rejects authoritative Effect types colliding with generated aliases", () => {
@@ -497,7 +497,7 @@ describe("HttpApiCodegen.generate", () => {
     await using emitted = await emittedModule(output)
     const methods: Array<string> = []
 
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async (_input: RequestInfo | URL, init?: RequestInit) => {
         methods.push(init?.method ?? "GET")
@@ -963,7 +963,7 @@ describe("HttpApiCodegen.generate", () => {
     )
     await using emitted = await emittedModule(output)
     let request: Request | undefined
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com/base?tenant=one#fragment",
       fetch: async (input: RequestInfo | URL) => {
         request = input instanceof Request ? input : new Request(input)
@@ -988,7 +988,7 @@ describe("HttpApiCodegen.generate", () => {
       ),
     )
     await using emitted = await emittedModule(output)
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async () => new Response(null, { status: 204 }),
     })
@@ -1009,7 +1009,7 @@ describe("HttpApiCodegen.generate", () => {
     )
     await using emitted = await emittedModule(output)
     let request: Request | undefined
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async (input: RequestInfo | URL) => {
         request = input instanceof Request ? input : new Request(input)
@@ -1040,7 +1040,7 @@ describe("HttpApiCodegen.generate", () => {
     )
     await using emitted = await emittedModule(output)
     let request: Request | undefined
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
         request = input instanceof Request ? input : new Request(input, init)
@@ -1072,7 +1072,7 @@ describe("HttpApiCodegen.generate", () => {
     )
     await using emitted = await emittedModule(output)
     let request: Request | undefined
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
         request = input instanceof Request ? input : new Request(input, init)
@@ -1098,7 +1098,7 @@ describe("HttpApiCodegen.generate", () => {
     )
     await using emitted = await emittedModule(output)
     let request: Request | undefined
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
         request = input instanceof Request ? input : new Request(input, init)
@@ -1124,7 +1124,7 @@ describe("HttpApiCodegen.generate", () => {
       ),
     )
     await using emitted = await emittedModule(output)
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async () => Response.json({ _tag: "Missing", message: "gone" }, { status: 404 }),
     })
@@ -1151,7 +1151,7 @@ describe("HttpApiCodegen.generate", () => {
     await using emitted = await emittedModule(output)
     let requests = 0
     let url: string | undefined
-    const client = emitted.module.OpenCode.make({
+    const client = emitted.module.Elitza.make({
       baseUrl: "https://example.com",
       fetch: async (input: RequestInfo | URL) => {
         requests++

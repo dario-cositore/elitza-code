@@ -82,9 +82,9 @@ const SsoRequired = Schema.Struct({
 const InvalidGrant = Schema.Struct({ error: Schema.Literal("invalid_grant") })
 // Console's 401 when the session behind the access token was revoked or expired.
 const Unauthorized = Schema.Struct({ _tag: Schema.Literal("Unauthorized") })
-const signedOutMessage = "Reconnect OpenCode Console to continue"
+const signedOutMessage = "Reconnect Elitza Console to continue"
 const ssoMessage = (organization: string | undefined) =>
-  `Sign in with SSO again to use ${organization ?? "your OpenCode Console organization"}`
+  `Sign in with SSO again to use ${organization ?? "your Elitza Console organization"}`
 
 class SsoRequiredError extends Schema.TaggedError<SsoRequiredError>()("OpencodeConsole.SsoRequired", {
   organization: Schema.optional(Schema.String),
@@ -108,7 +108,7 @@ function oauth(http: HttpClient.HttpClient) {
     method: {
       id: methodID,
       type: "oauth",
-      label: "OpenCode Console account",
+      label: "Elitza Console account",
       form: [
         {
           key: "server",
@@ -186,7 +186,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
   effect: Effect.fn(function* (ctx) {
     const bus = yield* Bus.Service
     const client = yield* HttpClient.HttpClient
-    // Every request here goes to the Console, which reads the User-Agent to tell which OpenCode a member runs
+    // Every request here goes to the Console, which reads the User-Agent to tell which Elitza a member runs
     // and whether it evaluates the policies it is being sent.
     const http = HttpClient.mapRequest(client, HttpClientRequest.setHeader("User-Agent", App.useragent(ctx.app)))
     const managed = yield* ManagedPolicy.Service
@@ -235,7 +235,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
             // Only well-formed Console errors change the connection status; anything else may be transient.
             const next = connectionStatus(cause)
             if (next) yield* status(next)
-            yield* Effect.logWarning("failed to load OpenCode provider config", { cause })
+            yield* Effect.logWarning("failed to load Elitza provider config", { cause })
             // A load that fails for the connection already in place keeps its last config: dropping it
             // would lift organization policy while personal credentials keep working.
             return IntegrationConnection.key(connection) === IntegrationConnection.key(snapshot.connection)
@@ -254,7 +254,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
 
     yield* ctx.integration.transform((editor) => {
       editor.update("opencode", (integration) => {
-        integration.name = "OpenCode Console"
+        integration.name = "Elitza Console"
       })
       editor.method.update(oauth(http))
       editor.method.update({ integrationID: "opencode", method: { type: "key", label: "API key (service account)" } })
@@ -338,7 +338,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
       if (!item) return
       const hasKey = Boolean(process.env.OPENCODE_API_KEY || snapshot.connection || item.provider.settings?.apiKey)
       providers.update(item.provider.id, (provider) => {
-        // Elitza never force-enables OpenCode's hosted Zen without credentials: its
+        // Elitza never force-enables Elitza's hosted Zen without credentials: its
         // free tier rejects non-official clients, so signed-out availability only
         // produces dead models ("API key expired" / free-tier errors on every send).
         if (!hasKey) provider.activation = "disabled"
@@ -367,7 +367,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
       if (!descriptor || !connection) return
       editor.add({
         id: descriptor.providerID,
-        name: "OpenCode Web Search",
+        name: "Elitza Web Search",
         execute: (input) =>
           Effect.gen(function* () {
             const active = yield* ctx.integration.connection.active("opencode")
@@ -377,11 +377,11 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
                 ? active.type !== "credential" || active.id !== connection.id
                 : active.type !== "env" || active.name !== connection.name)
             ) {
-              return yield* Effect.fail(new Error("OpenCode Console connection changed"))
+              return yield* Effect.fail(new Error("Elitza Console connection changed"))
             }
             const credential = yield* ctx.integration.connection.resolve(active)
             if (!credential || credential.type === "external")
-              return yield* Effect.fail(new Error("OpenCode Console is not connected"))
+              return yield* Effect.fail(new Error("Elitza Console is not connected"))
             const metadata = credential.metadata
             const orgID = typeof metadata?.orgID === "string" ? metadata.orgID : undefined
             const token = credential.type === "oauth" ? credential.access : credential.key
@@ -403,13 +403,13 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
                 Effect.scoped,
                 Effect.timeoutOrElse({
                   duration: Duration.seconds(25),
-                  orElse: () => Effect.fail(new Error("OpenCode web search request timed out")),
+                  orElse: () => Effect.fail(new Error("Elitza web search request timed out")),
                 }),
               )
             if (response.providerID !== descriptor.providerID) {
               return yield* Effect.fail(
                 new Error(
-                  `OpenCode web search returned provider ${response.providerID} instead of ${descriptor.providerID}`,
+                  `Elitza web search returned provider ${response.providerID} instead of ${descriptor.providerID}`,
                 ),
               )
             }
@@ -577,7 +577,7 @@ function normalizeServer(input: unknown) {
       return `${url.origin}${url.pathname.replace(/\/+$/, "")}`
     },
     catch: (cause) =>
-      new Error(`Invalid OpenCode server URL: ${cause instanceof Error ? cause.message : String(cause)}`),
+      new Error(`Invalid Elitza server URL: ${cause instanceof Error ? cause.message : String(cause)}`),
   })
 }
 
@@ -620,7 +620,7 @@ function credential(http: HttpClient.HttpClient, server: string, token: typeof T
         ? orgs.toSorted((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id))[0]
         : orgs.find((org) => org.id === token.org_id)
     if (token.org_id != null && !org) {
-      return yield* Effect.fail(new Error(`OpenCode organization not found: ${token.org_id}`))
+      return yield* Effect.fail(new Error(`Elitza organization not found: ${token.org_id}`))
     }
     return Credential.OAuth.make({
       type: "oauth" as const,

@@ -2,7 +2,7 @@
  * Elitza Brain — session persistence views.
  *
  * 1:1 port of the legacy Python `persistence.py` tool surface, rebuilt on the
- * engine's own session store (OpenCode owns conversation storage now — no
+ * engine's own session store (Elitza owns conversation storage now — no
  * mirror DB). Exposes: recent sessions, cross-conversation history search,
  * and persistence statistics.
  */

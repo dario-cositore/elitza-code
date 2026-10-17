@@ -93,7 +93,7 @@ test.each([
       light: getElitzaTheme().light,
     },
   ],
-] as const)("falls back to OpenCode when configured V2 theme %s is invalid", async (_label, source) => {
+] as const)("falls back to Elitza when configured V2 theme %s is invalid", async (_label, source) => {
   let themes: ReturnType<typeof useThemes> | undefined
   let failure: ThemeError | undefined
   let unsubscribe: (() => void) | undefined

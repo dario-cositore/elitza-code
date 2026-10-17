@@ -14,7 +14,7 @@
 import type {
   FormAnswer,
   FormInfo,
-  OpenCodeClient,
+  ElitzaClient,
   LocationGetOutput,
   LocationRef,
   PermissionRequest,
@@ -109,7 +109,7 @@ export type RunAgent = {
 export type RunReference = ReferenceListOutput["data"][number]
 
 export type RunInput = {
-  sdk: OpenCodeClient
+  sdk: ElitzaClient
   location: LocationGetOutput
   agent: string | undefined
   model: PromptModel | undefined
@@ -378,7 +378,7 @@ export type FooterEvent =
       state: FooterSubagentState
     }
 
-export type PermissionReply = Parameters<OpenCodeClient["permission"]["reply"]>[0]
+export type PermissionReply = Parameters<ElitzaClient["permission"]["reply"]>[0]
 
 export type FormReply = {
   sessionID: string

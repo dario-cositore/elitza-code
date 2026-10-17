@@ -1,6 +1,6 @@
 import type { CDPSession, Page } from "@playwright/test"
 import { benchmark, expect } from "../benchmark"
-import { mockOpenCodeServer } from "../../utils/mock-server"
+import { mockElitzaServer } from "../../utils/mock-server"
 import { APP_READY_TIMEOUT } from "../../utils/waits"
 import { SERVER } from "../../utils/app"
 import { fixture as stress } from "../../utils/session-fixture"
@@ -213,7 +213,7 @@ benchmark.describe("performance: home session index", () => {
 
 async function setup(page: Page, fixture: HomeIndexFixture) {
   const primary = fixture.directories[0]
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     directory: primary.directory,
     project: {
       id: primary.projectID,

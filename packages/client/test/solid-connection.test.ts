@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test"
 import { createRoot } from "solid-js"
 import { createClientConnection } from "../src/solid"
-import { OpenCode, type OpenCodeEvent } from "../src/promise"
+import { Elitza, type ElitzaEvent } from "../src/promise"
 
 const connected = { id: "evt_connected", created: 1, type: "server.connected", data: {} }
 
@@ -15,7 +15,7 @@ function server() {
     error: (reason: Error) => void
     aborted: boolean
   }[] = []
-  const api = OpenCode.make({
+  const api = Elitza.make({
     baseUrl: "http://opencode.local",
     fetch: async (input, init) => {
       const request = input instanceof Request ? input : new Request(input, init)
@@ -47,7 +47,7 @@ function server() {
 }
 
 function setup(input: ReturnType<typeof server>, idleTimeout: number) {
-  const events: OpenCodeEvent[] = []
+  const events: ElitzaEvent[] = []
   return createRoot((dispose) => ({
     events,
     dispose,

@@ -1,6 +1,6 @@
 import { EOL } from "node:os"
 import { Effect, Option } from "effect"
-import { OpenCode } from "@elitza/client"
+import { Elitza } from "@elitza/client"
 import { Service } from "@elitza/client/effect/service"
 import { Commands } from "../commands"
 import { Runtime } from "../../framework/runtime"
@@ -13,7 +13,7 @@ export default Runtime.handler(
       server: Option.getOrUndefined(input.server),
       standalone: input.standalone,
     })
-    const client = OpenCode.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
+    const client = Elitza.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
     yield* Effect.tryPromise({
       try: (signal) => client.location.reload({ signal }),
       catch: (cause) => cause,

@@ -1,12 +1,12 @@
 import { expect, test } from "bun:test"
 import { createComputed, createRoot } from "solid-js"
-import { OpenCode } from "@elitza/client/promise"
+import { Elitza } from "@elitza/client/promise"
 import { createData } from "@elitza/client/solid"
 
 test("publishes an initial message page, its index, and its cursor together", async () => {
   const observed: { ids: string[]; more: boolean; text: string | undefined }[] = []
 
-  const api = OpenCode.make({
+  const api = Elitza.make({
     baseUrl: "http://opencode.local",
     fetch: async () =>
       Response.json({

@@ -4,7 +4,7 @@ import { useDialog } from "@elitza/ui/context/dialog"
 import { Icon } from "@elitza/ui/icon"
 import { IconButton } from "@elitza/ui/icon-button"
 import { Menu } from "@elitza/ui/menu"
-import { OpenCodeLogo } from "@/providers/opencode-logo"
+import { ElitzaLogo } from "@/providers/opencode-logo"
 import { showToast } from "@/shell/notifications/toast"
 import { popularProviders, useProviders } from "@/providers/catalog/providers"
 import { consoleProviderGroup } from "@/providers/catalog/console"
@@ -458,7 +458,7 @@ export const SettingsProviders: Component<{
                         <div class="settings-provider-console group">
                           <div class="settings-provider-console-header">
                             <div class="settings-provider-lead">
-                              <OpenCodeLogo class="settings-provider-icon size-4 shrink-0" />
+                              <ElitzaLogo class="settings-provider-icon size-4 shrink-0" />
                               <div class="settings-provider-console-summary">
                                 <div class="settings-provider-main">
                                   <span class="settings-provider-name truncate">

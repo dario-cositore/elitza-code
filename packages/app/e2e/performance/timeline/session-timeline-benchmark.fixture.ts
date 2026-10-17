@@ -1,12 +1,12 @@
 import { base64Encode } from "@elitza/util/encode"
-import type { JsonValue, OpenCodeEvent, SessionMessageAssistant, SessionMessageInfo } from "@elitza/client/promise"
+import type { JsonValue, ElitzaEvent, SessionMessageAssistant, SessionMessageInfo } from "@elitza/client/promise"
 import type { Page } from "@playwright/test"
-import { mockOpenCodeServer } from "../../utils/mock-server"
+import { mockElitzaServer } from "../../utils/mock-server"
 import { expectAppVisible, expectSessionTitle } from "../../utils/waits"
 import { expect } from "../benchmark"
 import { createTwoFilesPatch } from "diff"
 
-const directory = "C:/OpenCode/TimelineStateRegression"
+const directory = "C:/Elitza/TimelineStateRegression"
 
 const projectID = "proj_timeline_state_regression"
 
@@ -27,7 +27,7 @@ const title = "Timeline collapse state regression"
 
 const model = { providerID: "opencode", modelID: "claude-opus-4-6", variant: "max" }
 
-type EventPayload = OpenCodeEvent
+type EventPayload = ElitzaEvent
 
 const userMessage = {
   id: userMessageID,
@@ -121,7 +121,7 @@ export async function setupTimelineBenchmark(
     assistantMessage,
   ]
 
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     directory,
     project: project(),
     provider: provider(),
@@ -391,9 +391,9 @@ let eventSequence = 0
 
 function timelineEvent<Type extends "session.text.started" | "session.text.delta">(
   type: Type,
-  data: Extract<OpenCodeEvent, { type: Type }>["data"],
+  data: Extract<ElitzaEvent, { type: Type }>["data"],
   durable = false,
-): Extract<OpenCodeEvent, { type: Type }> {
+): Extract<ElitzaEvent, { type: Type }> {
   eventSequence++
 
   return {
@@ -403,7 +403,7 @@ function timelineEvent<Type extends "session.text.started" | "session.text.delta
     data,
     location: { directory },
     ...(durable ? { durable: { aggregateID: sessionID, seq: eventSequence, version: 1 } } : {}),
-  } as unknown as Extract<OpenCodeEvent, { type: Type }>
+  } as unknown as Extract<ElitzaEvent, { type: Type }>
 }
 
 function historicalMarkdown(index: number) {
@@ -551,7 +551,7 @@ function provider() {
     all: [
       {
         id: "opencode",
-        name: "OpenCode",
+        name: "Elitza",
         models: { "claude-opus-4-6": { id: "claude-opus-4-6", name: "Claude Opus 4.6", limit: { context: 200_000 } } },
       },
     ],

@@ -37,7 +37,7 @@ describe("NvidiaPlugin", () => {
         Existing: "value",
         "HTTP-Referer": "https://opencode.ai/",
         "X-Title": "opencode",
-        "X-BILLING-INVOKE-ORIGIN": "OpenCode",
+        "X-BILLING-INVOKE-ORIGIN": "Elitza",
       })
       expect((yield* catalog.get(Provider.ID.openrouter))?.headers).toBeUndefined()
     }),
@@ -57,7 +57,7 @@ describe("NvidiaPlugin", () => {
       expect((yield* catalog.get(Provider.ID.make("nvidia")))?.headers).toEqual({
         "HTTP-Referer": "https://opencode.ai/",
         "X-Title": "opencode",
-        "X-BILLING-INVOKE-ORIGIN": "OpenCode",
+        "X-BILLING-INVOKE-ORIGIN": "Elitza",
       })
     }),
   )

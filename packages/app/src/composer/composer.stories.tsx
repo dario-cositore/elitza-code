@@ -241,7 +241,7 @@ const text = (content: string): ComposerPersistedState["prompt"] => [
 ]
 
 export default {
-  title: "OpenCode/Composer/Flow",
+  title: "Elitza/Composer/Flow",
   component: Composer,
   parameters: { layout: "centered" },
 }

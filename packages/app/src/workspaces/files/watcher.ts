@@ -1,7 +1,7 @@
 import type { FileNode } from "@/runtime/server/types"
-import type { OpenCodeEvent } from "@elitza/client/promise"
+import type { ElitzaEvent } from "@elitza/client/promise"
 
-type WatcherEvent = Extract<OpenCodeEvent, { type: "filesystem.changed" }>
+type WatcherEvent = Extract<ElitzaEvent, { type: "filesystem.changed" }>
 
 type WatcherOps = {
   normalize: (input: string) => string

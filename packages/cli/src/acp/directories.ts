@@ -1,6 +1,6 @@
 import { isAbsolute, join, resolve } from "node:path"
 import { isDeepStrictEqual } from "node:util"
-import type { OpenCodeClient } from "@elitza/client/effect"
+import type { ElitzaClient } from "@elitza/client/effect"
 import type { Permission } from "@elitza/schema/permission"
 import { AbsolutePath } from "@elitza/schema/schema"
 import type { Session } from "@elitza/schema/session"
@@ -39,7 +39,7 @@ export function list(session: Pick<Session.Info, "metadata">) {
 }
 
 export const activate = Effect.fnUntraced(function* (
-  client: OpenCodeClient,
+  client: ElitzaClient,
   session: Session.Info,
   directories: readonly string[],
 ) {

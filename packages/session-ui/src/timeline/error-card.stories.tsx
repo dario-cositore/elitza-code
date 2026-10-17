@@ -4,7 +4,7 @@ import { CurrentSessionTimelineStory } from "../storybook/current-session-story"
 import { SessionTimeline } from "./session-timeline"
 
 export default {
-  title: "OpenCode/Conversation/Error card",
+  title: "Elitza/Conversation/Error card",
   id: "current-session-error-card",
   component: SessionTimeline,
   parameters: { layout: "fullscreen" },

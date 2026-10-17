@@ -1,17 +1,17 @@
 import { expect, test } from "@playwright/test"
 import { provider, sessionHref } from "../utils/app"
-import { mockOpenCodeServer } from "../utils/mock-server"
+import { mockElitzaServer } from "../utils/mock-server"
 import { expectAppVisible } from "../utils/waits"
 import { openSession } from "../utils/workspace"
 
-const directory = "C:/OpenCode/NewProject"
+const directory = "C:/Elitza/NewProject"
 
 test("creates a session in a new project and selects its model", async ({ page }) => {
   // An empty draft must remain usable when the file viewer is unavailable.
   await page.route(/(?:\/_assets\/file-(?!icon-)[^/]+\.js|\/session-ui\/src\/components\/file\.tsx)(?:\?|$)/, (route) =>
     route.abort(),
   )
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     directory,
     project: {
       id: "proj_model_selection_flow",
@@ -25,7 +25,7 @@ test("creates a session in a new project and selects its model", async ({ page }
       all: [
         {
           id: "opencode",
-          name: "OpenCode",
+          name: "Elitza",
           models: {
             "free-model": {
               id: "free-model",
@@ -37,7 +37,7 @@ test("creates a session in a new project and selects its model", async ({ page }
         },
         {
           id: "opencode-go",
-          name: "OpenCode Go",
+          name: "Elitza Go",
           models: {
             "go-model-1": {
               id: "go-model-1",
@@ -54,7 +54,7 @@ test("creates a session in a new project and selects its model", async ({ page }
     sessions: [],
     pageMessages: () => ({ items: [] }),
     // Listings are requested by absolute path and returned relative to the stable Location.
-    fileList: (path) => (path === "C:/OpenCode" ? [{ path: "./", type: "directory", ignored: false }] : []),
+    fileList: (path) => (path === "C:/Elitza" ? [{ path: "./", type: "directory", ignored: false }] : []),
   })
   await page.addInitScript(() => {
     localStorage.setItem("opencode.global.dat:server", JSON.stringify({ projects: { local: [] } }))
@@ -76,12 +76,12 @@ test("creates a session in a new project and selects its model", async ({ page }
   await expectAppVisible(addProject)
   await addProject.click()
   const picker = page.getByRole("dialog", { name: "Open project", exact: true })
-  await expect(picker.getByRole("combobox")).toHaveValue("C:\\OpenCode\\NewProject")
+  await expect(picker.getByRole("combobox")).toHaveValue("C:\\Elitza\\NewProject")
 
   const listing = page.waitForRequest((request) => {
     const url = new URL(request.url())
 
-    return url.pathname === "/api/fs/list" && url.searchParams.get("path") === "C:/OpenCode"
+    return url.pathname === "/api/fs/list" && url.searchParams.get("path") === "C:/Elitza"
   })
 
   await picker.getByRole("button", { name: "Parent", exact: true }).click()
@@ -90,7 +90,7 @@ test("creates a session in a new project and selects its model", async ({ page }
   await expect(directoryItem).toBeVisible()
   await directoryItem.click()
   await expect(directoryItem).toHaveAttribute("aria-selected", "true")
-  await expect(picker.getByText("C:\\OpenCode\\NewProject", { exact: true })).toBeVisible()
+  await expect(picker.getByText("C:\\Elitza\\NewProject", { exact: true })).toBeVisible()
   const selectFolder = picker.getByRole("button", { name: "Select folder", exact: true })
   await expect(selectFolder).toBeEnabled()
   await selectFolder.click()

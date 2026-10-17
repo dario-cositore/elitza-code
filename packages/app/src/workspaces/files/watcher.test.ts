@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test"
-import type { OpenCodeEvent } from "@elitza/client/promise"
+import type { ElitzaEvent } from "@elitza/client/promise"
 import { invalidateFromWatcher } from "./watcher"
 
-type FilesystemEvent = Extract<OpenCodeEvent, { type: "filesystem.changed" }>
+type FilesystemEvent = Extract<ElitzaEvent, { type: "filesystem.changed" }>
 
 const filesystemEvent = (file: string, event: FilesystemEvent["data"]["event"]): FilesystemEvent => ({
   id: `evt_${file}`,

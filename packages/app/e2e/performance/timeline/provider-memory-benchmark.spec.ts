@@ -1,5 +1,5 @@
 import { benchmark, expect } from "../benchmark"
-import { mockOpenCodeServer } from "../../utils/mock-server"
+import { mockElitzaServer } from "../../utils/mock-server"
 import { expectSessionTitle } from "../../utils/waits"
 import { fixture, installStressSessionTabs, installTimelineSettings, pageMessages } from "../../utils/session-fixture"
 import { sessionHref } from "../../utils/app"
@@ -13,7 +13,7 @@ benchmark("measures retained renderer memory with a large model catalog", async 
   const provider = fixture.provider.all[0]
   const selected = { ...provider.models["claude-opus-4-6"] }
 
-  const mock = await mockOpenCodeServer(page, {
+  const mock = await mockElitzaServer(page, {
     directory: fixture.directory,
     project: fixture.project,
     sessions: fixture.sessions,

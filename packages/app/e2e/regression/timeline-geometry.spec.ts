@@ -28,11 +28,11 @@ const expanded = { editToolPartsExpanded: true, shellToolPartsExpanded: true, sh
 
 const contextTools = [
   { id: "ctx_0100_read", tool: "read", input: { path: "src/recent-a.ts", offset: 0, limit: 120 } },
-  { id: "ctx_0101_glob", tool: "glob", input: { path: "C:/OpenCode/TimelineStability", pattern: "**/*.ts" } },
+  { id: "ctx_0101_glob", tool: "glob", input: { path: "C:/Elitza/TimelineStability", pattern: "**/*.ts" } },
   {
     id: "ctx_0102_grep",
     tool: "grep",
-    input: { path: "C:/OpenCode/TimelineStability", pattern: "Explored", include: "*.ts" },
+    input: { path: "C:/Elitza/TimelineStability", pattern: "Explored", include: "*.ts" },
   },
   { id: "ctx_0103_list", tool: "list", input: { path: "src" } },
 ]

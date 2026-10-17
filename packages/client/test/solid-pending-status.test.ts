@@ -1,13 +1,13 @@
 import { expect, test } from "bun:test"
 import { createRoot } from "solid-js"
 import { createData, type CreateDataInput } from "../src/solid"
-import { OpenCode, type OpenCodeEvent } from "../src/promise"
+import { Elitza, type ElitzaEvent } from "../src/promise"
 
 const sessionID = "ses_pending"
 
 function fixture() {
   const listeners = new Set<Parameters<CreateDataInput["event"]["listen"]>[0]>()
-  const api = OpenCode.make({
+  const api = Elitza.make({
     baseUrl: "http://opencode.local",
     fetch: async (input, init) => {
       const request = input instanceof Request ? input : new Request(input, init)
@@ -35,7 +35,7 @@ function fixture() {
         created: seq,
         durable: { aggregateID: sessionID, seq, version: 1 },
         data: { sessionID, ...payload },
-      } as OpenCodeEvent
+      } as ElitzaEvent
       listeners.forEach((listener) => listener({ name: event.type, details: event }))
     }
     return {

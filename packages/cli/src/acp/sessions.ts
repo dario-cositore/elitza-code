@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util"
 import type { McpServer, SessionConfigOption } from "@agentclientprotocol/sdk"
-import type { OpenCodeClient, OpenCodeEvent } from "@elitza/client/effect"
+import type { ElitzaClient, ElitzaEvent } from "@elitza/client/effect"
 import { Mcp } from "@elitza/schema/mcp"
 import type { Session } from "@elitza/schema/session"
 import { Cause, Deferred, Effect, Exit, Queue, Ref, Scope, Stream } from "effect"
@@ -37,10 +37,10 @@ type Entry = {
   readonly selected: Queue.Queue<Change>
 }
 
-type SelectedEvent = Extract<OpenCodeEvent, { type: "session.model.selected" | "session.agent.selected" }>
+type SelectedEvent = Extract<ElitzaEvent, { type: "session.model.selected" | "session.agent.selected" }>
 
 export const make = Effect.fnUntraced(function* (input: {
-  readonly client: OpenCodeClient
+  readonly client: ElitzaClient
   readonly connection: ACPConnection.Interface
   readonly catalog: ACPCatalog.Interface
 }) {

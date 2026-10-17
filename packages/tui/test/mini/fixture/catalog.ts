@@ -1,5 +1,5 @@
 import { spyOn } from "bun:test"
-import type { LocationRef, ModelListOutput, OpenCodeClient, ProviderListOutput } from "@elitza/client/promise"
+import type { LocationRef, ModelListOutput, ElitzaClient, ProviderListOutput } from "@elitza/client/promise"
 
 export function catalogProvider(id: string, name: string): ProviderListOutput["data"][number] {
   return {
@@ -38,7 +38,7 @@ export function catalogModel(input: {
 }
 
 export function stubCatalogLists(
-  sdk: OpenCodeClient,
+  sdk: ElitzaClient,
   input: {
     location?: LocationRef
     providers?: ProviderListOutput["data"]

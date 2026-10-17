@@ -1,22 +1,22 @@
-export * as OpenCodeWorkerd from "./workerd"
+export * as ElitzaWorkerd from "./workerd"
 
 import { Layer } from "effect"
 import type { Config, Scope } from "effect"
 import { WorkerdProfile } from "../internal/workerd"
-import { OpenCode } from "./opencode"
+import { Elitza } from "./elitza"
 
 export type Configuration = WorkerdProfile.Configuration
 
 export interface CreateOptions<R = never> extends WorkerdProfile.Options {
-  readonly log?: OpenCode.CreateOptions["log"]
-  readonly plugins?: OpenCode.CreateOptions["plugins"]
-  readonly workspaceProviders?: OpenCode.CreateOptions["workspaceProviders"]
-  readonly instances?: OpenCode.CreateOptions<R>["instances"]
+  readonly log?: Elitza.CreateOptions["log"]
+  readonly plugins?: Elitza.CreateOptions["plugins"]
+  readonly workspaceProviders?: Elitza.CreateOptions["workspaceProviders"]
+  readonly instances?: Elitza.CreateOptions<R>["instances"]
 }
 
 export const create = <R = never>({ log, plugins, workspaceProviders, instances, ...options }: CreateOptions<R>) => {
   const profile = WorkerdProfile.make(options)
-  return OpenCode.create(
+  return Elitza.create(
     { ...profile.options, log, plugins, workspaceProviders, instances },
     { overrides: profile.replacements },
   )
@@ -24,8 +24,8 @@ export const create = <R = never>({ log, plugins, workspaceProviders, instances,
 
 export const layer = <R = never>(
   options: CreateOptions<R>,
-): Layer.Layer<OpenCode.Service, Config.ConfigError | Error, Exclude<R, Scope.Scope>> =>
-  Layer.effect(OpenCode.Service, create(options))
+): Layer.Layer<Elitza.Service, Config.ConfigError | Error, Exclude<R, Scope.Scope>> =>
+  Layer.effect(Elitza.Service, create(options))
 
-export type Interface = OpenCode.Interface
+export type Interface = Elitza.Interface
 export type Requirements = Scope.Scope

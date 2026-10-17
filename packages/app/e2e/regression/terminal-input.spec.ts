@@ -200,7 +200,7 @@ test("closing the last restored terminal does not create a hidden replacement", 
 })
 
 function legacyTerminalKey() {
-  const dir = base64Encode("C:/OpenCode/TerminalInput")
+  const dir = base64Encode("C:/Elitza/TerminalInput")
   const head = dir.slice(0, 12).replace(/[^a-zA-Z0-9._-]/g, "-")
 
   return `opencode.workspace.${head}.${checksum(dir) ?? "0"}.dat:workspace:terminal`

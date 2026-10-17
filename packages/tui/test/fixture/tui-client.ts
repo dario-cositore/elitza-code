@@ -1,4 +1,4 @@
-import { OpenCode, type OpenCodeEvent } from "@elitza/client"
+import { Elitza, type ElitzaEvent } from "@elitza/client"
 
 export const worktree = "/tmp/opencode"
 export const directory = `${worktree}/packages/tui`
@@ -51,7 +51,7 @@ export function createEventStream() {
   }
 
   return {
-    emit(event: OpenCodeEvent) {
+    emit(event: ElitzaEvent) {
       send(v2, pending, event)
     },
     v2() {
@@ -174,5 +174,5 @@ export function createFetch(override?: FetchHandler, events?: ReturnType<typeof 
 }
 
 export function createApi(fetch: typeof globalThis.fetch) {
-  return OpenCode.make({ baseUrl: "http://test", fetch })
+  return Elitza.make({ baseUrl: "http://test", fetch })
 }

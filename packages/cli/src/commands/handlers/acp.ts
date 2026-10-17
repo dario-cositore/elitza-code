@@ -1,5 +1,5 @@
 import { MessageTooLargeError, ndJsonStream } from "@agentclientprotocol/sdk"
-import { OpenCode } from "@elitza/client/effect"
+import { Elitza } from "@elitza/client/effect"
 import { Service } from "@elitza/client/effect/service"
 import { CrossSpawnSpawner } from "@elitza/util/cross-spawn-spawner"
 import { Effect, Option } from "effect"
@@ -25,7 +25,7 @@ export default Runtime.handler(
     }
     process.env.OPENCODE_CLIENT = "acp"
     const endpoint = yield* Standalone.start()
-    const client = yield* OpenCode.make({ baseUrl: endpoint.url }).pipe(
+    const client = yield* Elitza.make({ baseUrl: endpoint.url }).pipe(
       Effect.provideServiceEffect(
         HttpClient.HttpClient,
         HttpClient.HttpClient.pipe(

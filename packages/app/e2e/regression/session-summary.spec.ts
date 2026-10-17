@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
 import { SERVER, holdRoute, seed, sessionHref } from "../utils/app"
 import { openWithDirection } from "../utils/direction"
-import { mockOpenCodeServer } from "../utils/mock-server"
+import { mockElitzaServer } from "../utils/mock-server"
 import { fixture, installStressSessionTabs, mockStressTimeline, pageMessages } from "../utils/session-fixture"
 
 const cors = { "access-control-allow-origin": "*" }
@@ -107,7 +107,7 @@ test("summary disclosures import legacy settings and persist in extension storag
 })
 
 test("a session in a worktree subfolder names its worktree and lists cached worktrees at once", async ({ page }) => {
-  const root = "C:/OpenCode/SmokeWorktrees"
+  const root = "C:/Elitza/SmokeWorktrees"
   await mockStressTimeline(page, {
     sessions: fixture.sessions.map((item) =>
       item.id === fixture.targetID ? { ...item, directory: `${root}/feature/packages/app` } : { ...item },
@@ -140,7 +140,7 @@ test("a session in a worktree subfolder names its worktree and lists cached work
 })
 
 test("a subagent shows its details but cannot move to another worktree", async ({ page }) => {
-  const root = "C:/OpenCode/SmokeWorktrees"
+  const root = "C:/Elitza/SmokeWorktrees"
 
   await mockStressTimeline(page, {
     sessions: fixture.sessions.map((item) =>
@@ -161,7 +161,7 @@ test("a subagent shows its details but cannot move to another worktree", async (
 })
 
 test("the details follow the routed session when it moves to another worktree", async ({ page }) => {
-  const root = "C:/OpenCode/SmokeWorktrees"
+  const root = "C:/Elitza/SmokeWorktrees"
 
   const sessions = fixture.sessions.map((item) =>
     item.id === fixture.targetID ? { ...item, directory: `${root}/feature` } : { ...item },
@@ -600,7 +600,7 @@ test.describe("remote configuration", () => {
       { type: "document", path: `${fixture.directory}/.opencode/agents/review.md`, info: {} },
     ]
 
-    await mockOpenCodeServer(page, {
+    await mockElitzaServer(page, {
       server: remote,
       sessions: fixture.sessions,
       provider: fixture.provider,

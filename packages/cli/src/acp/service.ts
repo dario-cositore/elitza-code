@@ -1,4 +1,4 @@
-import type { OpenCodeClient } from "@elitza/client/effect"
+import type { ElitzaClient } from "@elitza/client/effect"
 import { SessionsCursor } from "@elitza/protocol/groups/session"
 import { AbsolutePath } from "@elitza/schema/schema"
 import { FSUtil } from "@elitza/util/fs-util"
@@ -66,7 +66,7 @@ export interface Interface {
 }
 
 export function make(input: {
-  readonly client: OpenCodeClient
+  readonly client: ElitzaClient
   readonly connection: ACPConnection.Interface
   readonly catalog: ACPCatalog.Interface
   readonly sessions: ACPSessions.Interface

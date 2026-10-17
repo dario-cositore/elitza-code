@@ -3,7 +3,7 @@
  *
  * 1:1 port of the legacy Python `doctor.py`: health checks across all
  * subsystems, automatic repairs, and health history persisted in
- * `brain/health.db`. Checks are adapted to the OpenCode engine world
+ * `brain/health.db`. Checks are adapted to the Elitza engine world
  * (engine config, engine session store, engine plugin entries).
  */
 

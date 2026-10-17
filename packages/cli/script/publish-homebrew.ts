@@ -68,7 +68,7 @@ await Bun.write(
     "# frozen_string_literal: true",
     "",
     `class ${formulaClass} < Formula`,
-    `  desc "OpenCode V2${Script.channel === "beta" ? " beta" : ""} - the AI coding agent for the terminal"`,
+    `  desc "Elitza V2${Script.channel === "beta" ? " beta" : ""} - the AI coding agent for the terminal"`,
     '  homepage "https://github.com/dario-cositore/elitza-code"',
     `  version "${Script.version}"`,
     '  license "MIT"',

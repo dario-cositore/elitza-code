@@ -2,7 +2,7 @@ import { Button } from "@elitza/ui/button"
 import { DockPrompt } from "./dock-prompt"
 
 export default {
-  title: "OpenCode/Requests/Prompt frame",
+  title: "Elitza/Requests/Prompt frame",
   id: "components-dock-prompt",
   component: DockPrompt,
   parameters: {

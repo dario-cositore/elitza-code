@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import type { FormAnswer, FormCreated, SessionFormReplyInput, OpenCodeEvent } from "@elitza/client/promise"
+import type { FormAnswer, FormCreated, SessionFormReplyInput, ElitzaEvent } from "@elitza/client/promise"
 import { replyWebSearch } from "./websearch"
 
 const consent: FormCreated["data"]["form"] = {
@@ -28,10 +28,10 @@ const provider: FormCreated["data"]["form"] = {
 }
 
 function fixture() {
-  const listeners = new Set<(event: OpenCodeEvent) => void>()
+  const listeners = new Set<(event: ElitzaEvent) => void>()
   const replies: SessionFormReplyInput[] = []
   const abort = new AbortController()
-  const emit = (event: OpenCodeEvent) => listeners.forEach((listener) => listener(event))
+  const emit = (event: ElitzaEvent) => listeners.forEach((listener) => listener(event))
 
   return {
     form: consent,
@@ -40,7 +40,7 @@ function fixture() {
     listeners,
     replies,
     events: {
-      listen(listener: (event: OpenCodeEvent) => void) {
+      listen(listener: (event: ElitzaEvent) => void) {
         listeners.add(listener)
 
         return () => {

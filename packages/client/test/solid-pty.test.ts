@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { OpenCode } from "../src/promise"
+import { Elitza } from "../src/promise"
 import { createPersistentPtyClient, createPtyClient } from "../src/solid"
 
 describe("createPtyClient", () => {
@@ -7,7 +7,7 @@ describe("createPtyClient", () => {
     let request: Request | undefined
     let socketURL: URL | undefined
     const socket = { binaryType: "blob" } as unknown as WebSocket
-    const api = OpenCode.make({
+    const api = Elitza.make({
       baseUrl: "https://server.example",
       headers: { Authorization: "Basic credential" },
       fetch: async (input, init) => {
@@ -50,7 +50,7 @@ describe("createPtyClient", () => {
 
   test("does not open a socket when ticket minting fails", async () => {
     let opened = false
-    const api = OpenCode.make({
+    const api = Elitza.make({
       baseUrl: "http://localhost:4096",
       fetch: async () => new Response(null, { status: 401 }),
     })
@@ -68,7 +68,7 @@ describe("createPtyClient", () => {
 
   test("keeps the server path prefix when opening the terminal socket", async () => {
     let socketURL: URL | undefined
-    const api = OpenCode.make({
+    const api = Elitza.make({
       baseUrl: "https://server.example/base",
       fetch: async () =>
         Response.json({
@@ -97,7 +97,7 @@ describe("createPersistentPtyClient", () => {
     let request: Request | undefined
     let socketURL: URL | undefined
     const socket = { binaryType: "blob" } as unknown as WebSocket
-    const api = OpenCode.make({
+    const api = Elitza.make({
       baseUrl: "https://server.example",
       headers: { Authorization: "Basic credential" },
       fetch: async (input, init) => {
@@ -126,7 +126,7 @@ describe("createPersistentPtyClient", () => {
 
   test("keeps the server path prefix when opening the persistent terminal socket", async () => {
     let socketURL: URL | undefined
-    const api = OpenCode.make({
+    const api = Elitza.make({
       baseUrl: "https://server.example/base",
       fetch: async () => Response.json({ data: { ticket: "ticket-1", expires_in: 60 } }),
     })

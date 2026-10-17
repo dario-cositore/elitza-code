@@ -51,7 +51,7 @@ function ContextProgress() {
 }
 
 export default {
-  title: "OpenCode/Work/Context progress",
+  title: "Elitza/Work/Context progress",
   id: "components-animated-count-list",
   component: AnimatedCountList,
   parameters: {

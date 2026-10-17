@@ -4,7 +4,7 @@ import { installSseTransport } from "../utils/sse-transport"
 import { expectSessionTitle } from "../utils/waits"
 import { mockWorkspace, type WorkspaceInput } from "../utils/workspace"
 
-const directory = "C:/OpenCode/RequestDocks"
+const directory = "C:/Elitza/RequestDocks"
 
 const sessionID = "ses_request_docks"
 
