@@ -2,15 +2,15 @@ export * as WorktreeStrategies from "./strategies.js"
 
 import { Context, Effect, Layer } from "effect"
 import path from "path"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
-import { Global } from "@opencode/util/global"
-import { Worktree } from "@opencode/schema/worktree"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
+import { Global } from "@elitza/util/global"
+import { Worktree } from "@elitza/schema/worktree"
 import { AbsolutePath } from "../schema.js"
 import { Git } from "../git.js"
 import { Location } from "../location.js"
 import { State } from "../state.js"
 import { WorktreeGit } from "./git.js"
-import { FSUtil } from "@opencode/util/fs-util"
+import { FSUtil } from "@elitza/util/fs-util"
 
 export interface Strategy {
   readonly id: Worktree.StrategyID
@@ -37,7 +37,7 @@ export interface Interface extends State.Transformable<Editor> {
   }
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/WorktreeStrategies") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/WorktreeStrategies") {}
 
 const layer = Layer.effect(
   Service,

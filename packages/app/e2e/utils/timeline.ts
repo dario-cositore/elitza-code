@@ -7,10 +7,10 @@ import type {
   SessionMessageUser,
   SessionStatus,
   SessionStructuredError,
-} from "@opencode/client/promise"
-import { EventManifest } from "@opencode/schema/event-manifest"
-import { SessionMessage } from "@opencode/schema/session-message"
-import type { TimelineDetail } from "@opencode/session-ui/timeline/detail"
+} from "@elitza/client/promise"
+import { EventManifest } from "@elitza/schema/event-manifest"
+import { SessionMessage } from "@elitza/schema/session-message"
+import type { TimelineDetail } from "@elitza/session-ui/timeline/detail"
 import { expect, test, type Page, type TestInfo } from "@playwright/test"
 import { Schema } from "effect"
 import { SERVER, seed, sessionHref } from "./app"

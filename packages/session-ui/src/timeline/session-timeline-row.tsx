@@ -3,11 +3,11 @@ import type {
   SessionMessageInfo,
   SessionMessageUser,
   SessionStatus,
-} from "@opencode/client/promise"
-import { useI18n } from "@opencode/ui/context/i18n"
+} from "@elitza/client/promise"
+import { useI18n } from "@elitza/ui/context/i18n"
 import { Option, Predicate, Schema } from "effect"
 import { For, Show, createEffect, createMemo, type Accessor, type JSX } from "solid-js"
-import { DiffChanges } from "@opencode/ui/diff-changes"
+import { DiffChanges } from "@elitza/ui/diff-changes"
 import { Dynamic } from "solid-js/web"
 import type { SessionUserActions, SessionUserAttachmentReference, SessionUserComment } from "../actions"
 import { useData } from "../context"

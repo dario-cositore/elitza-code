@@ -1,8 +1,8 @@
 export * as WarmingPlugin from "./warming.js"
 
-import { define } from "@opencode/plugin/effect/plugin"
-import type { SessionHooks } from "@opencode/plugin/effect/session"
-import type { Session } from "@opencode/schema/session"
+import { define } from "@elitza/plugin/effect/plugin"
+import type { SessionHooks } from "@elitza/plugin/effect/session"
+import type { Session } from "@elitza/schema/session"
 import { Clock, Duration, Effect, Scope } from "effect"
 import { Config } from "../config.js"
 

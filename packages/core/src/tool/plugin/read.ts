@@ -1,10 +1,10 @@
 export * as ReadTool from "./read.js"
 
-import type { Context } from "@opencode/plugin/effect/plugin"
+import type { Context } from "@elitza/plugin/effect/plugin"
 import { basename, dirname, join } from "path"
-import { ToolFailure } from "@opencode/ai"
+import { ToolFailure } from "@elitza/ai"
 import { Effect, Schema } from "effect"
-import { FSUtil } from "@opencode/util/fs-util"
+import { FSUtil } from "@elitza/util/fs-util"
 import { Location } from "../../location.js"
 import { FileAccess } from "../../file-access.js"
 import { SessionInstructions } from "../../session/instructions.js"

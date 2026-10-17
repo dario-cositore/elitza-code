@@ -1,9 +1,9 @@
 export * as Plugin from "./plugin.js"
-export { Event, ID, Info, Source, State } from "@opencode/schema/plugin"
+export { Event, ID, Info, Source, State } from "@elitza/schema/plugin"
 
-import { Plugin } from "@opencode/schema/plugin"
-import { Node } from "@opencode/util/effect/app-node"
-import { LayerNode } from "@opencode/util/effect/layer-node"
+import { Plugin } from "@elitza/schema/plugin"
+import { Node } from "@elitza/util/effect/app-node"
+import { LayerNode } from "@elitza/util/effect/layer-node"
 import type { PersistentPty } from "./persistent-pty.js"
 import { Cause, Context, Effect, Exit, Latch, Layer, Logger, Queue, References, Scope, Semaphore } from "effect"
 import { Bus } from "./bus.js"

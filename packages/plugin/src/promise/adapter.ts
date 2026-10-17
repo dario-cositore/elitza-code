@@ -1,6 +1,6 @@
-import { Tool } from "@opencode/schema/tool"
-import type { Rpc } from "@opencode/schema/rpc"
-import type { RpcCallOptions, RpcEventPayload } from "@opencode/client/promise/api"
+import { Tool } from "@elitza/schema/tool"
+import type { Rpc } from "@elitza/schema/rpc"
+import type { RpcCallOptions, RpcEventPayload } from "@elitza/client/promise/api"
 import { Effect, Schema, SchemaAST, Stream } from "effect"
 import type { Scope } from "effect"
 import { HttpApiEndpoint, HttpApiSchema } from "effect/http-api"
@@ -221,7 +221,7 @@ export function fromPromise(plugin: Plugin) {
     effect: (host) =>
       Effect.gen(function* () {
         const [{ ClientApi }, { OpenCodeEvent }] = yield* Effect.promise(() =>
-          Promise.all([import("@opencode/protocol/client"), import("@opencode/protocol/groups/event")]),
+          Promise.all([import("@elitza/protocol/client"), import("@elitza/protocol/groups/event")]),
         )
         const AgentEndpoints = ClientApi.groups["server.agent"].endpoints
         const CommandEndpoints = ClientApi.groups["server.command"].endpoints

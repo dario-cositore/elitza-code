@@ -1,5 +1,5 @@
-import { useI18n } from "@opencode/ui/context/i18n"
-import { checksum } from "@opencode/util/encode"
+import { useI18n } from "@elitza/ui/context/i18n"
+import { checksum } from "@elitza/util/encode"
 import {
   type ComponentProps,
   createEffect,
@@ -11,9 +11,9 @@ import {
   splitProps,
 } from "solid-js"
 import { isServer, render } from "solid-js/web"
-import { Icon } from "@opencode/ui/icon"
-import { IconButton } from "@opencode/ui/icon-button"
-import { Tooltip } from "@opencode/ui/tooltip"
+import { Icon } from "@elitza/ui/icon"
+import { IconButton } from "@elitza/ui/icon-button"
+import { Tooltip } from "@elitza/ui/tooltip"
 import { canReusePendingBlock, completedProjection } from "./markdown-projection"
 import type { Block, Projection } from "./markdown-stream"
 import {

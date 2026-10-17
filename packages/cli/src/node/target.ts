@@ -39,9 +39,9 @@ export const shellParserWasmAssets = {
 export const nodeExecArgv = ["--experimental-ffi", "--use-system-ca", "--disable-warning=ExperimentalWarning"] as const
 
 export const attentionSoundAssets = [
-  "@opencode/ui/audio/bip-bop-01.mp3",
-  "@opencode/ui/audio/bip-bop-03.mp3",
-  "@opencode/ui/audio/staplebops-06.mp3",
-  "@opencode/ui/audio/nope-03.mp3",
-  "@opencode/ui/audio/yup-01.mp3",
+  "@elitza/ui/audio/bip-bop-01.mp3",
+  "@elitza/ui/audio/bip-bop-03.mp3",
+  "@elitza/ui/audio/staplebops-06.mp3",
+  "@elitza/ui/audio/nope-03.mp3",
+  "@elitza/ui/audio/yup-01.mp3",
 ] as const

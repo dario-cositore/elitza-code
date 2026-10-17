@@ -1,9 +1,9 @@
-import { Button } from "@opencode/ui/button"
-import { Dialog, DialogBody, DialogFooter, DialogHeader, DialogTitle } from "@opencode/ui/dialog"
-import { Divider } from "@opencode/ui/divider"
-import { Icon } from "@opencode/ui/icon"
-import { TextInput } from "@opencode/ui/text-input"
-import { useDialog } from "@opencode/ui/context/dialog"
+import { Button } from "@elitza/ui/button"
+import { Dialog, DialogBody, DialogFooter, DialogHeader, DialogTitle } from "@elitza/ui/dialog"
+import { Divider } from "@elitza/ui/divider"
+import { Icon } from "@elitza/ui/icon"
+import { TextInput } from "@elitza/ui/text-input"
+import { useDialog } from "@elitza/ui/context/dialog"
 import { useMutation } from "@tanstack/solid-query"
 import {
   type Component,

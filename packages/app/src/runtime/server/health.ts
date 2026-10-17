@@ -1,7 +1,7 @@
 import { usePlatform } from "@/runtime/platform/platform"
 import { ServerConnection } from "@/runtime/server/registry"
 import { authTokenFromCredentials } from "./api"
-import { ClientError, isUnauthorizedError, OpenCode } from "@opencode/client"
+import { ClientError, isUnauthorizedError, OpenCode } from "@elitza/client"
 import { Accessor, createEffect, onCleanup } from "solid-js"
 import { createStore, reconcile } from "solid-js/store"
 

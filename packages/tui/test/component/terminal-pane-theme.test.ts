@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import { resolveThemeDocument, type HueScale, type ResolvedTheme } from "@opencode/theme/tui"
+import { resolveThemeDocument, type HueScale, type ResolvedTheme } from "@elitza/theme/tui"
 import { terminalPalette } from "../../src/component/terminal-pane"
 import { getElitzaTheme } from "../../src/theme"
 

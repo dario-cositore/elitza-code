@@ -1,9 +1,9 @@
 import fs from "fs/promises"
 import os from "os"
 import { Effect } from "effect"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { EffectFlock } from "@opencode/util/effect-flock"
-import { Global } from "@opencode/util/global"
+import { LayerNode } from "@elitza/util/effect/layer-node"
+import { EffectFlock } from "@elitza/util/effect-flock"
+import { Global } from "@elitza/util/global"
 
 type Msg = {
   key: string

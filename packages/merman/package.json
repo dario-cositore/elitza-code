@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/merman",
+  "name": "@elitza/merman",
   "version": "2.0.30",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@opencode/plugin": "workspace:*",
+    "@elitza/plugin": "workspace:*",
     "@opentui/core": "catalog:",
     "entities": "7.0.1",
     "string-width": "catalog:"

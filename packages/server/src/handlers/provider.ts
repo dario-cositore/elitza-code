@@ -1,5 +1,5 @@
-import { Provider } from "@opencode/core/provider"
-import { ProviderNotFoundError } from "@opencode/protocol/errors"
+import { Provider } from "@elitza/core/provider"
+import { ProviderNotFoundError } from "@elitza/protocol/errors"
 import { Effect } from "effect"
 import { HttpApiBuilder } from "effect/http-api"
 import { Api } from "../api"

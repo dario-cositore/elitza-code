@@ -1,8 +1,8 @@
 export * as Permission from "./permission.js"
 
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
 import { Context, Deferred, Effect, Layer, Schema } from "effect"
-import { Permission } from "@opencode/schema/permission"
+import { Permission } from "@elitza/schema/permission"
 import { Bus } from "./bus.js"
 import { Location } from "./location.js"
 import { Agent } from "./agent.js"
@@ -15,7 +15,7 @@ import { PluginHooks } from "./plugin/hooks.js"
 
 const PermissionEffect = Permission.Effect
 export { PermissionEffect as Effect }
-export { Rule, Ruleset } from "@opencode/schema/permission"
+export { Rule, Ruleset } from "@elitza/schema/permission"
 const missingAgentPermissions: Permission.Ruleset = [{ action: "*", resource: "*", effect: "deny" }]
 
 export const ID = Permission.ID
@@ -59,7 +59,7 @@ export const AskResult = Schema.Struct({
 }).annotate({ identifier: "Permission.AskResult" })
 export type AskResult = typeof AskResult.Type
 
-export { Event } from "@opencode/schema/permission"
+export { Event } from "@elitza/schema/permission"
 
 export class DeclinedError extends Schema.TaggedError<DeclinedError>()("Permission.DeclinedError", {}) {}
 
@@ -110,7 +110,7 @@ export interface Interface {
   readonly list: () => Effect.Effect<ReadonlyArray<Request>>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Permission") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Permission") {}
 
 interface Pending {
   readonly request: Request

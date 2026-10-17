@@ -1,5 +1,5 @@
 /// <reference path="../env.d.ts" />
-import { tool } from "@opencode/plugin"
+import { tool } from "@elitza/plugin"
 
 const TEAM = {
   tui: ["kommander", "simonklee"],

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/plugin-browser",
+  "name": "@elitza/plugin-browser",
   "version": "2.0.30",
   "description": "OpenCode's desktop browser plugin",
   "type": "module",
@@ -27,8 +27,8 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@opencode/plugin": "workspace:*",
-    "@opencode/schema": "workspace:*",
+    "@elitza/plugin": "workspace:*",
+    "@elitza/schema": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {

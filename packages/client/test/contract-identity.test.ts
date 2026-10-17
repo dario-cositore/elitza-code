@@ -1,12 +1,12 @@
 import { expect, test } from "bun:test"
 import { Schema } from "effect"
-import { Agent } from "@opencode/schema/agent"
-import { Config } from "@opencode/schema/config"
-import { Model } from "@opencode/schema/model"
-import { Prompt } from "@opencode/schema/prompt"
-import { Session } from "@opencode/schema/session"
-import { SessionMessage } from "@opencode/schema/session-message"
-import { Vcs } from "@opencode/schema/vcs"
+import { Agent } from "@elitza/schema/agent"
+import { Config } from "@elitza/schema/config"
+import { Model } from "@elitza/schema/model"
+import { Prompt } from "@elitza/schema/prompt"
+import { Session } from "@elitza/schema/session"
+import { SessionMessage } from "@elitza/schema/session-message"
+import { Vcs } from "@elitza/schema/vcs"
 
 const Client = await import("../src/effect")
 

@@ -1,6 +1,6 @@
 export * as CopilotModels from "./models.js"
 
-import { Money } from "@opencode/schema/money"
+import { Money } from "@elitza/schema/money"
 import { Option, Schema } from "effect"
 import { Model } from "../model.js"
 import { Provider } from "../provider.js"
@@ -159,7 +159,7 @@ function build(id: Model.ID, remote: UsableModel, baseURL: string, previous?: Mo
     providerID: Provider.ID.githubCopilot,
     family: previous?.family ?? Model.Family.make(remote.capabilities.family),
     name: previous?.name ?? remote.name,
-    package: messages ? "@opencode/ai/providers/anthropic" : Provider.aisdk("@ai-sdk/github-copilot"),
+    package: messages ? "@elitza/ai/providers/anthropic" : Provider.aisdk("@ai-sdk/github-copilot"),
     settings: Provider.mergeOverlay(previous?.settings, {
       baseURL: messages ? `${baseURL}/v1` : baseURL,
       ...(endpoint ? { endpoint } : {}),

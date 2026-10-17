@@ -11,8 +11,8 @@ import type {
   FormFields,
   FormValue,
   LocationRef,
-} from "@opencode/client"
-import { openUrl } from "@opencode/util/open"
+} from "@elitza/client"
+import { openUrl } from "@elitza/util/open"
 import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useClipboard } from "../context/clipboard"

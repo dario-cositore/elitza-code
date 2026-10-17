@@ -1,6 +1,6 @@
-import type { VcsApi } from "@opencode/client/promise/api"
-import type { FileDiff } from "@opencode/schema/file-diff"
-import type { Vcs } from "@opencode/schema/vcs"
+import type { VcsApi } from "@elitza/client/promise/api"
+import type { FileDiff } from "@elitza/schema/file-diff"
+import type { Vcs } from "@elitza/schema/vcs"
 import type { Transform } from "./registration.js"
 
 export interface VcsScope {

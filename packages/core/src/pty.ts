@@ -1,9 +1,9 @@
 export * as Pty from "./pty.js"
 
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
 import type { Disp, Proc } from "#pty"
 import { Context, Effect, Layer, Schema, Types } from "effect"
-import { Pty } from "@opencode/schema/pty"
+import { Pty } from "@elitza/schema/pty"
 import { Bus } from "./bus.js"
 import { Location } from "./location.js"
 import { ShellSelect } from "./shell/select.js"
@@ -48,7 +48,7 @@ export const UpdateInput = Pty.UpdateInput
 
 export type UpdateInput = Types.DeepMutable<typeof UpdateInput.Type>
 
-export { Event } from "@opencode/schema/pty"
+export { Event } from "@elitza/schema/pty"
 
 export type AttachInput = {
   // Absolute output cursor to replay from. -1 tails from the current end; omitted replays the full retained buffer.
@@ -88,7 +88,7 @@ export interface Interface {
   readonly attach: (id: ID, input: AttachInput) => Effect.Effect<Attachment, NotFoundError | ExitedError>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Pty") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Pty") {}
 
 const layer = Layer.effect(
   Service,

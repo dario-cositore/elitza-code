@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import type { FormField, FormValue } from "@opencode/client"
+import type { FormField, FormValue } from "@elitza/client"
 import {
   formCustom,
   formDisplayValue,

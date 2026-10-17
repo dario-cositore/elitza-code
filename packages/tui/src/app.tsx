@@ -3,9 +3,9 @@ import path from "path"
 import { render, useRenderer, useTerminalDimensions } from "@opentui/solid"
 import { registerOpencodeSpinner } from "./component/register-spinner"
 import { Effect, Latch } from "effect"
-import { Service, type Endpoint } from "@opencode/client/effect/service"
-import { OpenCode, type SessionInfo } from "@opencode/client"
-import { Global } from "@opencode/util/global"
+import { Service, type Endpoint } from "@elitza/client/effect/service"
+import { OpenCode, type SessionInfo } from "@elitza/client"
+import { Global } from "@elitza/util/global"
 import { ClipboardProvider, useClipboard } from "./context/clipboard"
 import { LogProvider, type LogSink } from "./context/log"
 import { ExitProvider, useExit } from "./context/exit"
@@ -86,10 +86,10 @@ import { PromptHistoryProvider } from "./prompt/history"
 import { FrecencyProvider } from "./prompt/frecency"
 import { PromptStashProvider } from "./prompt/stash"
 import { Toast, ToastProvider, useToast } from "./ui/toast"
-import { isFallbackTitle } from "@opencode/util/session-title-fallback"
+import { isFallbackTitle } from "@elitza/util/session-title-fallback"
 import * as Model from "./util/model"
 import { ArgsProvider, useArgs, type Args } from "./context/args"
-import { openUrl } from "@opencode/util/open"
+import { openUrl } from "@elitza/util/open"
 import { PromptRefProvider, usePromptRef } from "./context/prompt"
 import { Config, ConfigProvider, useConfig } from "./config"
 import { newSessionLocation } from "./config/new-session-location"
@@ -257,7 +257,7 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
           )
         }
         if (process.env.OPENCODE_DRIVE) {
-          const { Drive } = yield* Effect.promise(() => import("@opencode/simulation/frontend"))
+          const { Drive } = yield* Effect.promise(() => import("@elitza/simulation/frontend"))
           return yield* Drive.create(options, input.app.version)
         }
         return yield* Effect.acquireRelease(

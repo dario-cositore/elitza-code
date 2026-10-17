@@ -1,15 +1,15 @@
 import { DateTime, Schema } from "effect"
-import { Agent } from "@opencode/schema/agent"
-import { Location } from "@opencode/schema/location"
-import { Model } from "@opencode/schema/model"
-import { Project } from "@opencode/schema/project"
-import { Provider } from "@opencode/schema/provider"
+import { Agent } from "@elitza/schema/agent"
+import { Location } from "@elitza/schema/location"
+import { Model } from "@elitza/schema/model"
+import { Project } from "@elitza/schema/project"
+import { Provider } from "@elitza/schema/provider"
 import { AbsolutePath, RelativePath } from "../schema.js"
-import { Workspace } from "@opencode/schema/workspace"
+import { Workspace } from "@elitza/schema/workspace"
 import { SessionSchema } from "./schema.js"
 import type { SessionTable } from "./sql.js"
-import { PersistedRevert } from "@opencode/schema/session-revert"
-import { Money } from "@opencode/schema/money"
+import { PersistedRevert } from "@elitza/schema/session-revert"
+import { Money } from "@elitza/schema/money"
 
 const decodeRevert = Schema.decodeUnknownSync(PersistedRevert)
 

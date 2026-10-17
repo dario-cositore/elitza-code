@@ -66,5 +66,5 @@ export function nonEmptyToolContent<T>(content: ReadonlyArray<T> | undefined): [
   const [first, ...rest] = content
   return first === undefined ? undefined : [first, ...rest]
 }
-import type { SessionMessageAssistantTool } from "@opencode/client/promise"
+import type { SessionMessageAssistantTool } from "@elitza/client/promise"
 import { isRecord } from "./record"

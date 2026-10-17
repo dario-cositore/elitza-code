@@ -1,9 +1,9 @@
-import type { OpenCodeClient } from "@opencode/client/effect"
-import { SessionsCursor } from "@opencode/protocol/groups/session"
-import { AbsolutePath } from "@opencode/schema/schema"
-import { FSUtil } from "@opencode/util/fs-util"
+import type { OpenCodeClient } from "@elitza/client/effect"
+import { SessionsCursor } from "@elitza/protocol/groups/session"
+import { AbsolutePath } from "@elitza/schema/schema"
+import { FSUtil } from "@elitza/util/fs-util"
 import { DateTime, Effect, Ref, Schema } from "effect"
-import { withTimestampedFallback } from "@opencode/util/session-title-fallback"
+import { withTimestampedFallback } from "@elitza/util/session-title-fallback"
 import type {
   AuthenticateRequest,
   AuthenticateResponse,

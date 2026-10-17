@@ -1,4 +1,4 @@
-import { Command } from "@opencode/core/command"
+import { Command } from "@elitza/core/command"
 import { HttpApiBuilder } from "effect/http-api"
 import { Api } from "../api"
 import { response } from "../location"

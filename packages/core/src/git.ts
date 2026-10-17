@@ -4,10 +4,10 @@ import path from "path"
 import { Cause, Context, Effect, Exit, Layer, Option, Schedule, Schema } from "effect"
 import { ChildProcess } from "effect/process"
 import { AbsolutePath, RelativePath } from "./schema.js"
-import { FSUtil } from "@opencode/util/fs-util"
-import { AppProcess } from "@opencode/util/process"
-import { makeGlobalNode } from "@opencode/util/effect/app-node"
-import { FileDiff } from "@opencode/schema/file-diff"
+import { FSUtil } from "@elitza/util/fs-util"
+import { AppProcess } from "@elitza/util/process"
+import { makeGlobalNode } from "@elitza/util/effect/app-node"
+import { FileDiff } from "@elitza/schema/file-diff"
 import { KeyedMutex } from "./effect/keyed-mutex.js"
 import { VcsPatch } from "./vcs/patch.js"
 import { gitExecutable } from "./util/git-executable.js"
@@ -185,7 +185,7 @@ export interface Interface {
   }
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Git") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Git") {}
 
 const layer = Layer.effect(
   Service,

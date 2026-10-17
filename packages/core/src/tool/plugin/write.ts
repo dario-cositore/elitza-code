@@ -6,10 +6,10 @@
  */
 export * as WriteTool from "./write.js"
 
-import type { Context } from "@opencode/plugin/effect/plugin"
-import { ToolFailure } from "@opencode/ai"
+import type { Context } from "@elitza/plugin/effect/plugin"
+import { ToolFailure } from "@elitza/ai"
 import { Effect, Schema } from "effect"
-import { Bom } from "@opencode/util/bom"
+import { Bom } from "@elitza/util/bom"
 import { Environment } from "../../environment/index.js"
 import { FileMutation } from "../../file-mutation.js"
 import { Formatter } from "../../formatter.js"

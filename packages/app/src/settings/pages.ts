@@ -1,4 +1,4 @@
-import type { IconProps } from "@opencode/ui/icon"
+import type { IconProps } from "@elitza/ui/icon"
 import type { useLanguage } from "@/runtime/i18n/language"
 import type { SettingsRootTab } from "./surface"
 

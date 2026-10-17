@@ -1,5 +1,5 @@
-import { Button } from "@opencode/ui/button"
-import { useDialog } from "@opencode/ui/context/dialog"
+import { Button } from "@elitza/ui/button"
+import { useDialog } from "@elitza/ui/context/dialog"
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query"
 import { onCleanup, onMount, Show } from "solid-js"
 import {

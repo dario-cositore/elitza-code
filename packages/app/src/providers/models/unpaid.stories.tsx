@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { Button } from "@opencode/ui/button"
-import { useDialog } from "@opencode/ui/context/dialog"
+import { Button } from "@elitza/ui/button"
+import { useDialog } from "@elitza/ui/context/dialog"
 import { createSignal, onMount } from "solid-js"
 import { DialogSelectModelUnpaid } from "./unpaid"
 

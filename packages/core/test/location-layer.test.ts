@@ -1,9 +1,9 @@
-import type { FileSystem } from "@opencode/core/filesystem"
+import type { FileSystem } from "@elitza/core/filesystem"
 import fs from "fs/promises"
 import path from "path"
 import { describe, expect } from "bun:test"
-import { Config } from "@opencode/schema/config"
-import { Money } from "@opencode/schema/money"
+import { Config } from "@elitza/schema/config"
+import { Money } from "@elitza/schema/money"
 import {
   Cause,
   DateTime,
@@ -23,23 +23,23 @@ import {
   Stream,
 } from "effect"
 import { TestClock } from "effect/testing"
-import { Agent } from "@opencode/core/agent"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Global } from "@opencode/util/global"
-import { LocationServiceMap, type LocationServices } from "@opencode/core/location-services"
-import { LocationActivity } from "@opencode/core/location-activity"
-import { Location } from "@opencode/core/location"
-import { LocationWatcher } from "@opencode/core/filesystem/location-watcher"
-import { Plugin } from "@opencode/core/plugin"
-import { Model } from "@opencode/core/model"
-import { Project } from "@opencode/core/project"
-import { Provider } from "@opencode/core/provider"
-import { AbsolutePath } from "@opencode/core/schema"
-import { Session } from "@opencode/core/session"
-import { Workspace } from "@opencode/core/workspace"
-import { SessionEvent } from "@opencode/core/session/event"
-import { SessionRunnerModel } from "@opencode/core/session/runner/model"
+import { Agent } from "@elitza/core/agent"
+import { AppNodeBuilder } from "@elitza/core/effect/app-node-builder"
+import { LayerNode } from "@elitza/util/effect/layer-node"
+import { Global } from "@elitza/util/global"
+import { LocationServiceMap, type LocationServices } from "@elitza/core/location-services"
+import { LocationActivity } from "@elitza/core/location-activity"
+import { Location } from "@elitza/core/location"
+import { LocationWatcher } from "@elitza/core/filesystem/location-watcher"
+import { Plugin } from "@elitza/core/plugin"
+import { Model } from "@elitza/core/model"
+import { Project } from "@elitza/core/project"
+import { Provider } from "@elitza/core/provider"
+import { AbsolutePath } from "@elitza/core/schema"
+import { Session } from "@elitza/core/session"
+import { Workspace } from "@elitza/core/workspace"
+import { SessionEvent } from "@elitza/core/session/event"
+import { SessionRunnerModel } from "@elitza/core/session/runner/model"
 import { tmpdir, tmpdirScoped } from "./fixture/tmpdir"
 import { tempGlobalLayer } from "./fixture/global"
 import { offlineModels } from "./fixture/models"
@@ -661,7 +661,7 @@ describe("LocationServiceMap", () => {
             const modelState = yield* Model.Service
             yield* providers.transform((editor) => {
               editor.update(Provider.ID.make("aliased"), (provider) => {
-                provider.package = "@opencode/ai/providers/openai"
+                provider.package = "@elitza/ai/providers/openai"
               })
               editor.models.update(Provider.ID.make("aliased"), Model.ID.make("fast"), (model) => {
                 // Catalog id and package model id intentionally differ, like gpt-5.5-fast -> gpt-5.5.

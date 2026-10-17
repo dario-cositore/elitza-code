@@ -1,4 +1,4 @@
-import type { EnableState } from "@opencode/gui-extensions/sdk/bridge"
+import type { EnableState } from "@elitza/gui-extensions/sdk/bridge"
 
 export const IpcTransportPort = "desktop-rpc-port"
 

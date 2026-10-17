@@ -14,8 +14,8 @@ import {
   useExtensionServers,
   useTabs,
   type LayoutRoute,
-} from "@opencode/app/desktop"
-import { useTheme } from "@opencode/ui/theme/context"
+} from "@elitza/app/desktop"
+import { useTheme } from "@elitza/ui/theme/context"
 import type { BaseRouterProps } from "@solidjs/router"
 import { createEffect, createMemo, createResource, lazy, Show, Suspense } from "solid-js"
 import { createStore } from "solid-js/store"

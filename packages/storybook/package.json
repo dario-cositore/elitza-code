@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/storybook",
+  "name": "@elitza/storybook",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,9 +8,9 @@
     "build": "storybook build"
   },
   "devDependencies": {
-    "@opencode/client": "workspace:*",
-    "@opencode/session-ui": "workspace:*",
-    "@opencode/ui": "workspace:*",
+    "@elitza/client": "workspace:*",
+    "@elitza/session-ui": "workspace:*",
+    "@elitza/ui": "workspace:*",
     "@playwright/test": "catalog:",
     "@solidjs/meta": "catalog:",
     "@storybook/addon-a11y": "10.4.4",

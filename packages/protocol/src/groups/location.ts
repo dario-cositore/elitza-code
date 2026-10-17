@@ -1,4 +1,4 @@
-import { Location } from "@opencode/schema/location"
+import { Location } from "@elitza/schema/location"
 import { Context, Schema } from "effect"
 import { HttpApiEndpoint, HttpApiGroup, HttpApiMiddleware, HttpApiSchema, OpenApi } from "effect/http-api"
 import { ServiceUnavailableError } from "../errors.js"

@@ -1,8 +1,8 @@
 /** @jsxImportSource @opentui/solid */
-import type { FileDiffInfo, LocationRef } from "@opencode/client"
-import type { Vcs } from "@opencode/schema/vcs"
-import { Plugin } from "@opencode/plugin/tui"
-import type { KeymapCommand, PanelInput, Route } from "@opencode/plugin/tui/context"
+import type { FileDiffInfo, LocationRef } from "@elitza/client"
+import type { Vcs } from "@elitza/schema/vcs"
+import { Plugin } from "@elitza/plugin/tui"
+import type { KeymapCommand, PanelInput, Route } from "@elitza/plugin/tui/context"
 import {
   MouseButton,
   TextAttributes,

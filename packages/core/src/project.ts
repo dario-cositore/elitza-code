@@ -7,12 +7,12 @@ import path from "path"
 import { AbsolutePath } from "./schema.js"
 import { Bus } from "./bus.js"
 import { Database } from "./database/database.js"
-import { Worktree } from "@opencode/schema/worktree"
-import { FSUtil } from "@opencode/util/fs-util"
+import { Worktree } from "@elitza/schema/worktree"
+import { FSUtil } from "@elitza/util/fs-util"
 import { Git } from "./git.js"
-import { AppProcess } from "@opencode/util/process"
-import { makeGlobalNode } from "@opencode/util/effect/app-node"
-import { Hash } from "@opencode/util/hash"
+import { AppProcess } from "@elitza/util/process"
+import { makeGlobalNode } from "@elitza/util/effect/app-node"
+import { Hash } from "@elitza/util/hash"
 import { ProjectSchema } from "./project/schema.js"
 import { ProjectTable, upsertProject } from "./project/sql.js"
 import { WorktreeTable } from "./worktree/sql.js"
@@ -76,7 +76,7 @@ export interface Interface {
   readonly sweep: () => Effect.Effect<void>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Project") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Project") {}
 
 function fromRow(row: typeof ProjectTable.$inferSelect): Info {
   const icon =

@@ -1,5 +1,5 @@
-import { selectTheme } from "@opencode/theme/tui"
-import type { BackgroundDefinition, TextDefinition, ThemeDefinition, ThemeDocument } from "@opencode/theme/tui"
+import { selectTheme } from "@elitza/theme/tui"
+import type { BackgroundDefinition, TextDefinition, ThemeDefinition, ThemeDocument } from "@elitza/theme/tui"
 import { getElitzaTheme } from "../../../src/theme"
 
 const text = {

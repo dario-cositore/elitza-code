@@ -1,20 +1,20 @@
 import { describe, expect } from "bun:test"
-import { Money } from "@opencode/schema/money"
-import { Document, Info, type Entry } from "@opencode/schema/config"
+import { Money } from "@elitza/schema/money"
+import { Document, Info, type Entry } from "@elitza/schema/config"
 import { Effect, Schema } from "effect"
-import { Config } from "@opencode/core/config"
-import { ConfigProviderPlugin } from "@opencode/core/config/plugin/provider"
-import { ConfigNormalize } from "@opencode/core/config/normalize"
-import { Integration } from "@opencode/core/integration"
-import { Model } from "@opencode/core/model"
-import { ModelResolver } from "@opencode/core/model-resolver"
-import { Plugin } from "@opencode/core/plugin"
-import { PluginHost } from "@opencode/core/plugin/host"
-import { AzurePlugin } from "@opencode/core/plugin/provider/azure"
-import { OpenAIPlugin } from "@opencode/core/plugin/provider/openai"
-import { PromptCacheKeyPlugin } from "@opencode/core/plugin/provider/prompt-cache-key"
-import { XAIPlugin } from "@opencode/core/plugin/provider/xai"
-import { Provider } from "@opencode/core/provider"
+import { Config } from "@elitza/core/config"
+import { ConfigProviderPlugin } from "@elitza/core/config/plugin/provider"
+import { ConfigNormalize } from "@elitza/core/config/normalize"
+import { Integration } from "@elitza/core/integration"
+import { Model } from "@elitza/core/model"
+import { ModelResolver } from "@elitza/core/model-resolver"
+import { Plugin } from "@elitza/core/plugin"
+import { PluginHost } from "@elitza/core/plugin/host"
+import { AzurePlugin } from "@elitza/core/plugin/provider/azure"
+import { OpenAIPlugin } from "@elitza/core/plugin/provider/openai"
+import { PromptCacheKeyPlugin } from "@elitza/core/plugin/provider/prompt-cache-key"
+import { XAIPlugin } from "@elitza/core/plugin/provider/xai"
+import { Provider } from "@elitza/core/provider"
 import { withEnv } from "../fixture/env"
 import { testEffect } from "../lib/effect"
 import { PluginTestLayer } from "../plugin/fixture"
@@ -45,15 +45,15 @@ describe("ConfigProviderPlugin.Plugin", () => {
           info: decode({
             providers: {
               custom: {
-                package: "@opencode/ai/providers/openai/responses",
+                package: "@elitza/ai/providers/openai/responses",
                 settings: { compaction: { type: "native" } },
                 models: {
                   native: {},
-                  local: { settings: { compaction: { type: "summary" } }, package: "@opencode/ai/providers/openai/chat" },
-                  unsupported: { package: "@opencode/ai/providers/openai/chat" },
+                  local: { settings: { compaction: { type: "summary" } }, package: "@elitza/ai/providers/openai/chat" },
+                  unsupported: { package: "@elitza/ai/providers/openai/chat" },
                 },
               },
-              default: { package: "@opencode/ai/providers/openai/chat", models: { chat: {} } },
+              default: { package: "@elitza/ai/providers/openai/chat", models: { chat: {} } },
             },
           }),
         }),
@@ -83,7 +83,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
       const providerID = Provider.ID.make("proxy")
       yield* providers.transform((editor) => {
         editor.update(providerID, (provider) => {
-          provider.package = "@opencode/ai/providers/openai/chat"
+          provider.package = "@elitza/ai/providers/openai/chat"
         })
         editor.models.update(providerID, Model.ID.make("catalog"), () => {})
       })
@@ -138,7 +138,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
       const providerID = Provider.ID.make("venice")
       yield* providers.transform((editor) => {
         editor.update(providerID, (provider) => {
-          provider.package = "@opencode/ai/providers/openai-compatible"
+          provider.package = "@elitza/ai/providers/openai-compatible"
         })
         editor.models.update(providerID, Model.ID.make("chat"), () => {})
         editor.models.update(providerID, Model.ID.make("keyed"), () => {})
@@ -179,7 +179,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
           info: decode({
             providers: {
               litellm: {
-                package: "@opencode/ai/providers/openai-compatible",
+                package: "@elitza/ai/providers/openai-compatible",
                 settings: { baseURL: "https://litellm.test/v1" },
                 compatibility: { cacheFormat: "anthropic" },
                 models: { "claude-sonnet-5": {} },
@@ -202,7 +202,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
       const providerID = Provider.ID.make("proxy")
       yield* providers.transform((editor) => {
         editor.update(providerID, (provider) => {
-          provider.package = "@opencode/ai/providers/openai/chat"
+          provider.package = "@elitza/ai/providers/openai/chat"
         })
         editor.models.update(providerID, Model.ID.make("catalog"), (model) => {
           model.compatibility = { maxTokensField: "max_tokens" }
@@ -248,7 +248,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
           info: decode({
             providers: {
               custom: {
-                package: "@opencode/ai/providers/openai/responses",
+                package: "@elitza/ai/providers/openai/responses",
                 settings: { transport: "http", timeout: 100, chunkTimeout: 200, shared: "provider" },
                 models: {
                   inherited: {
@@ -256,7 +256,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
                   },
                 },
               },
-              default: { package: "@opencode/ai/providers/openai/responses", models: { untouched: {} } },
+              default: { package: "@elitza/ai/providers/openai/responses", models: { untouched: {} } },
             },
           }),
         }),
@@ -270,10 +270,10 @@ describe("ConfigProviderPlugin.Plugin", () => {
   )
 
   for (const builtin of [
-    { id: "openai", model: "gpt-5.6-sol", package: "@opencode/ai/providers/openai/responses", plugin: OpenAIPlugin },
-    { id: "xai", model: "grok-4.6", package: "@opencode/ai/providers/xai", plugin: XAIPlugin },
-    { id: "azure", model: "gpt-5.6-sol", package: "@opencode/ai/providers/azure/responses", plugin: AzurePlugin },
-    { id: "custom-azure", model: "deployment", package: "@opencode/ai/providers/azure/responses", plugin: AzurePlugin },
+    { id: "openai", model: "gpt-5.6-sol", package: "@elitza/ai/providers/openai/responses", plugin: OpenAIPlugin },
+    { id: "xai", model: "grok-4.6", package: "@elitza/ai/providers/xai", plugin: XAIPlugin },
+    { id: "azure", model: "gpt-5.6-sol", package: "@elitza/ai/providers/azure/responses", plugin: AzurePlugin },
+    { id: "custom-azure", model: "deployment", package: "@elitza/ai/providers/azure/responses", plugin: AzurePlugin },
   ]) {
     it.live(`configured provider transport overrides ${builtin.id} defaults`, () =>
       Effect.gen(function* () {
@@ -589,16 +589,16 @@ describe("ConfigProviderPlugin.Plugin", () => {
     {
       name: "built-in provider routes",
       legacy: {
-        npm: "@opencode/ai/providers/google-vertex",
+        npm: "@elitza/ai/providers/google-vertex",
         options: { project: "my-project", location: "europe-west4" },
         models: {
-          chat: { provider: { npm: "@opencode-ai/ai/providers/google-vertex/mistral" } },
+          chat: { provider: { npm: "@elitza/ai/providers/google-vertex/mistral" } },
         },
       },
       native: {
-        package: "@opencode/ai/providers/google-vertex",
+        package: "@elitza/ai/providers/google-vertex",
         settings: { project: "my-project", location: "europe-west4" },
-        models: { chat: { package: "@opencode/ai/providers/google-vertex/mistral" } },
+        models: { chat: { package: "@elitza/ai/providers/google-vertex/mistral" } },
       },
     },
     {
@@ -685,7 +685,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
       ])
 
       const model = required(yield* models.get(Provider.ID.make("custom"), Model.ID.make("claude")))
-      expect(model.package).toBe("@opencode/ai/providers/anthropic")
+      expect(model.package).toBe("@elitza/ai/providers/anthropic")
       expect(model.variants.map((variant) => variant.id)).toEqual([
         Model.VariantID.make("low"),
         Model.VariantID.make("medium"),

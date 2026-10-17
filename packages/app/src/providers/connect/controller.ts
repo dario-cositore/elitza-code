@@ -3,7 +3,7 @@ import type {
   IntegrationInfo,
   IntegrationMethod,
   IntegrationOauthConnectOutput,
-} from "@opencode/client/promise"
+} from "@elitza/client/promise"
 import { useLanguage } from "@/runtime/i18n/language"
 import { usePlatform } from "@/runtime/platform/platform"
 import { useServerSDK } from "@/runtime/server/client"

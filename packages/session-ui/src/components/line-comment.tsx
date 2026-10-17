@@ -1,11 +1,11 @@
-import { useFilteredList } from "@opencode/ui/hooks"
-import { getDirectory, getFilename } from "@opencode/util/path"
+import { useFilteredList } from "@elitza/ui/hooks"
+import { getDirectory, getFilename } from "@elitza/util/path"
 import { createSignal, For, onMount, Show, splitProps, type JSX } from "solid-js"
-import { Button } from "@opencode/ui/button"
-import { FileIcon } from "@opencode/ui/file-icon"
-import { Icon } from "@opencode/ui/icon"
+import { Button } from "@elitza/ui/button"
+import { FileIcon } from "@elitza/ui/file-icon"
+import { Icon } from "@elitza/ui/icon"
 import { installLineCommentStyles } from "./line-comment-styles"
-import { useI18n } from "@opencode/ui/context/i18n"
+import { useI18n } from "@elitza/ui/context/i18n"
 
 installLineCommentStyles()
 

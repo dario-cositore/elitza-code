@@ -15,7 +15,7 @@
  */
 
 import fs from "node:fs"
-import { Plugin } from "@opencode/plugin"
+import { Plugin } from "@elitza/plugin"
 import { EmotionEngine } from "./emotion.js"
 import { currentReflection, noteInteraction, startHeartbeat } from "./heartbeat.js"
 import { runAutoLearn, type ToolRun } from "./learning.js"

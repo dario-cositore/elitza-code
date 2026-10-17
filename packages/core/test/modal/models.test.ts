@@ -1,9 +1,9 @@
 import { expect, test } from "bun:test"
-import { ModalModels } from "@opencode/core/modal/models"
-import { Model } from "@opencode/core/model"
-import { Provider } from "@opencode/core/provider"
-import { ProviderPlugins } from "@opencode/core/plugin/provider"
-import { Money } from "@opencode/schema/money"
+import { ModalModels } from "@elitza/core/modal/models"
+import { Model } from "@elitza/core/model"
+import { Provider } from "@elitza/core/provider"
+import { ProviderPlugins } from "@elitza/core/plugin/provider"
+import { Money } from "@elitza/schema/money"
 
 const providerID = Provider.ID.make("modal")
 
@@ -65,7 +65,7 @@ test("maps live Modal models onto catalog templates", async () => {
     expect(model?.family).toBe(Model.Family.make("catalog-family"))
     expect(model?.providerID).toBe(providerID)
     expect(model?.modelID).toBe(Model.ID.make("live-model"))
-    expect(model?.package).toBe("@opencode/ai/providers/openai-compatible")
+    expect(model?.package).toBe("@elitza/ai/providers/openai-compatible")
     expect(model?.settings).toMatchObject({ baseURL: `${server.url.origin}/v1` })
     expect(model?.compatibility).toMatchObject({ reasoningField: "reasoning_content" })
     expect(model?.capabilities).toMatchObject({ tools: true, input: ["text", "image"], output: ["text"] })

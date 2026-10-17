@@ -1,9 +1,9 @@
 export * as ConfigSkillPlugin from "./skill.js"
 
-import { define } from "@opencode/plugin/effect/plugin"
-import type { Entry } from "@opencode/schema/config"
-import { FSUtil } from "@opencode/util/fs-util"
-import { Global } from "@opencode/util/global"
+import { define } from "@elitza/plugin/effect/plugin"
+import type { Entry } from "@elitza/schema/config"
+import { FSUtil } from "@elitza/util/fs-util"
+import { Global } from "@elitza/util/global"
 import path from "path"
 import { Effect, FiberMap, PubSub, Semaphore, Stream } from "effect"
 import { Config } from "../../config.js"

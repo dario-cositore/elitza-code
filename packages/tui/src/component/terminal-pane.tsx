@@ -1,5 +1,5 @@
 import { EmbeddedTerminalRenderable, type RGBA } from "@opentui/core"
-import { rgbToOklch, type ResolvedThemeTokens } from "@opencode/theme/tui"
+import { rgbToOklch, type ResolvedThemeTokens } from "@elitza/theme/tui"
 import { extend, useRenderer } from "@opentui/solid"
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js"
 import { useClient } from "../context/client"

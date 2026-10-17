@@ -1,17 +1,17 @@
 import { EOL } from "node:os"
 import path from "node:path"
 import { Effect } from "effect"
-import { OpenCode, type PluginInfo } from "@opencode/client"
-import { Service } from "@opencode/client/effect/service"
+import { OpenCode, type PluginInfo } from "@elitza/client"
+import { Service } from "@elitza/client/effect/service"
 import { Commands } from "../../commands"
 import { Runtime } from "../../../framework/runtime"
 import { ServerConnection } from "../../../services/server-connection"
 import { Config } from "../../../config"
-import { Global } from "@opencode/util/global"
-import { Npm } from "@opencode/util/npm"
-import { Host } from "@opencode/plugin/host"
+import { Global } from "@elitza/util/global"
+import { Npm } from "@elitza/util/npm"
+import { Host } from "@elitza/plugin/host"
 import { fileURLToPath } from "node:url"
-import { discoverPluginTargets, localPluginDirectories, localSource } from "@opencode/tui/plugin/discovery"
+import { discoverPluginTargets, localPluginDirectories, localSource } from "@elitza/tui/plugin/discovery"
 
 export default Runtime.handler(
   Commands.commands.plugin.commands.list,

@@ -34,7 +34,7 @@ export function rewrite<ID extends string>(
   if (target.package !== undefined || replacement !== input.specifier) target.package = replacement
   // Without `provider`, the native compatible package reports every AI SDK-mapped host as `openai-compatible`.
   const identity =
-    replacement === "@opencode/ai/providers/openai-compatible" && !Provider.builtinPackages.has(input.specifier)
+    replacement === "@elitza/ai/providers/openai-compatible" && !Provider.builtinPackages.has(input.specifier)
       ? { provider: input.canonical ?? input.providerID }
       : {}
   target.settings = target.settings === undefined ? undefined : { ...translated.settings, ...identity }
@@ -54,32 +54,32 @@ export function rewrite<ID extends string>(
 }
 
 const PACKAGES: Readonly<Record<string, string>> = {
-  "@ai-sdk/amazon-bedrock": "@opencode/ai/providers/amazon-bedrock",
-  "@ai-sdk/alibaba": "@opencode/ai/providers/alibaba/chat",
-  "@ai-sdk/anthropic": "@opencode/ai/providers/anthropic",
-  "@ai-sdk/azure": "@opencode/ai/providers/azure/responses",
-  "@ai-sdk/cerebras": "@opencode/ai/providers/cerebras",
-  "@ai-sdk/cohere": "@opencode/ai/providers/cohere",
-  "@ai-sdk/deepinfra": "@opencode/ai/providers/deepinfra",
-  "@ai-sdk/google": "@opencode/ai/providers/google",
-  "@ai-sdk/google-vertex": "@opencode/ai/providers/google-vertex",
-  "@ai-sdk/google-vertex/anthropic": "@opencode/ai/providers/google-vertex/messages",
-  "@ai-sdk/groq": "@opencode/ai/providers/groq",
-  "@ai-sdk/mistral": "@opencode/ai/providers/mistral",
-  "@ai-sdk/openai": "@opencode/ai/providers/openai",
-  "@ai-sdk/openai-compatible": "@opencode/ai/providers/openai-compatible",
-  "@ai-sdk/togetherai": "@opencode/ai/providers/togetherai",
-  "@ai-sdk/xai": "@opencode/ai/providers/xai",
-  "@ai-sdk/gateway": "@opencode/ai/providers/vercel-ai-gateway",
-  "@openrouter/ai-sdk-provider": "@opencode/ai/providers/openrouter",
-  "ai-gateway-provider": "@opencode/ai/providers/cloudflare-ai-gateway",
-  "venice-ai-sdk-provider": "@opencode/ai/providers/venice",
+  "@ai-sdk/amazon-bedrock": "@elitza/ai/providers/amazon-bedrock",
+  "@ai-sdk/alibaba": "@elitza/ai/providers/alibaba/chat",
+  "@ai-sdk/anthropic": "@elitza/ai/providers/anthropic",
+  "@ai-sdk/azure": "@elitza/ai/providers/azure/responses",
+  "@ai-sdk/cerebras": "@elitza/ai/providers/cerebras",
+  "@ai-sdk/cohere": "@elitza/ai/providers/cohere",
+  "@ai-sdk/deepinfra": "@elitza/ai/providers/deepinfra",
+  "@ai-sdk/google": "@elitza/ai/providers/google",
+  "@ai-sdk/google-vertex": "@elitza/ai/providers/google-vertex",
+  "@ai-sdk/google-vertex/anthropic": "@elitza/ai/providers/google-vertex/messages",
+  "@ai-sdk/groq": "@elitza/ai/providers/groq",
+  "@ai-sdk/mistral": "@elitza/ai/providers/mistral",
+  "@ai-sdk/openai": "@elitza/ai/providers/openai",
+  "@ai-sdk/openai-compatible": "@elitza/ai/providers/openai-compatible",
+  "@ai-sdk/togetherai": "@elitza/ai/providers/togetherai",
+  "@ai-sdk/xai": "@elitza/ai/providers/xai",
+  "@ai-sdk/gateway": "@elitza/ai/providers/vercel-ai-gateway",
+  "@openrouter/ai-sdk-provider": "@elitza/ai/providers/openrouter",
+  "ai-gateway-provider": "@elitza/ai/providers/cloudflare-ai-gateway",
+  "venice-ai-sdk-provider": "@elitza/ai/providers/venice",
 }
 
 const protocols = (name: string) => ({
-  "@ai-sdk/openai-compatible": `@opencode/ai/providers/${name}/chat`,
-  "@ai-sdk/anthropic": `@opencode/ai/providers/${name}/messages`,
-  "@ai-sdk/openai": `@opencode/ai/providers/${name}/responses`,
+  "@ai-sdk/openai-compatible": `@elitza/ai/providers/${name}/chat`,
+  "@ai-sdk/anthropic": `@elitza/ai/providers/${name}/messages`,
+  "@ai-sdk/openai": `@elitza/ai/providers/${name}/responses`,
 })
 
 const HOSTS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
@@ -89,21 +89,21 @@ const HOSTS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   "alibaba-coding-plan-cn": protocols("alibaba"),
   "alibaba-token-plan": protocols("alibaba"),
   "alibaba-token-plan-cn": protocols("alibaba"),
-  baseten: { "@ai-sdk/openai-compatible": "@opencode/ai/providers/baseten" },
+  baseten: { "@ai-sdk/openai-compatible": "@elitza/ai/providers/baseten" },
   "cloudflare-ai-gateway": {
-    "@ai-sdk/anthropic": "@opencode/ai/providers/cloudflare-ai-gateway",
-    "@ai-sdk/openai": "@opencode/ai/providers/cloudflare-ai-gateway",
-    "@ai-sdk/openai-compatible": "@opencode/ai/providers/cloudflare-ai-gateway",
-    "ai-gateway-provider": "@opencode/ai/providers/cloudflare-ai-gateway",
+    "@ai-sdk/anthropic": "@elitza/ai/providers/cloudflare-ai-gateway",
+    "@ai-sdk/openai": "@elitza/ai/providers/cloudflare-ai-gateway",
+    "@ai-sdk/openai-compatible": "@elitza/ai/providers/cloudflare-ai-gateway",
+    "ai-gateway-provider": "@elitza/ai/providers/cloudflare-ai-gateway",
   },
-  cohere: { "@ai-sdk/openai-compatible": "@opencode/ai/providers/cohere/chat" },
-  "cloudflare-workers-ai": { "@ai-sdk/openai-compatible": "@opencode/ai/providers/cloudflare-workers-ai" },
-  deepseek: { "@ai-sdk/openai-compatible": "@opencode/ai/providers/deepseek" },
-  digitalocean: { "@ai-sdk/openai-compatible": "@opencode/ai/providers/digitalocean" },
-  "fireworks-ai": { "@ai-sdk/openai-compatible": "@opencode/ai/providers/fireworks" },
+  cohere: { "@ai-sdk/openai-compatible": "@elitza/ai/providers/cohere/chat" },
+  "cloudflare-workers-ai": { "@ai-sdk/openai-compatible": "@elitza/ai/providers/cloudflare-workers-ai" },
+  deepseek: { "@ai-sdk/openai-compatible": "@elitza/ai/providers/deepseek" },
+  digitalocean: { "@ai-sdk/openai-compatible": "@elitza/ai/providers/digitalocean" },
+  "fireworks-ai": { "@ai-sdk/openai-compatible": "@elitza/ai/providers/fireworks" },
   "google-vertex": {
-    "@ai-sdk/openai-compatible": "@opencode/ai/providers/google-vertex/chat",
-    "@ai-sdk/mistral": "@opencode/ai/providers/google-vertex/mistral",
+    "@ai-sdk/openai-compatible": "@elitza/ai/providers/google-vertex/chat",
+    "@ai-sdk/mistral": "@elitza/ai/providers/google-vertex/mistral",
   },
   "kimi-for-coding": protocols("moonshot"),
   meta: protocols("meta"),
@@ -113,9 +113,9 @@ const HOSTS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   "minimax-cn-coding-plan": protocols("minimax"),
   moonshotai: protocols("moonshot"),
   "moonshotai-cn": protocols("moonshot"),
-  zai: { "@ai-sdk/openai-compatible": "@opencode/ai/providers/zai/chat" },
+  zai: { "@ai-sdk/openai-compatible": "@elitza/ai/providers/zai/chat" },
   "zai-coding-plan": protocols("zai-coding-plan"),
-  zhipuai: { "@ai-sdk/openai-compatible": "@opencode/ai/providers/zai/chat" },
+  zhipuai: { "@ai-sdk/openai-compatible": "@elitza/ai/providers/zai/chat" },
   "zhipuai-coding-plan": protocols("zai-coding-plan"),
 }
 
@@ -123,7 +123,7 @@ export function native(npm: string, context: Context & { readonly settings?: Pro
   const host = HOSTS[context.providerID]?.[npm]
   if (host) return host
   if (npm === "@ai-sdk/amazon-bedrock/mantle") return mantle(context.modelID)
-  if (npm === "@ai-sdk/azure" && azureChat(context)) return "@opencode/ai/providers/azure/chat"
+  if (npm === "@ai-sdk/azure" && azureChat(context)) return "@elitza/ai/providers/azure/chat"
   return PACKAGES[npm]
 }
 
@@ -132,22 +132,22 @@ const azureChat = (context: Context & { readonly settings?: Provider.Settings })
 
 // Mantle serves Claude only through Anthropic Messages and GPT-OSS only through Chat.
 const mantle = (modelID: string | undefined) => {
-  if (modelID === undefined) return "@opencode/ai/providers/amazon-bedrock/mantle"
-  if (modelID.includes("anthropic.")) return "@opencode/ai/providers/amazon-bedrock/mantle/messages"
-  return `@opencode/ai/providers/amazon-bedrock/mantle/${modelID.includes("gpt-oss") ? "chat" : "responses"}`
+  if (modelID === undefined) return "@elitza/ai/providers/amazon-bedrock/mantle"
+  if (modelID.includes("anthropic.")) return "@elitza/ai/providers/amazon-bedrock/mantle/messages"
+  return `@elitza/ai/providers/amazon-bedrock/mantle/${modelID.includes("gpt-oss") ? "chat" : "responses"}`
 }
 
 function resolve(specifier: string, context: Context & { readonly settings?: Provider.Settings }): string | undefined {
   const npm = Provider.packageName(specifier)
   if (Provider.isAISDK(specifier) || npm in PACKAGES || npm in (HOSTS[context.providerID] ?? {}))
     return native(npm, context)
-  if (npm === "@opencode/ai/providers/amazon-bedrock/mantle" || npm === "@opencode/ai/providers/amazon-bedrock-mantle")
+  if (npm === "@elitza/ai/providers/amazon-bedrock/mantle" || npm === "@elitza/ai/providers/amazon-bedrock-mantle")
     return mantle(context.modelID)
   if (
-    (npm === "@opencode/ai/providers/azure" || npm === "@opencode/ai/providers/azure/responses") &&
+    (npm === "@elitza/ai/providers/azure" || npm === "@elitza/ai/providers/azure/responses") &&
     azureChat(context)
   )
-    return "@opencode/ai/providers/azure/chat"
+    return "@elitza/ai/providers/azure/chat"
   return Provider.builtinPackages.has(npm) ? npm : undefined
 }
 
@@ -158,18 +158,18 @@ type Overlay = {
 }
 
 function options(replacement: string, modelID: string | undefined, settings: Legacy): Overlay {
-  const converse = replacement === "@opencode/ai/providers/amazon-bedrock" && modelID !== undefined
+  const converse = replacement === "@elitza/ai/providers/amazon-bedrock" && modelID !== undefined
   const kept = Struct.omit(settings, ["headers", "extraBody", "useCompletionUrls", ...OPENROUTER_KEYS])
   const thinking = converse ? bedrockThinking(modelID, settings) : undefined
   return {
     settings: {
-      ...(replacement.startsWith("@opencode/ai/providers/amazon-bedrock") ? bedrockSettings(kept, converse) : kept),
+      ...(replacement.startsWith("@elitza/ai/providers/amazon-bedrock") ? bedrockSettings(kept, converse) : kept),
       ...(thinking === undefined ? {} : { thinking }),
     },
     ...(settings.headers === undefined ? {} : { headers: settings.headers }),
     ...(settings.extraBody === undefined ? {} : { body: settings.extraBody }),
     ...(converse ? bedrockRequest(modelID, settings) : {}),
-    ...(replacement === "@opencode/ai/providers/openrouter" ? openRouterRequest(settings) : {}),
+    ...(replacement === "@elitza/ai/providers/openrouter" ? openRouterRequest(settings) : {}),
   }
 }
 

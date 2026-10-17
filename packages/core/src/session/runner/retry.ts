@@ -1,9 +1,9 @@
 export * as SessionRunnerRetry from "./retry.js"
 
-import { AIError, isRetryable } from "@opencode/ai"
-import { Agent } from "@opencode/schema/agent"
-import { Model } from "@opencode/schema/model"
-import { SessionError } from "@opencode/schema/session-error"
+import { AIError, isRetryable } from "@elitza/ai"
+import { Agent } from "@elitza/schema/agent"
+import { Model } from "@elitza/schema/model"
+import { SessionError } from "@elitza/schema/session-error"
 import { Clock, Duration, Effect, Pull, Schedule } from "effect"
 import { Bus } from "../../bus.js"
 import type { PluginHooks } from "../../plugin/hooks.js"

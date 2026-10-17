@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 
-/* TODO: Migrate this script to the new in-process @opencode/sdk.
+/* TODO: Migrate this script to the new in-process @elitza/sdk.
 import path from "path"
 import { pathToFileURL } from "bun"
-import { createOpencode } from "@opencode/sdk"
+import { createOpencode } from "@elitza/sdk"
 import { parseArgs } from "util"
 
 async function main() {

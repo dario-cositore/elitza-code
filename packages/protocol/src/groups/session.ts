@@ -1,10 +1,10 @@
-import { SessionMessage } from "@opencode/schema/session-message"
-import { SessionInbox } from "@opencode/schema/session-inbox"
-import { PromptInput } from "@opencode/schema/prompt-input"
-import { Session } from "@opencode/schema/session"
-import { SessionStats } from "@opencode/schema/session-stats"
-import { InstructionEntry } from "@opencode/schema/instruction-entry"
-import { Project } from "@opencode/schema/project"
+import { SessionMessage } from "@elitza/schema/session-message"
+import { SessionInbox } from "@elitza/schema/session-inbox"
+import { PromptInput } from "@elitza/schema/prompt-input"
+import { Session } from "@elitza/schema/session"
+import { SessionStats } from "@elitza/schema/session-stats"
+import { InstructionEntry } from "@elitza/schema/instruction-entry"
+import { Project } from "@elitza/schema/project"
 import {
   AbsolutePath,
   DateTimeUtcFromMillis,
@@ -12,8 +12,8 @@ import {
   PositiveInt,
   RelativePath,
   statics,
-} from "@opencode/schema/schema"
-import { Event } from "@opencode/schema/event"
+} from "@elitza/schema/schema"
+import { Event } from "@elitza/schema/event"
 import { Context, Effect, Result, Schema, SchemaGetter, SchemaParser, Struct } from "effect"
 import { Base64Url } from "effect/encoding"
 import { HttpApiEndpoint, HttpApiGroup, HttpApiMiddleware, HttpApiSchema, OpenApi } from "effect/http-api"
@@ -34,15 +34,15 @@ import {
   SkillNotFoundError,
   UnknownError,
 } from "../errors.js"
-import { Agent } from "@opencode/schema/agent"
-import { Skill } from "@opencode/schema/skill"
-import { Model } from "@opencode/schema/model"
-import { Permission } from "@opencode/schema/permission"
-import { Location } from "@opencode/schema/location"
-import { SessionEvent } from "@opencode/schema/session-event"
-import { EventLog } from "@opencode/schema/event-log"
-import { FileDiff } from "@opencode/schema/file-diff"
-import { Form } from "@opencode/schema/form"
+import { Agent } from "@elitza/schema/agent"
+import { Skill } from "@elitza/schema/skill"
+import { Model } from "@elitza/schema/model"
+import { Permission } from "@elitza/schema/permission"
+import { Location } from "@elitza/schema/location"
+import { SessionEvent } from "@elitza/schema/session-event"
+import { EventLog } from "@elitza/schema/event-log"
+import { FileDiff } from "@elitza/schema/file-diff"
+import { Form } from "@elitza/schema/form"
 import { PublicSessionMessage } from "./message.js"
 
 const ParentIDFilter = Schema.Union([

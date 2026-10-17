@@ -95,7 +95,7 @@
             ],
             "patterns": [
               {
-                "regex": "^@opencode/(app|desktop)(/|$)",
+                "regex": "^@elitza/(app|desktop)(/|$)",
                 "message": "GUI extensions never import the app or desktop packages. Use the SDK."
               },
               {
@@ -123,7 +123,7 @@
           {
             "patterns": [
               {
-                "regex": "^@opencode/(app|desktop)(/|$)",
+                "regex": "^@elitza/(app|desktop)(/|$)",
                 "message": "GUI extensions never import the app or desktop packages. Use the SDK."
               },
               {

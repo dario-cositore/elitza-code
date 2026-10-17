@@ -1,5 +1,5 @@
-import type { ModelApi } from "@opencode/client/promise/api"
-import type { Model } from "@opencode/schema/model"
+import type { ModelApi } from "@elitza/client/promise/api"
+import type { Model } from "@elitza/schema/model"
 import type { ProviderRecord } from "./provider.js"
 import type { Transform } from "./registration.js"
 import type { DeepMutable } from "./types.js"

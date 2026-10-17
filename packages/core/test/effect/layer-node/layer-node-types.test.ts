@@ -1,7 +1,7 @@
 import { test } from "bun:test"
 import { Context, Effect, Layer } from "effect"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { makeGlobalNode, makeLocationNode } from "@opencode/util/effect/app-node"
+import { LayerNode } from "@elitza/util/effect/layer-node"
+import { makeGlobalNode, makeLocationNode } from "@elitza/util/effect/app-node"
 
 class A extends Context.Service<A, {}>()("test/LayerNodeA") {}
 class B extends Context.Service<B, {}>()("test/LayerNodeB") {}

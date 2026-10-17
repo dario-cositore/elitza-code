@@ -1,5 +1,5 @@
-import { Config } from "@opencode/core/config"
-import { ShellSelect } from "@opencode/core/shell/select"
+import { Config } from "@elitza/core/config"
+import { ShellSelect } from "@elitza/core/shell/select"
 import { Effect } from "effect"
 import { HttpApiBuilder } from "effect/http-api"
 import { Api } from "../api"

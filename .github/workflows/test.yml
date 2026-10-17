@@ -86,4 +86,4 @@ jobs:
 
       - name: Build workspace libraries
         timeout-minutes: 10
-        run: bun turbo build --concurrency=3 --filter='@opencode/cli^...' --filter='@opencode/app^...'
+        run: bun turbo build --concurrency=3 --filter='@elitza/cli^...' --filter='@elitza/app^...'

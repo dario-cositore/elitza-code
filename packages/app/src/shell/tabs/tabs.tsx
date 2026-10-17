@@ -1,6 +1,6 @@
-import type { SessionInfo, SessionMessageUser } from "@opencode/client/promise"
+import type { SessionInfo, SessionMessageUser } from "@elitza/client/promise"
 import type { ComposerSelection } from "@/composer/adapter"
-import { createSimpleContext } from "@opencode/ui/context"
+import { createSimpleContext } from "@elitza/ui/context"
 import { createStore, produce } from "solid-js/store"
 import { Persist, persisted, removePersisted, draftPersistedKeys } from "@/runtime/persistence/storage"
 import { ServerConnection, useServers } from "@/runtime/server/registry"

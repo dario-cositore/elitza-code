@@ -1,4 +1,4 @@
-import type { OpenCodeClient } from "@opencode/client/promise"
+import type { OpenCodeClient } from "@elitza/client/promise"
 
 export async function fetchSessionExport(input: {
   sessionID: string

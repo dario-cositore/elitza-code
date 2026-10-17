@@ -1,4 +1,4 @@
-import { Model } from "@opencode/core/model"
+import { Model } from "@elitza/core/model"
 import { Effect } from "effect"
 import { HttpApiBuilder } from "effect/http-api"
 import { Api } from "../api"

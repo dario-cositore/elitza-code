@@ -1,10 +1,10 @@
 import { describe, expect } from "bun:test"
 import { Deferred, Effect, Exit, Fiber } from "effect"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Bus } from "@opencode/core/bus"
-import { Form } from "@opencode/core/form"
-import { SessionSchema } from "@opencode/core/session/schema"
+import { AppNodeBuilder } from "@elitza/core/effect/app-node-builder"
+import { LayerNode } from "@elitza/util/effect/layer-node"
+import { Bus } from "@elitza/core/bus"
+import { Form } from "@elitza/core/form"
+import { SessionSchema } from "@elitza/core/session/schema"
 import { testEffect } from "./lib/effect"
 
 const forms = AppNodeBuilder.build(LayerNode.group([Bus.node, Form.node]))

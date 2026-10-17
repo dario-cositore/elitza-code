@@ -2,8 +2,8 @@
 
 export * as SkillPlugin from "./skill.js"
 
-import { define, type Context } from "@opencode/plugin/effect/plugin"
-import { Document } from "@opencode/schema/config"
+import { define, type Context } from "@elitza/plugin/effect/plugin"
+import { Document } from "@elitza/schema/config"
 import { Effect } from "effect"
 import { AbsolutePath } from "../schema.js"
 import { Skill } from "../skill.js"

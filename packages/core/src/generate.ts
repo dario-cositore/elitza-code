@@ -1,9 +1,9 @@
 export * as Generate from "./generate.js"
 
-import { LLM, LLMClient, AIError } from "@opencode/ai"
-import { SessionID } from "@opencode/schema/session-id"
+import { LLM, LLMClient, AIError } from "@elitza/ai"
+import { SessionID } from "@elitza/schema/session-id"
 import { Context, Effect, Layer, Schema } from "effect"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { makeLocationNode } from "@elitza/util/effect/app-node"
 import { llmClient } from "./effect/app-node-platform.js"
 import { ModelResolver } from "./model-resolver.js"
 import { Model } from "./model.js"
@@ -28,7 +28,7 @@ export interface Interface {
   readonly text: (input: TextInput) => Effect.Effect<string, Error>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Generate") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/Generate") {}
 
 export const layer = Layer.effect(
   Service,

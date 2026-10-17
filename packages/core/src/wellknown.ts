@@ -1,11 +1,11 @@
 export * as WellKnown from "./wellknown.js"
 
-import { Integration } from "@opencode/schema/integration"
+import { Integration } from "@elitza/schema/integration"
 import { Context, Effect, Layer, Ref, Schema, Semaphore } from "effect"
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http"
 import { isDeepStrictEqual } from "node:util"
-import { makeGlobalNode } from "@opencode/util/effect/app-node"
-import { httpClient } from "@opencode/util/effect/app-node-platform"
+import { makeGlobalNode } from "@elitza/util/effect/app-node"
+import { httpClient } from "@elitza/util/effect/app-node-platform"
 import { Bus } from "./bus.js"
 import { KV } from "./kv.js"
 
@@ -54,7 +54,7 @@ export interface Interface {
   readonly cached: (origin: string) => Effect.Effect<Config[]>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/WellKnown") {}
+export class Service extends Context.Service<Service, Interface>()("@elitza/WellKnown") {}
 
 export const Event = {
   Updated: Bus.ephemeral({ type: "wellknown.updated", schema: {} }),

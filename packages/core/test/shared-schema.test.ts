@@ -1,32 +1,32 @@
 import { expect, test } from "bun:test"
 import { Schema } from "effect"
-import { Agent } from "@opencode/core/agent"
-import { Session } from "@opencode/core/session"
-import { SessionStore } from "@opencode/core/session/store"
-import { Location } from "@opencode/schema/location"
-import { Model } from "@opencode/schema/model"
-import { Provider } from "@opencode/schema/provider"
-import { Project } from "@opencode/schema/project"
-import { Worktree } from "@opencode/schema/worktree"
-import { Prompt } from "@opencode/schema/prompt"
-import { SessionInbox } from "@opencode/schema/session-inbox"
-import { SessionMessage } from "@opencode/schema/session-message"
-import { Workspace } from "@opencode/schema/workspace"
-import { Command } from "@opencode/schema/command"
-import { Connection } from "@opencode/schema/connection"
-import { Credential } from "@opencode/schema/credential"
-import { FileSystem } from "@opencode/schema/filesystem"
-import { Integration } from "@opencode/schema/integration"
-import { LLM } from "@opencode/schema/llm"
-import { Permission } from "@opencode/schema/permission"
-import { Pty } from "@opencode/schema/pty"
-import { Reference } from "@opencode/schema/reference"
-import { Skill } from "@opencode/schema/skill"
-import { AbsolutePath, optional, statics } from "@opencode/schema/schema"
+import { Agent } from "@elitza/core/agent"
+import { Session } from "@elitza/core/session"
+import { SessionStore } from "@elitza/core/session/store"
+import { Location } from "@elitza/schema/location"
+import { Model } from "@elitza/schema/model"
+import { Provider } from "@elitza/schema/provider"
+import { Project } from "@elitza/schema/project"
+import { Worktree } from "@elitza/schema/worktree"
+import { Prompt } from "@elitza/schema/prompt"
+import { SessionInbox } from "@elitza/schema/session-inbox"
+import { SessionMessage } from "@elitza/schema/session-message"
+import { Workspace } from "@elitza/schema/workspace"
+import { Command } from "@elitza/schema/command"
+import { Connection } from "@elitza/schema/connection"
+import { Credential } from "@elitza/schema/credential"
+import { FileSystem } from "@elitza/schema/filesystem"
+import { Integration } from "@elitza/schema/integration"
+import { LLM } from "@elitza/schema/llm"
+import { Permission } from "@elitza/schema/permission"
+import { Pty } from "@elitza/schema/pty"
+import { Reference } from "@elitza/schema/reference"
+import { Skill } from "@elitza/schema/skill"
+import { AbsolutePath, optional, statics } from "@elitza/schema/schema"
 
 test("Core reuses the canonical shared schemas", async () => {
-  const schemaAgent = await import("@opencode/schema/agent")
-  const schemaSession = await import("@opencode/schema/session")
+  const schemaAgent = await import("@elitza/schema/agent")
+  const schemaSession = await import("@elitza/schema/session")
   const [
     coreCommand,
     coreConnection,
@@ -48,25 +48,25 @@ test("Core reuses the canonical shared schemas", async () => {
     coreSchema,
     coreWorkspace,
   ] = await Promise.all([
-    import("@opencode/core/command"),
-    import("@opencode/core/integration/connection"),
-    import("@opencode/core/credential"),
-    import("@opencode/core/filesystem"),
-    import("@opencode/core/integration"),
-    import("@opencode/core/location"),
-    import("@opencode/ai"),
-    import("@opencode/core/model"),
-    import("@opencode/core/permission"),
-    import("@opencode/core/worktree"),
-    import("@opencode/core/pty"),
-    import("@opencode/core/project/schema"),
-    import("@opencode/core/provider"),
-    import("@opencode/core/reference"),
-    import("@opencode/core/session/inbox"),
-    import("@opencode/core/session/message"),
-    import("@opencode/core/skill"),
-    import("@opencode/core/schema"),
-    import("@opencode/core/workspace"),
+    import("@elitza/core/command"),
+    import("@elitza/core/integration/connection"),
+    import("@elitza/core/credential"),
+    import("@elitza/core/filesystem"),
+    import("@elitza/core/integration"),
+    import("@elitza/core/location"),
+    import("@elitza/ai"),
+    import("@elitza/core/model"),
+    import("@elitza/core/permission"),
+    import("@elitza/core/worktree"),
+    import("@elitza/core/pty"),
+    import("@elitza/core/project/schema"),
+    import("@elitza/core/provider"),
+    import("@elitza/core/reference"),
+    import("@elitza/core/session/inbox"),
+    import("@elitza/core/session/message"),
+    import("@elitza/core/skill"),
+    import("@elitza/core/schema"),
+    import("@elitza/core/workspace"),
   ])
 
   const schemas = [

@@ -6,7 +6,7 @@ import { supportsForeignKeyToggle } from "#sqlite"
 import type { EffectDrizzleSqlite } from "./drizzle.js"
 import { migrations } from "./migration.gen.js"
 import schema from "./schema.gen.js"
-import { Global } from "@opencode/util/global"
+import { Global } from "@elitza/util/global"
 
 type Database = EffectDrizzleSqlite.EffectSQLiteDatabase
 type Transaction = Parameters<Parameters<Database["transaction"]>[0]>[0]

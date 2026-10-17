@@ -20,10 +20,10 @@ import type {
   PermissionRequest,
   ReferenceListOutput,
   SessionMessageAssistantTool,
-} from "@opencode/client/promise"
+} from "@elitza/client/promise"
 import type { Config } from "../config"
 import type { CliRenderer } from "@opentui/core"
-import type { SessionInbox } from "@opencode/schema/session-inbox"
+import type { SessionInbox } from "@elitza/schema/session-inbox"
 
 export type RunFilePart = {
   type: "file"

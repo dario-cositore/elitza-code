@@ -1,4 +1,4 @@
-import { Location } from "@opencode/schema/location"
+import { Location } from "@elitza/schema/location"
 import { Schema } from "effect"
 import { HttpApiEndpoint, HttpApiGroup, HttpApiSchema, OpenApi } from "effect/http-api"
 import { LocationQuery, locationQueryOpenApi } from "./location.js"

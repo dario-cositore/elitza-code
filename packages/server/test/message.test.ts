@@ -1,6 +1,6 @@
 import { expect } from "bun:test"
-import { OpenCode, type SessionMessageInfo } from "@opencode/client"
-import { Session } from "@opencode/schema/session"
+import { OpenCode, type SessionMessageInfo } from "@elitza/client"
+import { Session } from "@elitza/schema/session"
 import { Effect } from "effect"
 import { it } from "../../core/test/lib/effect"
 import { ServerFetch } from "../src/fetch"

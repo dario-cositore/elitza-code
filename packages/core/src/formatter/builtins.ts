@@ -1,8 +1,8 @@
 import { Effect } from "effect"
 import { ChildProcess } from "effect/process"
-import { FSUtil } from "@opencode/util/fs-util"
-import { Npm } from "@opencode/util/npm"
-import { AppProcess } from "@opencode/util/process"
+import { FSUtil } from "@elitza/util/fs-util"
+import { Npm } from "@elitza/util/npm"
+import { AppProcess } from "@elitza/util/process"
 import { which } from "../util/which.js"
 
 export interface Info {

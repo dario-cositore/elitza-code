@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/codemode",
+  "name": "@elitza/codemode",
   "version": "2.0.30",
   "description": "Effect-native confined code execution over schema-described tools",
   "type": "module",
