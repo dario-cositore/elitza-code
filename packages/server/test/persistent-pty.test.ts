@@ -640,7 +640,7 @@ async function verifySharedControl(base: string, ptyID: string) {
     await waitForSocketOutput([first, second], "from-second")
 
     // opencode-pty v0.1.13 uses /proc on Linux and returns None on other platforms:
-    // https://github.com/anomalyco/opencode-pty/blob/v0.1.13/src/service.rs#L1091-L1128
+    // https://github.com/dario-cositore/elitza-code-pty/blob/v0.1.13/src/service.rs#L1091-L1128
     if (process.platform === "linux") await waitForForegroundProcess([first, second], "cat")
     if (process.platform !== "linux") {
       expect(first.foregroundProcess).toBeNull()

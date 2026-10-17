@@ -146,7 +146,7 @@ for (const target of targets) {
         name: `@elitza/${name}`,
         version: Script.version,
         license: pkg.license,
-        repository: { type: "git", url: "git+https://github.com/anomalyco/opencode.git" },
+        repository: { type: "git", url: "git+https://github.com/dario-cositore/elitza-code.git" },
         os: [target.platform],
         cpu: [target.arch],
       },
