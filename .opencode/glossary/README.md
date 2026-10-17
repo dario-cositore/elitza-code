@@ -37,7 +37,7 @@ Prefer guidance that is:
 
 ## Do Not Translate (Locale Additions)
 
-- `OpenCode` (preserve casing)
+- `Elitza` (preserve casing)
 
 ## Preferred Terms
 

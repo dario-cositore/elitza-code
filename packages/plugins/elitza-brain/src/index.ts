@@ -1,5 +1,5 @@
 /**
- * Elitza Brain — OpenCode-fork plugin.
+ * Elitza Brain — Elitza-fork plugin.
  *
  * This is the TypeScript reincarnation of Elitza's legacy Python mind,
  * wired natively into the engine:
@@ -76,7 +76,7 @@ export default Plugin.define({
 
     // -----------------------------------------------------------------
     // System-prompt injection — soul + memories + feelings, appended to
-    // OpenCode's own system prompt (her brain ON TOP of the engine).
+    // Elitza's own system prompt (her brain ON TOP of the engine).
     // -----------------------------------------------------------------
     const injectBrain = (event: { system: { type: "text"; text: string }[]; messages: readonly unknown[] }): void => {
       if (event.system.some((part) => typeof part.text === "string" && part.text.startsWith(BRAIN_MARKER))) {

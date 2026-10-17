@@ -1,4 +1,4 @@
-import { OpenCode, type SessionInfo } from "@elitza/client"
+import { Elitza, type SessionInfo } from "@elitza/client"
 import { Service } from "@elitza/client/effect/service"
 import { Effect, Option, Stream } from "effect"
 import { EOL } from "node:os"
@@ -14,7 +14,7 @@ const handler = Effect.fn("cli.session.list")(function* (
     server: Option.getOrUndefined(input.server),
     standalone: input.standalone,
   })
-  const client = OpenCode.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
+  const client = Elitza.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
   const location = yield* Effect.tryPromise({
     try: (signal) => client.location.get({ location: { directory: process.cwd() } }, { signal }),
     catch: (cause) => cause,

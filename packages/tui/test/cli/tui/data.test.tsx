@@ -1,7 +1,7 @@
 /** @jsxImportSource @opentui/solid */
 import { expect, test } from "bun:test"
 import { testRender } from "@opentui/solid"
-import type { OpenCodeEvent } from "@elitza/client"
+import type { ElitzaEvent } from "@elitza/client"
 import { SessionMessage } from "@elitza/core/session/message"
 import { Event } from "@elitza/schema/event"
 import { Expected } from "../../../../core/test/lib/session-message"
@@ -42,7 +42,7 @@ async function wait(fn: () => boolean, timeout = 2000) {
   }
 }
 
-function emitEvent(events: ReturnType<typeof createEventStream>, event: OpenCodeEvent) {
+function emitEvent(events: ReturnType<typeof createEventStream>, event: ElitzaEvent) {
   events.emit({ ...event, location: { directory } })
 }
 
@@ -171,7 +171,7 @@ test("proactively syncs project metadata most recently active first", async () =
       {
         id: "proj_test",
         canonical: worktree,
-        name: "OpenCode",
+        name: "Elitza",
         time: { created: 1, updated: 2, active: 2 },
         sandboxes: [],
       },
@@ -209,7 +209,7 @@ test("proactively syncs project metadata most recently active first", async () =
       {
         id: "proj_test",
         canonical: worktree,
-        name: "OpenCode",
+        name: "Elitza",
         time: { created: 1, updated: 2, active: 2 },
         sandboxes: [],
       },

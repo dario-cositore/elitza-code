@@ -1,4 +1,4 @@
-import type { OpenCodeEvent } from "@elitza/client/promise"
+import type { ElitzaEvent } from "@elitza/client/promise"
 import { createClientConnection, createPtyClient, type ClientConnectionStatus } from "@elitza/client/solid"
 import { createGlobalEmitter } from "@solid-primitives/event-bus"
 import { type Accessor, createEffect, on, onCleanup } from "solid-js"
@@ -10,21 +10,21 @@ import { createRequestQueue } from "@/runtime/server/request-queue"
 import { ServerScope } from "@/runtime/server/scope"
 import { useServer } from "./current"
 
-type OpenCodeEventMap = { [Type in OpenCodeEvent["type"]]: Extract<OpenCodeEvent, { type: Type }> }
+type ElitzaEventMap = { [Type in ElitzaEvent["type"]]: Extract<ElitzaEvent, { type: Type }> }
 
-export type OpenCodeEventStream = {
-  on<Type extends OpenCodeEvent["type"]>(type: Type, handler: (event: OpenCodeEventMap[Type]) => void): VoidFunction
-  listen(handler: (event: OpenCodeEvent) => void): VoidFunction
+export type ElitzaEventStream = {
+  on<Type extends ElitzaEvent["type"]>(type: Type, handler: (event: ElitzaEventMap[Type]) => void): VoidFunction
+  listen(handler: (event: ElitzaEvent) => void): VoidFunction
 }
 
-type OpenCodeEventSource = OpenCodeEventStream & {
-  location(directory: string): OpenCodeEventStream
+type ElitzaEventSource = ElitzaEventStream & {
+  location(directory: string): ElitzaEventStream
 }
 
-export function createOpenCodeEventSource() {
-  const emitter = createGlobalEmitter<OpenCodeEventMap>()
+export function createElitzaEventSource() {
+  const emitter = createGlobalEmitter<ElitzaEventMap>()
 
-  function stream(directory?: string): OpenCodeEventStream {
+  function stream(directory?: string): ElitzaEventStream {
     return {
       on(type, handler) {
         return emitter.on(type, (event) => {
@@ -41,7 +41,7 @@ export function createOpenCodeEventSource() {
     }
   }
 
-  const event: OpenCodeEventSource = {
+  const event: ElitzaEventSource = {
     ...stream(),
     location: (directory) => stream(directory),
   }
@@ -50,7 +50,7 @@ export function createOpenCodeEventSource() {
 
   return {
     event,
-    publish(event: OpenCodeEvent) {
+    publish(event: ElitzaEvent) {
       emitter.emit(event.type, event)
     },
   }
@@ -69,7 +69,7 @@ type ServerSDKBase = {
     attempt: Accessor<number>
     error: Accessor<string | undefined>
   }
-  event: OpenCodeEventSource
+  event: ElitzaEventSource
 }
 
 function createServerSdkContextBase(server: ServerConnection.Any, scope: ServerScope): ServerSDKBase {
@@ -86,7 +86,7 @@ function createServerSdkContextBase(server: ServerConnection.Any, scope: ServerS
     )
   }
 
-  const events = createOpenCodeEventSource()
+  const events = createElitzaEventSource()
   const reconnect = server.type === "extension" || server.type === "sidecar" ? server.reconnect : undefined
 
   const connection = createClientConnection(transport.api, {
@@ -175,7 +175,7 @@ export const useServerSDK = () => {
 
 export type LocationContext = {
   directory: string
-  event: OpenCodeEventStream
+  event: ElitzaEventStream
 }
 
 function createDirSdkContext(directory: string, serverSDK: ServerSDKBase): LocationContext {

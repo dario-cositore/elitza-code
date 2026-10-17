@@ -131,7 +131,7 @@ revisit if paid OpenRouter models should show for connected BYOK keys).
 **Rebrand sweep (found + fixed).** Pre-existing test failures were stale
 rebrand debt — runtime said "elitza"/"Elitza" but tests expected "opencode".
 While fixing those, found **real brand leaks in runtime UI** and fixed them:
-17 user-visible strings "OpenCode"→"Elitza" (permission prompt ×3, crash
+17 user-visible strings "Elitza"→"Elitza" (permission prompt ×3, crash
 screen ×4, update dialog ×4, error-investigation prompts ×2, terminal-pane,
 slash `close`, storybook ×2, websearch label was already Elitza). Renamed the
 built-in theme key `opencode`→`elitza` (theme/index.ts accessor now
@@ -139,7 +139,7 @@ built-in theme key `opencode`→`elitza` (theme/index.ts accessor now
 had a crash trap: config default theme name `"opencode"` went missing →
 `parseTheme(undefined)` in every app fixture; fixed all defaults. Wire-level
 identifiers left as `opencode` on purpose (basic-auth username, MCP clientInfo,
-`OpenCodeClient` SDK types, `opencode-theme*` storage keys).
+`ElitzaClient` SDK types, `opencode-theme*` storage keys).
 
 **Verified**: full TUI suite **1491 pass / 0 fail / exit 0** (was 16-17
 pre-existing fails), repo `bun run check` exit 0, production synced via
@@ -201,12 +201,12 @@ rewritten (openrouter.ai/keys + `/connect`, copy button updated). HTML validates
   remote-tunnel, `elitza mini` TTY errors (×2), `elitza acp:` stderr prefix,
   commands.ts help descriptions (upgrade/uninstall/run/directory), uninstall/
   upgrade/pair/default handler intros, acp translate/error messages.
-- Left as-is (wire identifiers): `OpenCode.make` SDK types, `Symbol.for("opencode.plugin.v2.*")`,
-  `Anomaly.OpenCode` winget id, `opencode.` plugin-package filter, opencode.ai
-  URLs (functional: schema + updater endpoints), "OpenCode Go/Zen" product names.
+- Left as-is (wire identifiers): `Elitza.make` SDK types, `Symbol.for("opencode.plugin.v2.*")`,
+  `Anomaly.Elitza` winget id, `opencode.` plugin-package filter, opencode.ai
+  URLs (functional: schema + updater endpoints), "Elitza Go/Zen" product names.
 
 **Self-update gate (critical):** `elitza upgrade`/update-dialog previously ran
-OpenCode's own updater → would replace Elitza with stock OpenCode. Now:
+Elitza's own updater → would replace Elitza with stock Elitza. Now:
 `updater.check()` returns `unavailable` ("Self-update ships with Elitza's release
 pipeline… elitza.life") so the TUI never prompts, and the `upgrade` handler fails
 fast before any network/process detection. Escape hatch: `ELITZA_SELF_UPDATE=1`

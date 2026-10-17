@@ -10,11 +10,11 @@ import { SessionRunnerModel } from "@elitza/core/session/runner/model"
 import { WorkspaceDriver } from "@elitza/core/workspace/driver"
 import { Plugin } from "@elitza/plugin/effect"
 import { makeDurableObjectStorage } from "../../core/test/fixture/durable-object-storage"
-import { OpenCodeWorkerd } from "../src/effect/workerd"
+import { ElitzaWorkerd } from "../src/effect/workerd"
 import { Deferred, Effect, Fiber, Latch, Layer, Option, Stream } from "effect"
 import { testEffect } from "../../core/test/lib/effect"
 import { tmpdir } from "../../core/test/fixture/tmpdir"
-import type { OpenCodeEvent } from "../src/effect"
+import type { ElitzaEvent } from "../src/effect"
 
 const it = testEffect(Layer.empty)
 type Sdk = typeof import("../src/effect")
@@ -44,7 +44,7 @@ for (const selection of ["explicit", "default"] as const) {
         const llm = yield* TestLLM.Test.pipe(
           Effect.provide(TestLLM.testLayer({ fallback: TestLLM.text("ready", "answer") })),
         )
-        const opencode = yield* fixture.sdk.OpenCode.create(
+        const opencode = yield* fixture.sdk.Elitza.create(
           {
             config: {
               directory: fixture.directory,
@@ -120,7 +120,7 @@ it.live("seeds host plugins from CreateOptions and waits for delayed model plugi
             })
           }).pipe(Effect.orDie),
       })
-      const opencode = yield* fixture.sdk.OpenCode.create(
+      const opencode = yield* fixture.sdk.Elitza.create(
         {
           config: {
             directory: fixture.directory,
@@ -152,10 +152,10 @@ it.live("seeds host plugins from CreateOptions and waits for delayed model plugi
   ),
 )
 
-it.live("OpenCodeWorkerd seeds plugins before cold model resolution", () =>
+it.live("ElitzaWorkerd seeds plugins before cold model resolution", () =>
   withEmbedded("opencode-workerd-seeded-plugin-", (fixture) =>
     Effect.gen(function* () {
-      const opencode = yield* OpenCodeWorkerd.create({
+      const opencode = yield* ElitzaWorkerd.create({
         storage: makeDurableObjectStorage(),
         models: { fetch: false },
         config: { model: "workerd-seeded/fictional-chat" },
@@ -200,7 +200,7 @@ it.live(
   () =>
     withEmbedded("opencode-embedded-", (fixture) =>
       Effect.gen(function* () {
-        const opencode = yield* fixture.sdk.OpenCode.create({ events: { persist: true } })
+        const opencode = yield* fixture.sdk.Elitza.create({ events: { persist: true } })
         const id = sessionID(fixture)
         const model = fixture.sdk.Model.Ref.make({
           id: fixture.sdk.Model.ID.make("embedded"),
@@ -306,7 +306,7 @@ it.live(
 it.live("embedded client exposes plugin-backed web search", () =>
   withEmbedded("opencode-embedded-websearch-", (fixture) =>
     Effect.gen(function* () {
-      const opencode = yield* fixture.sdk.OpenCode.create()
+      const opencode = yield* fixture.sdk.Elitza.create()
       const providerID = fixture.sdk.WebSearch.ID.make("embedded-websearch")
       yield* opencode.plugin({
         id: `embedded-websearch-${crypto.randomUUID()}`,
@@ -340,10 +340,10 @@ it.live(
   () =>
     withEmbedded("opencode-embedded-events-", (fixture) =>
       Effect.gen(function* () {
-        const opencode = yield* fixture.sdk.OpenCode.create()
+        const opencode = yield* fixture.sdk.Elitza.create()
         const id = sessionID(fixture)
         const connected = yield* Latch.make(false)
-        const prompted = yield* Deferred.make<Extract<OpenCodeEvent, { type: "session.inbox.delivered" }>>()
+        const prompted = yield* Deferred.make<Extract<ElitzaEvent, { type: "session.inbox.delivered" }>>()
 
         yield* opencode.events.subscribe().pipe(
           Stream.runForEach((event) =>
@@ -374,15 +374,15 @@ it.live(
   () =>
     withEmbedded("opencode-embedded-hosts-", (fixture) =>
       Effect.gen(function* () {
-        const first = yield* fixture.sdk.OpenCode.create()
-        const second = yield* fixture.sdk.OpenCode.create()
+        const first = yield* fixture.sdk.Elitza.create()
+        const second = yield* fixture.sdk.Elitza.create()
         const id = sessionID(fixture)
         const firstReady = yield* Latch.make(false)
         const secondReady = yield* Latch.make(false)
         const firstEvent = yield* Latch.make(false)
         const secondEvent = yield* Latch.make(false)
         const observe = (ready: Latch.Latch, event: Latch.Latch) =>
-          Stream.runForEach((notification: OpenCodeEvent) =>
+          Stream.runForEach((notification: ElitzaEvent) =>
             notification.type === "server.connected"
               ? ready.open
               : notification.type === "session.agent.selected" && notification.data.sessionID === id
@@ -407,10 +407,10 @@ it.live("embedded client is available as a Layer service", () =>
   withEmbedded("opencode-embedded-layer-", (fixture) => {
     const id = sessionID(fixture)
     return Effect.gen(function* () {
-      const opencode = yield* fixture.sdk.OpenCode.Service
+      const opencode = yield* fixture.sdk.Elitza.Service
       const created = yield* opencode.sessions.create({ id, location: location(fixture) })
       expect(created.id).toBe(id)
-    }).pipe(Effect.provide(fixture.sdk.OpenCode.layer()))
+    }).pipe(Effect.provide(fixture.sdk.Elitza.layer()))
   }),
 )
 
@@ -433,7 +433,7 @@ it.live("configures workspace providers through the SDK facade", () =>
           return Effect.void
         },
       })
-      const opencode = yield* fixture.sdk.OpenCode.create({ workspaceProviders: { fake: driver } })
+      const opencode = yield* fixture.sdk.Elitza.create({ workspaceProviders: { fake: driver } })
       const requestedID = fixture.sdk.Workspace.ID.create()
       const workspaceID = yield* opencode.workspace.create({ id: requestedID, provider: "fake" })
 
@@ -504,7 +504,7 @@ const workspaceModelScenario = (fixture: Fixture, policy: "eager" | "lazy") =>
     })
     const configDirectory = path.join(fixture.directory, "config")
     yield* Effect.promise(() => fs.mkdir(configDirectory))
-    const opencode = yield* fixture.sdk.OpenCode.create(
+    const opencode = yield* fixture.sdk.Elitza.create(
       {
         config: { directory: configDirectory, project: false, content: "{}" },
         workspaceProviders: { fake: driver },
@@ -605,7 +605,7 @@ it.live(
         })
         const configDirectory = path.join(fixture.directory, "config")
         yield* Effect.promise(() => fs.mkdir(configDirectory))
-        const opencode = yield* fixture.sdk.OpenCode.create(
+        const opencode = yield* fixture.sdk.Elitza.create(
           {
             config: { directory: configDirectory, project: false, content: "{}" },
             workspaceProviders: { fake: driver },
@@ -649,7 +649,7 @@ it.live(
 it.live("preserves unknown workspace provider errors", () =>
   withEmbedded("opencode-embedded-workspace-provider-", (fixture) =>
     Effect.gen(function* () {
-      const opencode = yield* fixture.sdk.OpenCode.create()
+      const opencode = yield* fixture.sdk.Elitza.create()
       const error = yield* opencode.workspace.create({ provider: "missing" }).pipe(Effect.flip)
       expect(error).toEqual(new WorkspaceDriver.ProviderNotFound({ provider: "missing" }))
     }),

@@ -12,7 +12,7 @@ export default Runtime.handler(
   Effect.fn("cli.upgrade")(
     function* (input) {
       intro("Upgrade")
-      // Elitza: never run OpenCode's updater against an Elitza install.
+      // Elitza: never run Elitza's updater against an Elitza install.
       if (process.env.ELITZA_SELF_UPDATE !== "1")
         return yield* Effect.fail(
           new Error(

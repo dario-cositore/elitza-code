@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import type { CompactionUpdate, SessionNotification } from "@agentclientprotocol/sdk"
-import type { OpenCodeEventEncoded } from "@elitza/protocol/groups/event"
+import type { ElitzaEventEncoded } from "@elitza/protocol/groups/event"
 import { Schema } from "effect"
 import { durableEvent, enqueued, ephemeralEvent, startSession, turn, type InitializeOptions } from "./wire-fixture"
 
@@ -53,7 +53,7 @@ describe("acp standard compaction updates over the wire", () => {
 
 // Holds the compact response so the test can publish the turn's events while the request is in flight.
 async function compactTurn(
-  events: (sessionID: string, id: string) => OpenCodeEventEncoded[],
+  events: (sessionID: string, id: string) => ElitzaEventEncoded[],
   capabilities: InitializeOptions,
 ) {
   const held = Promise.withResolvers<Response>()

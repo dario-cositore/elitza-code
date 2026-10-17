@@ -6,7 +6,7 @@ import { Effect } from "effect"
 import { tmpdir } from "../../core/test/fixture/tmpdir"
 import { it } from "../../core/test/lib/effect"
 import { startServer } from "./fixture/server"
-import { OpenCode } from "@elitza/client"
+import { Elitza } from "@elitza/client"
 import { initRepo } from "../../core/test/fixture/git"
 
 it.live("list reads saved inventory even when its checkout is missing, without booting a location", () =>
@@ -18,7 +18,7 @@ it.live("list reads saved inventory even when its checkout is missing, without b
       await initRepo(directory)
     })
     const server = yield* startServer(path.join(tmp.path, "config"))
-    const api = OpenCode.make({ baseUrl: server.base, headers: server.headers })
+    const api = Elitza.make({ baseUrl: server.base, headers: server.headers })
     yield* Effect.promise(async () => {
       const session = await api.session.create({ location: { directory } })
       const loaded = await api.debug.location.list()
@@ -60,7 +60,7 @@ it.live("refresh discovers both clones while list alone never discovers external
       await $`git remote set-url origin https://github.com/example/clones.git`.cwd(second).quiet()
     })
     const server = yield* startServer(path.join(tmp.path, "config"))
-    const api = OpenCode.make({ baseUrl: server.base, headers: server.headers })
+    const api = Elitza.make({ baseUrl: server.base, headers: server.headers })
     yield* Effect.promise(async () => {
       const session = await api.session.create({ location: { directory: first } })
       const other = await api.session.create({ location: { directory: second } })
@@ -105,7 +105,7 @@ it.live("remove loads canonical strategies and enforces project ownership", () =
       await $`git worktree add --detach ${linked} HEAD`.cwd(directory).quiet()
     })
     const server = yield* startServer(path.join(tmp.path, "config"))
-    const api = OpenCode.make({ baseUrl: server.base, headers: server.headers })
+    const api = Elitza.make({ baseUrl: server.base, headers: server.headers })
     yield* Effect.promise(async () => {
       const session = await api.session.create({ location: { directory: linked } })
       const foreign = await api.session.create({ location: { directory: other } })
@@ -133,7 +133,7 @@ it.live(
       yield* Effect.promise(() => $`git config user.name Test`.cwd(project).quiet())
       yield* Effect.promise(() => $`git commit --allow-empty -m root`.cwd(project).quiet())
       const server = yield* startServer(path.join(tmp.path, "config"))
-      const api = OpenCode.make({ baseUrl: server.base, headers: server.headers })
+      const api = Elitza.make({ baseUrl: server.base, headers: server.headers })
       const session = yield* Effect.promise(() => api.session.create({ location: { directory: project } }))
       const url = new URL("/api/worktree", server.base)
       url.searchParams.set("projectID", session.projectID)
@@ -191,7 +191,7 @@ it.live(
         await Bun.write(path.join(config, "opencode.json"), JSON.stringify({ worktree: { directory: destination } }))
       })
       const server = yield* startServer(config)
-      const api = OpenCode.make({
+      const api = Elitza.make({
         baseUrl: server.base,
         headers: { ...server.headers, "x-opencode-directory": encodeURIComponent("/unrelated-missing-directory") },
       })
@@ -241,7 +241,7 @@ it.live(
         )
       })
       const server = yield* startServer(config)
-      const api = OpenCode.make({ baseUrl: server.base, headers: server.headers })
+      const api = Elitza.make({ baseUrl: server.base, headers: server.headers })
       yield* Effect.promise(async () => {
         const a = await api.session.create({ location: { directory: nested } })
         const b = await api.session.create({ location: { directory: second } })
@@ -319,7 +319,7 @@ it.live(
         )
       })
       const server = yield* startServer(path.join(tmp.path, "config"))
-      const api = OpenCode.make({ baseUrl: server.base, headers: server.headers })
+      const api = Elitza.make({ baseUrl: server.base, headers: server.headers })
       yield* Effect.promise(async () => {
         const session = await api.session.create({ location: { directory: source } })
         await api.worktree.refresh({ projectID: session.projectID })

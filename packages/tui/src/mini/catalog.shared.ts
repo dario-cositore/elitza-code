@@ -3,7 +3,7 @@ import type {
   CommandListOutput,
   LocationRef,
   ModelListOutput,
-  OpenCodeClient,
+  ElitzaClient,
   ProviderListOutput,
 } from "@elitza/client/promise"
 import type { RunAgent, RunCommand, RunProvider, RunReference } from "./types"
@@ -75,13 +75,13 @@ export function runProviders(providers: CurrentProvider[], models: CurrentModel[
   return [...grouped.values()]
 }
 
-export async function loadRunAgents(sdk: OpenCodeClient, ref: LocationRef, signal?: AbortSignal): Promise<RunAgent[]> {
+export async function loadRunAgents(sdk: ElitzaClient, ref: LocationRef, signal?: AbortSignal): Promise<RunAgent[]> {
   const result = await sdk.agent.list(location(ref), ...requestOptions(signal))
   return result.data.map(runAgent)
 }
 
 export async function loadRunCommands(
-  sdk: OpenCodeClient,
+  sdk: ElitzaClient,
   ref: LocationRef,
   signal?: AbortSignal,
 ): Promise<RunCommand[]> {
@@ -90,7 +90,7 @@ export async function loadRunCommands(
 }
 
 export async function loadRunReferences(
-  sdk: OpenCodeClient,
+  sdk: ElitzaClient,
   ref: LocationRef,
   signal?: AbortSignal,
 ): Promise<RunReference[]> {
@@ -99,7 +99,7 @@ export async function loadRunReferences(
 }
 
 export async function loadRunProviders(
-  sdk: OpenCodeClient,
+  sdk: ElitzaClient,
   ref: LocationRef,
   signal?: AbortSignal,
 ): Promise<RunProvider[]> {

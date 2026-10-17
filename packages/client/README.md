@@ -1,6 +1,6 @@
 # @elitza/client
 
-Private generation target for clients derived directly from OpenCode's authoritative Effect `HttpApi`.
+Private generation target for clients derived directly from Elitza's authoritative Effect `HttpApi`.
 
 ## Entrypoints
 
@@ -16,9 +16,9 @@ The Promise root remains structural and has no Core or Effect runtime dependency
 Effect consumers construct canonical decoded inputs:
 
 ```ts
-import { AbsolutePath, Location, OpenCode, Prompt } from "@elitza/client/effect"
+import { AbsolutePath, Location, Elitza, Prompt } from "@elitza/client/effect"
 
-const client = yield * OpenCode.make({ baseUrl: "https://opencode.example" })
+const client = yield * Elitza.make({ baseUrl: "https://opencode.example" })
 yield *
   client.sessions.create({
     location: Location.Ref.make({ directory: AbsolutePath.make("/workspace") }),

@@ -53,7 +53,7 @@ export const Settings = Schema.StructWithRest(
     compaction: Provider.Compaction.pipe(optional),
     encoding: Provider.Encoding.pipe(optional),
   }),
-  // Provider packages may define arbitrary model-level options beyond OpenCode's shared compaction policy.
+  // Provider packages may define arbitrary model-level options beyond Elitza's shared compaction policy.
   [Schema.Record(Schema.String, Schema.Any)],
 ).annotate({ identifier: "Model.Settings" })
 export type Settings = typeof Settings.Type

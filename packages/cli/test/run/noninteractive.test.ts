@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test"
 import {
-  OpenCode,
+  Elitza,
   type EventSubscribeOutput,
   type SessionMessageAssistantTool,
   type SessionMessageInfo,
@@ -219,7 +219,7 @@ async function run(input: {
   wait?: () => Promise<void>
   terminalDelay?: number
 }) {
-  const sdk = OpenCode.make({ baseUrl: "https://opencode.test" })
+  const sdk = Elitza.make({ baseUrl: "https://opencode.test" })
   const values: V2Event[] = [{ id: "evt_connected", type: "server.connected", data: {} }]
   let wake: (() => void) | undefined
   const wait = Promise.withResolvers<void>()

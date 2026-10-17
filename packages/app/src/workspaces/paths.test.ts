@@ -31,7 +31,7 @@ describe("isWorkspaceDirectory", () => {
     expect(isWorkspaceDirectory(undefined, "C:\\repo-workspaces\\feature")).toBe(false)
   })
 
-  const root = "C:/OpenCode/WorkspaceAccent"
+  const root = "C:/Elitza/WorkspaceAccent"
 
   const inventoried = withWorktreeInventory(
     normalizeProjectInfo({
@@ -43,16 +43,16 @@ describe("isWorkspaceDirectory", () => {
     [
       { directory: root },
       { directory: `${root}/.worktrees/feature`, strategy: "git" },
-      { directory: "C:/OpenCode/WorkspaceCopy", strategy: "copy" },
-      { directory: "C:/OpenCode/RegisteredDirectory" },
+      { directory: "C:/Elitza/WorkspaceCopy", strategy: "copy" },
+      { directory: "C:/Elitza/RegisteredDirectory" },
     ],
   )
 
   test.each([
     { name: "nested main directory", directory: `${root}/packages/app`, expected: false },
     { name: "unregistered sibling with the same prefix", directory: `${root}/.worktrees/feature-x`, expected: false },
-    { name: "workspace using another strategy", directory: "C:/OpenCode/WorkspaceCopy", expected: true },
-    { name: "registered directory without a strategy", directory: "C:/OpenCode/RegisteredDirectory", expected: true },
+    { name: "workspace using another strategy", directory: "C:/Elitza/WorkspaceCopy", expected: true },
+    { name: "registered directory without a strategy", directory: "C:/Elitza/RegisteredDirectory", expected: true },
   ])("classifies an inventoried $name", ({ directory, expected }) => {
     expect(isWorkspaceDirectory(inventoried, directory)).toBe(expected)
   })

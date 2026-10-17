@@ -1,4 +1,4 @@
-import { isUnauthorizedError, OpenCode } from "@elitza/client/promise"
+import { isUnauthorizedError, Elitza } from "@elitza/client/promise"
 import { Option, Schema } from "effect"
 import { checkServerHealth } from "@/runtime/server/health"
 import { normalizeServerUrl } from "@/runtime/server/registry"
@@ -84,7 +84,7 @@ export type Redeemed =
 // Every address may reach the same server, but the code is single-use, so at most one attempt succeeds.
 export function redeemPairingLink(link: { urls: ReadonlyArray<string>; code: string }) {
   const attempts = link.urls.map((url) =>
-    OpenCode.make({ baseUrl: url })
+    Elitza.make({ baseUrl: url })
       .server.connect({ code: link.code }, { signal: AbortSignal.timeout(5_000) })
       .then((session): Pairing => ({ url, password: session.token })),
   )

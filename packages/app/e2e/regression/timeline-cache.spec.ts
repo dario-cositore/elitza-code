@@ -182,7 +182,7 @@ test("focuses Find in the selected cached timeline", async ({ page }) => {
 })
 
 test("disposes the old workspace's shell while destination history is loading", async ({ page }) => {
-  const destination = "C:/OpenCode/OtherProject"
+  const destination = "C:/Elitza/OtherProject"
   const requested = Promise.withResolvers<void>()
   const release = Promise.withResolvers<void>()
   const reads: string[] = []

@@ -1,5 +1,5 @@
 import { createServer, type ServerResponse } from "node:http"
-import type { OpenCodeEvent } from "@elitza/client/promise"
+import type { ElitzaEvent } from "@elitza/client/promise"
 import { benchmark, benchmarkDiagnostics, expect } from "../benchmark"
 import {
   buildInitialStreamEvent,
@@ -49,7 +49,7 @@ for (const scenario of [
     if (!address || typeof address === "string") throw new Error("Missing fixture SSE address")
     let timer: ReturnType<typeof setInterval> | undefined
 
-    const send = (events: OpenCodeEvent[]) =>
+    const send = (events: ElitzaEvent[]) =>
       responses.forEach((response) => events.forEach((event) => response.write(`data: ${JSON.stringify(event)}\n\n`)))
 
     try {

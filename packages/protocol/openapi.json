@@ -1499,7 +1499,7 @@
             }
           }
         },
-        "description": "Retrieve foreground Session drains currently owned by this OpenCode process. Sessions absent from the result are inactive.",
+        "description": "Retrieve foreground Session drains currently owned by this Elitza process. Sessions absent from the result are inactive.",
         "summary": "List active sessions"
       }
     },
@@ -4153,7 +4153,7 @@
             }
           }
         },
-        "description": "Interrupt active execution owned by this OpenCode process. Returns interrupted=true when an active execution was interrupted and false for the idle no-op. When resume=true, execution resumes pending steering input and next-in-line control items (manual compaction, moves) while queued prompts remain parked.",
+        "description": "Interrupt active execution owned by this Elitza process. Returns interrupted=true when an active execution was interrupted and false for the idle no-op. When resume=true, execution resumes pending steering input and next-in-line control items (manual compaction, moves) while queued prompts remain parked.",
         "summary": "Interrupt session execution"
       }
     },
@@ -11213,7 +11213,7 @@
             }
           }
         },
-        "description": "Stream persistent PTY output through the OpenCode server.",
+        "description": "Stream persistent PTY output through the Elitza server.",
         "summary": "Connect to a persistent PTY",
         "x-websocket": true
       }
@@ -19593,7 +19593,7 @@
         "properties": {
           "interrupted": {
             "type": "boolean",
-            "description": "Whether an active execution owned by this OpenCode process was interrupted."
+            "description": "Whether an active execution owned by this Elitza process was interrupted."
           }
         },
         "required": ["interrupted"],

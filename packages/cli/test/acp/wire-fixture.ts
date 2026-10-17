@@ -17,8 +17,8 @@ import {
   type RequestPermissionResponse,
   type SessionNotification,
 } from "@agentclientprotocol/sdk"
-import { OpenCode } from "@elitza/client/effect"
-import type { OpenCodeEventEncoded } from "@elitza/protocol/groups/event"
+import { Elitza } from "@elitza/client/effect"
+import type { ElitzaEventEncoded } from "@elitza/protocol/groups/event"
 import type { Agent } from "@elitza/schema/agent"
 import type { Command } from "@elitza/schema/command"
 import { Form } from "@elitza/schema/form"
@@ -36,7 +36,7 @@ import { ACP } from "../../src/acp/agent"
 import { ACPTurn } from "../../src/acp/turn"
 
 // The fake server sends and stores the wire form of each value.
-type OpenCodeEvent = OpenCodeEventEncoded
+type ElitzaEvent = ElitzaEventEncoded
 type AgentInfo = typeof Agent.Info.Encoded
 type CommandInfo = typeof Command.Info.Encoded
 type LocationRef = typeof Location.PublicRef.Encoded
@@ -46,12 +46,12 @@ type PluginInfo = typeof Plugin.Info.Encoded
 type SessionInfo = typeof Session.Info.Encoded
 type SessionMessageInfo = typeof SessionMessage.Info.Encoded
 type TokenUsageInfo = typeof TokenUsage.Info.Encoded
-type DurableEvent = Extract<OpenCodeEvent, { durable: unknown }>
-type EphemeralEvent = Exclude<OpenCodeEvent, DurableEvent>
-type EventData<Type extends OpenCodeEvent["type"]> = Extract<OpenCodeEvent, { type: Type }>["data"]
+type DurableEvent = Extract<ElitzaEvent, { durable: unknown }>
+type EphemeralEvent = Exclude<ElitzaEvent, DurableEvent>
+type EventData<Type extends ElitzaEvent["type"]> = Extract<ElitzaEvent, { type: Type }>["data"]
 type AssistantMessage = Extract<SessionMessageInfo, { type: "assistant" }>
 
-type Events = ReadonlyArray<OpenCodeEvent> | void
+type Events = ReadonlyArray<ElitzaEvent> | void
 type Hook<Input> = (input: Input) => Events | Promise<Events>
 
 type ServerRequest = {
@@ -295,7 +295,7 @@ export const interrupted = (sessionID: string) =>
 export const failed = (sessionID: string, error: EventData<"session.execution.failed">["error"]) =>
   durableEvent("session.execution.failed", { sessionID, error })
 
-export function turn(sessionID: string, inboxID: string, ...events: OpenCodeEvent[]): OpenCodeEvent[] {
+export function turn(sessionID: string, inboxID: string, ...events: ElitzaEvent[]): ElitzaEvent[] {
   return [delivered(sessionID, inboxID), ...events, succeeded(sessionID)]
 }
 
@@ -428,7 +428,7 @@ export async function startWire(options: WireOptions = {}) {
   const logs: Array<Pick<Logger.Options<unknown>, "message" | "cause">> = []
   const agentScope = Scope.makeUnsafe()
   const agentConnection = await Effect.runPromise(
-    OpenCode.make({ baseUrl: server.url }).pipe(
+    Elitza.make({ baseUrl: server.url }).pipe(
       Effect.provide(FetchHttpClient.layer),
       Effect.flatMap((client) => ACP.connect(client, ndJsonStream(agentToClient.writable, clientToAgent.readable))),
       Scope.provide(agentScope),
@@ -604,7 +604,7 @@ function startServer(options: WireOptions, changed: () => void) {
     cancelledForms,
     repliedForms,
     mcp,
-    send(...events: ReadonlyArray<OpenCodeEvent>) {
+    send(...events: ReadonlyArray<ElitzaEvent>) {
       events.forEach((event) => {
         const seq = ++counter.events
         const stamped = {

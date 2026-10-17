@@ -1,5 +1,5 @@
 import { getDirectory, getFilename } from "@elitza/util/path"
-import type { OpenCodeClient } from "@elitza/client/promise"
+import type { ElitzaClient } from "@elitza/client/promise"
 
 const types = new Map([
   ["png", "image/png"],
@@ -14,7 +14,7 @@ const types = new Map([
 ])
 
 export async function readLocalImage(
-  api: Pick<OpenCodeClient, "file">,
+  api: Pick<ElitzaClient, "file">,
   directory: string,
   path: string,
   signal: AbortSignal,

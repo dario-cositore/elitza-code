@@ -1,5 +1,5 @@
 import { Service, type Endpoint } from "@elitza/client/effect/service"
-import { OpenCode, type SessionMessageAssistantTool } from "@elitza/client/promise"
+import { Elitza, type SessionMessageAssistantTool } from "@elitza/client/promise"
 import { FSUtil } from "@elitza/util/fs-util"
 import { open } from "node:fs/promises"
 import path from "node:path"
@@ -81,7 +81,7 @@ async function run(input: RunCommandInput, options: ExecutionOptions) {
 }
 
 async function execute(input: RunCommandInput, prepared: Prepared, endpoint: Endpoint, options: ExecutionOptions) {
-  const client = OpenCode.make({
+  const client = Elitza.make({
     baseUrl: endpoint.url,
     headers: Service.headers(endpoint),
     // Bun's default five-minute deadline terminates the event stream used by long-running sessions.

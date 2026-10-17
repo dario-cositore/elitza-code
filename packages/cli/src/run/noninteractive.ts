@@ -2,7 +2,7 @@ import type {
   EventSubscribeOutput,
   JsonValue,
   LocationRef,
-  OpenCodeClient,
+  ElitzaClient,
   SessionMessageAssistantTool,
   SessionMessageInfo,
   ToolContent,
@@ -25,7 +25,7 @@ type File = {
 }
 
 type Input = {
-  client: OpenCodeClient
+  client: ElitzaClient
   sessionID: string
   location: LocationRef
   message: string

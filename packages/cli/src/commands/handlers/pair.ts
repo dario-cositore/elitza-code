@@ -2,7 +2,7 @@ import { cancel, confirm, isCancel, log } from "@clack/prompts"
 import { EOL } from "os"
 import { Effect, Option, Schedule } from "effect"
 import { Service } from "@elitza/client/effect/service"
-import { OpenCode } from "@elitza/client/promise"
+import { Elitza } from "@elitza/client/promise"
 import { renderUnicodeCompact } from "uqr"
 import { Commands } from "../commands"
 import { Runtime } from "../../framework/runtime"
@@ -25,7 +25,7 @@ export default Runtime.handler(
       yield* ServiceConfig.set("remote", "true")
     }
     const endpoint = yield* Service.ensure(yield* ServiceConfig.options())
-    const client = OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
+    const client = Elitza.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
     const urls = yield* pairingURLs(client, input)
     const pairing = yield* Effect.tryPromise(() => client.server.pair())
     const links = urls.map((url) => new URL(`/auth/connect/${pairing.code}`, url).href)
@@ -116,7 +116,7 @@ export const remoteConsent = Effect.fn("cli.pair.remote-consent")(function* (
 })
 
 const pairingURLs = Effect.fnUntraced(function* (
-  client: ReturnType<typeof OpenCode.make>,
+  client: ReturnType<typeof Elitza.make>,
   input: Runtime.Input<typeof Commands.commands.pair>,
 ) {
   if (input.remote) return [yield* remoteURL(client)]
@@ -125,7 +125,7 @@ const pairingURLs = Effect.fnUntraced(function* (
 })
 
 // The service attaches the tunnel in the background, so wait for its URL to appear in server info.
-const remoteURL = Effect.fnUntraced(function* (client: ReturnType<typeof OpenCode.make>) {
+const remoteURL = Effect.fnUntraced(function* (client: ReturnType<typeof Elitza.make>) {
   const tunnelURL = Effect.gen(function* () {
     const route = (yield* ServiceConfig.read()).remote?.route
     const hostname = route === undefined ? undefined : yield* RemoteTunnel.hostname(route)

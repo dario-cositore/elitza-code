@@ -1,6 +1,6 @@
 import { base64Encode } from "@elitza/util/encode"
 import { benchmark, benchmarkDiagnostics, expect } from "../benchmark"
-import { mockOpenCodeServer } from "../../utils/mock-server"
+import { mockElitzaServer } from "../../utils/mock-server"
 import { expectSessionTitle } from "../../utils/waits"
 import { fixture } from "../../utils/session-fixture"
 
@@ -53,7 +53,7 @@ benchmark.use({
 for (const scenario of ["typing", "cursor-movement", "cursor-noop", "submit-cleanup"] as const) {
   benchmark(`composer-write-batch: ${scenario}`, async ({ page, report }, testInfo) => {
     const submitted: Record<string, unknown>[] = []
-    await mockOpenCodeServer(page, {
+    await mockElitzaServer(page, {
       directory: fixture.directory,
       project: fixture.project,
       provider: fixture.provider,

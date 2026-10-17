@@ -11,7 +11,7 @@ import { Provider } from "@elitza/core/provider"
 import { AbsolutePath } from "@elitza/core/schema"
 import { Session } from "@elitza/core/session"
 import { Tool } from "@elitza/core/tool"
-import { OpenCodeTools } from "@elitza/core/tool/plugin/opencode"
+import { ElitzaTools } from "@elitza/core/tool/plugin/elitza"
 import { WorktreeTable } from "@elitza/core/worktree/sql"
 import { WorktreeStrategies } from "@elitza/core/worktree/strategies"
 import { Model } from "@elitza/schema/model"
@@ -73,7 +73,7 @@ it.effect("groups available models by provider with paging", () =>
         model.enabled = false
       })
     })
-    yield* OpenCodeTools.Plugin.effect(pluginHost)
+    yield* ElitzaTools.Plugin.effect(pluginHost)
     // The caller runs on `test`, which sorts first despite `other` coming earlier alphabetically.
     const session = yield* sessions.create({
       location: Location.Ref.make({ directory: location.directory }),
@@ -190,7 +190,7 @@ worktreeIt.live("creates, lists, and removes worktrees for the plugin's project"
       .run()
       .pipe(Effect.orDie)
     yield* strategies.transform((editor) => editor.configure({ directory: AbsolutePath.make(parent.path) }))
-    yield* OpenCodeTools.Plugin.effect(yield* PluginHost.make(plugins))
+    yield* ElitzaTools.Plugin.effect(yield* PluginHost.make(plugins))
     const session = yield* sessions.create({ location: Location.Ref.make({ directory: location.directory }) })
     const registry = yield* Tool.Service
     const call = (name: string, input: Record<string, unknown>) =>

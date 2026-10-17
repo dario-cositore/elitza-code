@@ -356,14 +356,14 @@ const winget = (search: Partial<AppProcess.RunResult>) =>
           "Microsoft",
           "WinGet",
           "Packages",
-          "Anomaly.OpenCode_Microsoft.Winget.Source_8wekyb3d8bbwe",
+          "Anomaly.Elitza_Microsoft.Winget.Source_8wekyb3d8bbwe",
           "opencode.exe",
         ),
       ),
   )
 const wingetArgs = [
   "--id",
-  "Anomaly.OpenCode",
+  "Anomaly.Elitza",
   "--exact",
   "--source",
   "winget",
@@ -375,7 +375,7 @@ it.live("WinGet installs check, upgrade, and remove the version in the WinGet in
   Effect.gen(function* () {
     const test = yield* winget({
       stdout: Buffer.from(
-        "Name     Id               Version\r\n------------------------------\r\nOpenCode Anomaly.OpenCode 2.0.28\r\n",
+        "Name     Id               Version\r\n------------------------------\r\nElitza Anomaly.Elitza 2.0.28\r\n",
       ),
     })
     expect(yield* test.updater.method()).toBe("winget")
@@ -389,7 +389,7 @@ it.live("WinGet installs check, upgrade, and remove the version in the WinGet in
       ["winget", "upgrade", ...wingetArgs, "--version", "2.0.28", "--silent", "--accept-package-agreements"],
       ["winget", "uninstall", ...wingetArgs],
     ])
-    // WinGet moderates submissions, so the OpenCode release service may list a version WinGet cannot install yet.
+    // WinGet moderates submissions, so the Elitza release service may list a version WinGet cannot install yet.
     expect(test.requests).toEqual([])
   }),
 )

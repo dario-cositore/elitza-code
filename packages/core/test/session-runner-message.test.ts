@@ -907,7 +907,7 @@ Earlier work
     ])
   })
 
-  test("replays flat state under an OpenCode hosted model's route key", () => {
+  test("replays flat state under an Elitza hosted model's route key", () => {
     const opencode = Model.Ref.make({ id: Model.ID.make("claude-fable-5"), providerID: Provider.ID.opencode })
     const messages = toLLMMessages(
       [

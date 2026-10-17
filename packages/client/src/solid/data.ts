@@ -35,8 +35,8 @@ import type {
   ShellInfo,
   SkillInfo,
   VcsInfo,
-  OpenCodeEvent,
-  OpenCodeClient,
+  ElitzaEvent,
+  ElitzaClient,
   WebSearchProvider,
 } from "../promise"
 import { Worktree } from "@elitza/schema/worktree"
@@ -59,19 +59,19 @@ export type DataSessionStatus = "idle" | "running"
  * execution that ended without delivering it, and `queued` waits for every steer to drain.
  */
 export type DataPendingStatus = "starting" | "steering" | "stranded" | "queued"
-type OpenCodeEventMap = { [Type in OpenCodeEvent["type"]]: Extract<OpenCodeEvent, { type: Type }> }
+type ElitzaEventMap = { [Type in ElitzaEvent["type"]]: Extract<ElitzaEvent, { type: Type }> }
 
 export type CreateDataInput = {
-  readonly api: () => OpenCodeClient
+  readonly api: () => ElitzaClient
   readonly directory: string
   /** Raw-message window used for an initial transcript read. Older pages retain their normal size. */
   readonly initialMessageLimit?: () => number
   readonly event: {
-    readonly on: <Type extends OpenCodeEvent["type"]>(
+    readonly on: <Type extends ElitzaEvent["type"]>(
       type: Type,
-      handler: (event: OpenCodeEventMap[Type]) => void,
+      handler: (event: ElitzaEventMap[Type]) => void,
     ) => () => void
-    readonly listen: (handler: (event: { name: OpenCodeEvent["type"]; details: OpenCodeEvent }) => void) => () => void
+    readonly listen: (handler: (event: { name: ElitzaEvent["type"]; details: ElitzaEvent }) => void) => () => void
   }
   readonly connection?: {
     readonly status: () => "connected" | "connecting" | "reconnecting"
@@ -630,7 +630,7 @@ export function createData(config: CreateDataInput) {
     )
   }
 
-  function handleEvent(event: OpenCodeEvent) {
+  function handleEvent(event: ElitzaEvent) {
     switch (event.type) {
       case "server.connected": {
         const updates = new Map<string, DataSessionStatus | undefined>()

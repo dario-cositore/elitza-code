@@ -1,6 +1,6 @@
-import type { OpenCode } from "./client.js"
+import type { Elitza } from "./client.js"
 
-type Client = ReturnType<typeof OpenCode.make>
+type Client = ReturnType<typeof Elitza.make>
 
 export type { RpcApi, RpcCallOptions, RpcClient, RpcEventPayload } from "./rpc.js"
 

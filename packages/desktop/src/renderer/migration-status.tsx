@@ -1,4 +1,4 @@
-import { OpenCode, type MigrationV1StatusOutput } from "@elitza/client/promise"
+import { Elitza, type MigrationV1StatusOutput } from "@elitza/client/promise"
 import { useLanguage } from "@elitza/app/desktop"
 import { Loader } from "@elitza/ui/loader"
 import { showToast, toaster, Toast } from "@elitza/ui/toast"
@@ -83,7 +83,7 @@ export function MigrationStatus(props: { server: ServerReadyData }) {
     if (abort.signal.aborted) return
 
     // The main process credentials sidecar requests; see `wireRendererHeaders`.
-    const client = OpenCode.make({ baseUrl: props.server.url })
+    const client = Elitza.make({ baseUrl: props.server.url })
 
     void (async () => {
       while (true) {

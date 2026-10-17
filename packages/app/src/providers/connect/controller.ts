@@ -24,7 +24,7 @@ type Polling = {
   attempt?: Authorization
 }
 
-// OpenCode Go and OpenCode Zen both bill through the OpenCode Console, so the
+// Elitza Go and Elitza Zen both bill through the Elitza Console, so the
 // Console sign-in is the connection method for both providers.
 export const CONSOLE_INTEGRATION = "opencode"
 

@@ -16,7 +16,7 @@ type FixtureInput = { id?: string; name?: string }
 /** A main-side method: SSH `start` answers with the state revision, the others with nothing. */
 type FixtureMethod = (input: FixtureInput) => number | void
 
-// A desktop window. `wsl` is the Ubuntu server's endpoint (default `server`); updating OpenCode restarts it on `restart`
+// A desktop window. `wsl` is the Ubuntu server's endpoint (default `server`); updating Elitza restarts it on `restart`
 // (default `wsl`). `ssh` adds a saved SSH server `box`, ready on that endpoint with password `ssh-1`; each connect
 // brings up a new remote server with the next password (`ssh-2`, ...). `storage=async` stores in localStorage behind
 // asynchronous reads like the desktop app's; reads of keys containing `hold` wait for "Load held storage".
@@ -132,7 +132,7 @@ export function mount(input: {
       }))
 
     const wsl = {
-      // Like main: stops the distro's server, updates OpenCode, then starts the server again on a new endpoint.
+      // Like main: stops the distro's server, updates Elitza, then starts the server again on a new endpoint.
       installOpencode(value) {
         const name = value.name ?? ""
         const id = store.state.servers.find((server) => server.config.distro === name)?.config.id

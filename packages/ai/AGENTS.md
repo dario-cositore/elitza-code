@@ -2,7 +2,7 @@
 
 ## Principles
 
-- **Forward compatibility.** Providers ship new models, options, and values constantly. Accept unknown pass-through values (`Known | (string & {})` for string options); use closed literals only when OpenCode branches on the value.
+- **Forward compatibility.** Providers ship new models, options, and values constantly. Accept unknown pass-through values (`Known | (string & {})` for string options); use closed literals only when Elitza branches on the value.
 - **One canonical model.** The Schema classes in `src/schema/` are the data model. Do not add a parallel shape or a second construction path.
 - **Independent of Session.** Auth, permissions, plugins, and orchestration belong in Core. `LLM.stream`/`LLM.generate` run exactly one model call.
 - **Reuse protocols.** Providers compose existing protocols with `Route.make(...)` instead of cloning them.

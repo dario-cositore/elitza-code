@@ -1,6 +1,6 @@
 # Figma
 
-An opt-in OpenCode plugin that registers Figma's remote MCP server and official Figma skills. It uses OpenCode's existing OAuth/DCR flow and credential storage, without a shared client secret.
+An opt-in Elitza plugin that registers Figma's remote MCP server and official Figma skills. It uses Elitza's existing OAuth/DCR flow and credential storage, without a shared client secret.
 
 ## Install
 
@@ -31,7 +31,7 @@ The plugin is not activated merely by being present in the repository. Installin
 2. Confirm that the server is connected.
 3. Ask the agent to call Figma's `whoami` tool.
 
-The connection uses Figma's public endpoint with dynamic client registration (DCR). OAuth discovery supplies the scope, and OpenCode chooses an available loopback callback port; no client credentials or explicit OAuth settings are needed.
+The connection uses Figma's public endpoint with dynamic client registration (DCR). OAuth discovery supplies the scope, and Elitza chooses an available loopback callback port; no client credentials or explicit OAuth settings are needed.
 
 Existing `mcp.servers.figma` configuration takes precedence, including disabled servers and custom endpoints.
 
@@ -39,9 +39,9 @@ Existing `mcp.servers.figma` configuration takes precedence, including disabled 
 
 `skills/` contains the complete skill bundle copied unchanged from the pinned revision of [Figma's official plugin](https://github.com/figma/mcp-server-guide/tree/main/skills). [skills-source.json](skills-source.json) records the exact upstream revision and the discovered skill IDs; it is not an allowlist.
 
-The bundle covers design-to-code, canvas editing, screen and library generation, Code Connect, file creation, diagrams, FigJam, Slides, motion, SwiftUI, shaders, and generative plugins. Supporting references and scripts are included. No replacement instructions are authored by OpenCode. Existing skills with the same IDs are preserved.
+The bundle covers design-to-code, canvas editing, screen and library generation, Code Connect, file creation, diagrams, FigJam, Slides, motion, SwiftUI, shaders, and generative plugins. Supporting references and scripts are included. No replacement instructions are authored by Elitza. Existing skills with the same IDs are preserved.
 
-The vendored Figma materials remain Figma's materials, not OpenCode-authored MIT code. See [skills/NOTICE.md](skills/NOTICE.md) for attribution and the Figma Developer Terms.
+The vendored Figma materials remain Figma's materials, not Elitza-authored MIT code. See [skills/NOTICE.md](skills/NOTICE.md) for attribution and the Figma Developer Terms.
 
 ## Manually sync skills
 

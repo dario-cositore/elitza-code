@@ -4,10 +4,10 @@
  * `buildSystemPrompt()` is the 1:1 port of legacy `soul/prompt.py` —
  * soul + emotions + memories + time + response instructions.
  *
- * `buildBrainContext()` is what this plugin appends to OpenCode's own
+ * `buildBrainContext()` is what this plugin appends to Elitza's own
  * system prompt per request: her soul, memories, feelings, and autonomy —
  * WITHOUT the legacy companion's chat-length rules (the fork is a full
- * coding agent now; OpenCode's base prompt owns task behavior).
+ * coding agent now; Elitza's base prompt owns task behavior).
  */
 
 import fs from "node:fs"

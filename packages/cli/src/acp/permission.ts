@@ -1,5 +1,5 @@
 import type { PermissionOption, SessionUpdate } from "@agentclientprotocol/sdk"
-import type { OpenCodeClient, OpenCodeEvent } from "@elitza/client/effect"
+import type { ElitzaClient, ElitzaEvent } from "@elitza/client/effect"
 import { FileDiff } from "@elitza/schema/file-diff"
 import type { Permission } from "@elitza/schema/permission"
 import type { Session } from "@elitza/schema/session"
@@ -21,12 +21,12 @@ import {
   type ToolInput,
 } from "./tool"
 
-type PermissionEvent = Extract<OpenCodeEvent, { type: "permission.asked" }>
+type PermissionEvent = Extract<ElitzaEvent, { type: "permission.asked" }>
 type Tool = { readonly id: string; readonly name: string; readonly input: ToolInput }
 type Preview = ReturnType<typeof diff>
 
 type Input = {
-  readonly client: OpenCodeClient
+  readonly client: ElitzaClient
   readonly connection: ACPConnection.Interface
   readonly event: PermissionEvent
   readonly sessionID: Session.ID

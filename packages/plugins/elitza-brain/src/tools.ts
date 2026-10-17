@@ -2,7 +2,7 @@
  * Elitza Brain — tools.
  *
  * 1:1 port of the full tool surface of legacy `tools/brain_tools.py`,
- * registered through the OpenCode plugin tool registry so Elitza can
+ * registered through the Elitza plugin tool registry so Elitza can
  * interact with her own mind:
  *   brain_search, brain_create, brain_stats, brain_consolidate,
  *   brain_forget, brain_personality, brain_metamemory,

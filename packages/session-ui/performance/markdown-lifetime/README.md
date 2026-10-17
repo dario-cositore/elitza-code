@@ -2,7 +2,7 @@
 
 This manual browser benchmark bundles the production `Markdown` component,
 cache, sanitizer, and worker with Vite's production mode. It does not connect to
-an OpenCode server or use user data. Run from `packages/session-ui`.
+an Elitza server or use user data. Run from `packages/session-ui`.
 
 Set `MARKDOWN_BUILD_DIR` and `MARKDOWN_RESULTS_DIR` to absolute artifact directories:
 

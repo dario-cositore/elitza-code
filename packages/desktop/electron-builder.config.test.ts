@@ -64,7 +64,7 @@ test.each(channels)("channel identity for $channel", ({ channel, appId }) => {
 
 test("legacy Linux launcher stays hidden", async () => {
   const desktop = await Bun.file(path.join(import.meta.dirname, "resources/linux/opencode-desktop.desktop")).text()
-  expect(desktop).toContain("Exec=/opt/OpenCode/ai.opencode.desktop %U")
+  expect(desktop).toContain("Exec=/opt/Elitza/ai.opencode.desktop %U")
   expect(desktop).toContain("Icon=ai.opencode.desktop")
   expect(desktop).toContain("StartupWMClass=ai.opencode.desktop")
   expect(desktop).toContain("NoDisplay=true")

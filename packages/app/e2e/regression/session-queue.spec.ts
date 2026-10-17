@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test"
-import type { OpenCodeEvent, SessionInboxInfo, SessionMessageInfo } from "@elitza/client/promise"
+import type { ElitzaEvent, SessionInboxInfo, SessionMessageInfo } from "@elitza/client/promise"
 import { PromptInput } from "@elitza/schema/prompt-input"
 import { SessionInbox } from "@elitza/schema/session-inbox"
 import { SessionMessage } from "@elitza/schema/session-message"
@@ -60,26 +60,26 @@ function createQueueMock(seed: string[], messages: SessionMessageInfo[] = []) {
     delivery: "queue",
   }))
 
-  const events: OpenCodeEvent[] = []
+  const events: ElitzaEvent[] = []
   const prompts: (typeof PromptBody.Type)[] = []
   const compactions: SessionInboxInfo[] = []
   const changes: { inboxID: string; action: "cancel" | "steer" | "queue" }[] = []
   const log: string[] = []
   let sequence = 0
 
-  const emit = <Type extends OpenCodeEvent["type"]>(
+  const emit = <Type extends ElitzaEvent["type"]>(
     type: Type,
-    data: Extract<OpenCodeEvent, { type: Type }>["data"],
+    data: Extract<ElitzaEvent, { type: Type }>["data"],
   ) => {
     sequence += 1
-    // SAFETY: `type` selects `data` from the same OpenCodeEvent member, so the pair is that member.
+    // SAFETY: `type` selects `data` from the same ElitzaEvent member, so the pair is that member.
     events.push({
       id: `evt_queue_${sequence}`,
       type,
       created: Date.now(),
       durable: { aggregateID: sessionID, seq: sequence, version: type === "session.tool.success" ? 2 : 1 },
       data,
-    } as OpenCodeEvent)
+    } as ElitzaEvent)
   }
 
   return {

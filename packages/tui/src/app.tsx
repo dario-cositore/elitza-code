@@ -4,7 +4,7 @@ import { render, useRenderer, useTerminalDimensions } from "@opentui/solid"
 import { registerOpencodeSpinner } from "./component/register-spinner"
 import { Effect, Latch } from "effect"
 import { Service, type Endpoint } from "@elitza/client/effect/service"
-import { OpenCode, type SessionInfo } from "@elitza/client"
+import { Elitza, type SessionInfo } from "@elitza/client"
 import { Global } from "@elitza/util/global"
 import { ClipboardProvider, useClipboard } from "./context/clipboard"
 import { LogProvider, type LogSink } from "./context/log"
@@ -214,7 +214,7 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
     terminalSuspend: process.platform !== "win32",
   })
   const options = { baseUrl: input.server.endpoint.url, headers: Service.headers(input.server.endpoint) }
-  const api = OpenCode.make(options)
+  const api = Elitza.make(options)
   const location = yield* Effect.tryPromise(() => api.file.list({ location: { directory: process.cwd() } })).pipe(
     Effect.map((response) => response.location),
     Effect.catch(() => Effect.tryPromise(() => api.location.get())),
@@ -228,7 +228,7 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
         reconnect: async (signal: AbortSignal) => {
           const endpoint = await managed.reconnect(signal)
           const next = { baseUrl: endpoint.url, headers: Service.headers(endpoint) }
-          return { api: OpenCode.make(next), url: endpoint.url }
+          return { api: Elitza.make(next), url: endpoint.url }
         },
         restart: managed.restart,
       }

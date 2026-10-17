@@ -114,8 +114,8 @@ await Effect.runPromise(
           typeReferences: effectTypeReferences,
           outputTypes: {
             "event.subscribe": {
-              name: "OpenCodeEvent",
-              import: 'import type { OpenCodeEvent } from "@elitza/protocol/groups/event"',
+              name: "ElitzaEvent",
+              import: 'import type { ElitzaEvent } from "@elitza/protocol/groups/event"',
             },
           },
         }),

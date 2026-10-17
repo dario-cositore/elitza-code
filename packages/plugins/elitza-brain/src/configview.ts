@@ -2,7 +2,7 @@
  * Elitza Brain — configuration views.
  *
  * Port of the legacy `config.py` `config_summary` / `validate_config` /
- * section lookup, rebuilt on the OpenCode engine config (opencode.json) plus
+ * section lookup, rebuilt on the Elitza engine config (opencode.json) plus
  * the brain's own state. Secrets are never echoed.
  */
 
@@ -87,7 +87,7 @@ export function configSummary(toolNames: string[]): string {
 
   lines.push("", "### Tools")
   lines.push(`- Brain tools: ${toolNames.join(", ")}`)
-  lines.push("- Engine tools: managed by OpenCode")
+  lines.push("- Engine tools: managed by Elitza")
 
   lines.push("", "### Brain")
   lines.push(`- Max episodic: ${MAX_EPISODIC}`)
@@ -96,7 +96,7 @@ export function configSummary(toolNames: string[]): string {
   lines.push("- Consolidation: true")
 
   lines.push("", "### Sessions")
-  lines.push("- Persistence: OpenCode engine session store")
+  lines.push("- Persistence: Elitza engine session store")
   lines.push("- Restore on start: true")
 
   lines.push("", "### MCP")
@@ -138,10 +138,10 @@ export function configSection(section: string, toolNames: string[]): string {
       consolidation: true,
     },
     personality: getPersonality(),
-    tools: { brain_tools: toolNames, engine_tools: "managed by OpenCode" },
+    tools: { brain_tools: toolNames, engine_tools: "managed by Elitza" },
     plugins: config.plugins ?? [],
     mcp: redact(config.mcp ?? {}),
-    sessions: { persistence: "OpenCode engine session store", restore_on_start: true },
+    sessions: { persistence: "Elitza engine session store", restore_on_start: true },
   }
 
   if (section in views) return JSON.stringify(redact(views[section]), null, 2)

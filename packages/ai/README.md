@@ -136,7 +136,7 @@ const program = Effect.gen(function* () {
 
 Effort lowers to `reasoning.effort`; `reasoning.enabled` and `reasoning.summary` are also available.
 Supported effort levels and toggles depend on the selected model. Omitted controls preserve its defaults.
-Venice's added system prompt is disabled by default, matching the previous OpenCode Venice SDK behavior.
+Venice's added system prompt is disabled by default, matching the previous Elitza Venice SDK behavior.
 
 Replay complete `response.message` values to retain signed/encrypted reasoning and Gemini thought
 signatures, including per-tool signatures. Venice's encrypted scalar trailers are excluded from visible
@@ -182,7 +182,7 @@ console.log(response.answers.department.choice)
 console.log(response.answers.refund.probability)
 ```
 
-`TypeSafeAI` reads `TYPESAFE_API_KEY`. `OpenCode` exposes the same selector and reads
+`TypeSafeAI` reads `TYPESAFE_API_KEY`. `Elitza` exposes the same selector and reads
 `OPENCODE_API_KEY`. OpenRouter and Vercel AI Gateway use the same provider shape:
 
 ```ts
@@ -873,7 +873,7 @@ const openai = OpenAI.configure({ apiKey: process.env.OPENAI_API_KEY })
 const program = Effect.gen(function* () {
   const response = yield* Speech.generate({
     model: openai.speech("gpt-4o-mini-tts"),
-    text: "Hello from OpenCode.",
+    text: "Hello from Elitza.",
     voice: "coral",
     format: "mp3",
     instructions: "Warm and unhurried.",
@@ -886,7 +886,7 @@ const program = Effect.gen(function* () {
 // Chunks as they arrive: audio-delta* (interleaved with timestamps) then one finish carrying the assembled asset.
 const events = Speech.stream({
   model: ElevenLabs.configure({ apiKey }).speech("eleven_flash_v2_5"),
-  text: "Hello from OpenCode.",
+  text: "Hello from Elitza.",
   voice: "JBFqnCBsd6RMkjVDRZzb",
   format: "pcm",
   timestamps: true,
@@ -931,10 +931,10 @@ The promise client mirrors the Effect API; `ai.speech.stream` is an `AsyncIterab
 ```ts
 import { ai } from "@elitza/ai/promise"
 
-const response = await ai.speech.generate({ model, text: "Hello from OpenCode.", voice: "coral" })
+const response = await ai.speech.generate({ model, text: "Hello from Elitza.", voice: "coral" })
 await ai.write(response.audio, "hello.mp3")
 
-for await (const event of ai.speech.stream({ model, text: "Hello from OpenCode.", voice: "coral" })) {
+for await (const event of ai.speech.stream({ model, text: "Hello from Elitza.", voice: "coral" })) {
   if (event.type === "audio-delta") player.write(event.chunk)
 }
 ```
@@ -966,7 +966,7 @@ const program = Effect.gen(function* () {
     diarize: true,
     timestamps: "word",
   })
-  response.text // "Hello from OpenCode."
+  response.text // "Hello from Elitza."
   response.segments // [{ text, startSeconds, endSeconds, speaker: "0" }]
   response.words // [{ text, startSeconds, endSeconds, speaker, confidence }]
   response.language // the provider's own value, lowercased ("en", "eng", "english", "en_us")

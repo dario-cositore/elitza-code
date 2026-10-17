@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { OpenCode } from "@elitza/client/promise"
+import { Elitza } from "@elitza/client/promise"
 import { createData } from "@elitza/client/solid"
 import { createRoot } from "solid-js"
 import { createWorktree } from "./create"
@@ -31,7 +31,7 @@ describe("worktree creation", () => {
     const project = { id: "proj_clone", directory: input.root, canonical: input.canonical }
     const requests: Request[] = []
 
-    const api = OpenCode.make({
+    const api = Elitza.make({
       baseUrl: "http://localhost:3000",
       fetch: Object.assign(
         async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -87,7 +87,7 @@ describe("worktree creation", () => {
   test("does not fall back to a shared project when location lookup fails", async () => {
     const requests: Request[] = []
 
-    const api = OpenCode.make({
+    const api = Elitza.make({
       baseUrl: "http://localhost:3000",
       fetch: Object.assign(
         async (input: RequestInfo | URL, init?: RequestInit) => {

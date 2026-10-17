@@ -1,5 +1,5 @@
 import { benchmark, expect } from "../benchmark"
-import { mockOpenCodeServer } from "../../utils/mock-server"
+import { mockElitzaServer } from "../../utils/mock-server"
 import { expectSessionTitle } from "../../utils/waits"
 import { fixture, installStressSessionTabs } from "../../utils/session-fixture"
 import { sessionHref } from "../../utils/app"
@@ -79,7 +79,7 @@ for (const close of [false, true]) {
           return body
         }
       })
-      await mockOpenCodeServer(page, {
+      await mockElitzaServer(page, {
         ...fixture,
         sessions,
         pageMessages: (id) => ({ items: pages[id] ?? [] }),

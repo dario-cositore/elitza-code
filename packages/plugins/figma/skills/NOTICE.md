@@ -6,7 +6,7 @@ The skill directories here are copied unchanged from Figma's `mcp-server-guide` 
 - Exact revision and selected skills: [../skills-source.json](../skills-source.json)
 - Author: Figma
 
-These are third-party materials. OpenCode's MIT license does not relicense them.
+These are third-party materials. Elitza's MIT license does not relicense them.
 
 Figma's Codex distribution provides the following notice at https://github.com/openai/plugins/blob/0722921d5542fc593105c27bd52630babd8b8c2a/plugins/figma/LICENSE.txt:
 

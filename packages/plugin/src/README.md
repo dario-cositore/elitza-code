@@ -1,8 +1,8 @@
-# OpenCode V2 Promise Plugin API
+# Elitza V2 Promise Plugin API
 
 The Promise plugin API at `@elitza/plugin` is the async/await equivalent of `@elitza/plugin/effect`. It grants plugins the same two in-process capabilities:
 
-- `hook` installs behavior at an OpenCode extension point.
+- `hook` installs behavior at an Elitza extension point.
 - `reload` reruns every transform hook for a stateful domain.
 
 The Promise API uses Promises instead of Effects for setup, runtime hook
@@ -27,7 +27,7 @@ export default Plugin.define({
 ```
 
 Plugin setup registers hooks imperatively through each domain's `hook` method.
-It may return a synchronous or asynchronous cleanup function. OpenCode awaits
+It may return a synchronous or asynchronous cleanup function. Elitza awaits
 the cleanup when the plugin is unloaded or replaced:
 
 ```ts

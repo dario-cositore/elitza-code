@@ -38,18 +38,18 @@ describe("sortModelOptions", () => {
     ])
   })
 
-  test("orders OpenCode Go before Zen and other providers", () => {
+  test("orders Elitza Go before Zen and other providers", () => {
     const sorted = sortModelOptions([
       { providerID: "openai", providerName: "OpenAI", releaseDate: 3, title: "GPT 5" },
-      { providerID: "opencode", providerName: "OpenCode Zen", releaseDate: 1, title: "Claude Sonnet 4" },
+      { providerID: "opencode", providerName: "Elitza Zen", releaseDate: 1, title: "Claude Sonnet 4" },
       { providerID: "anthropic", providerName: "Anthropic", releaseDate: 2, title: "Claude Opus 4" },
-      { providerID: "opencode-go", providerName: "OpenCode Go", releaseDate: 0, title: "Kimi K3" },
+      { providerID: "opencode-go", providerName: "Elitza Go", releaseDate: 0, title: "Kimi K3" },
     ])
 
     expect(sorted.map((model) => model.title)).toEqual(["Kimi K3", "Claude Sonnet 4", "Claude Opus 4", "GPT 5"])
   })
 
-  test("keeps ungrouped results free-first regardless of OpenCode provider", () => {
+  test("keeps ungrouped results free-first regardless of Elitza provider", () => {
     const sorted = sortModelOptions(
       [
         { providerID: "opencode-go", releaseDate: 3, title: "Go model" },

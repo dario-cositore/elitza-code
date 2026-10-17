@@ -1,11 +1,11 @@
 # @elitza/sdk
 
-In-process OpenCode host for Promise and Effect applications. The SDK executes Server's assembled HTTP router in memory, opening no listener and adding no network hop.
+In-process Elitza host for Promise and Effect applications. The SDK executes Server's assembled HTTP router in memory, opening no listener and adding no network hop.
 
 ```ts
-import { OpenCode } from "@elitza/sdk"
+import { Elitza } from "@elitza/sdk"
 
-await using opencode = await OpenCode.create()
+await using opencode = await Elitza.create()
 const session = await opencode.sessions.create({
   location: { directory: "/workspace" },
 })
@@ -18,7 +18,7 @@ The Promise API uses the same values, errors, request options, and `AsyncIterabl
 Embedded hosts are silent by default. Set `log` to receive structured log entries:
 
 ```ts
-await using opencode = await OpenCode.create({
+await using opencode = await Elitza.create({
   log: {
     level: "warn",
     emit: (entry) => console.error(entry.message, entry.attributes, entry.cause),
@@ -33,11 +33,11 @@ await using opencode = await OpenCode.create({
 Use `instances` when Sessions in the same directory need different application plugins. The application selects a stable key from Session metadata; the SDK constructs and caches an instance for that key and the Session's current Location.
 
 ```ts
-import { OpenCode } from "@elitza/sdk"
+import { Elitza } from "@elitza/sdk"
 import { threads } from "./threads"
 import { slackPlugin } from "./slack-plugin"
 
-await using opencode = await OpenCode.create({
+await using opencode = await Elitza.create({
   database: { path: "./sessions.db" },
   instances: {
     key(session) {
@@ -80,15 +80,15 @@ Promise plugin resources should be acquired in `setup` and released by its clean
 Use the Workerd entrypoint inside a Cloudflare Durable Object. Hold one host for the lifetime of the object instance rather than creating one per request.
 
 ```ts
-import { OpenCodeWorkerd } from "@elitza/sdk/workerd"
+import { ElitzaWorkerd } from "@elitza/sdk/workerd"
 import myPlugin from "./my-plugin"
 
-export class OpenCodeDO {
-  private readonly opencode: Promise<OpenCodeWorkerd.Interface>
+export class ElitzaDO {
+  private readonly opencode: Promise<ElitzaWorkerd.Interface>
 
   constructor(state: DurableObjectState) {
     this.opencode = state.blockConcurrencyWhile(() =>
-      OpenCodeWorkerd.create({
+      ElitzaWorkerd.create({
         storage: state.storage,
         config: { default_agent: "build" },
         plugins: [myPlugin],
@@ -110,24 +110,24 @@ export class OpenCodeDO {
 The Effect-native API remains available from `@elitza/sdk/effect`:
 
 ```ts
-import { OpenCode } from "@elitza/sdk/effect"
+import { Elitza } from "@elitza/sdk/effect"
 
-const opencode = yield * OpenCode.create()
+const opencode = yield * Elitza.create()
 const session = yield * opencode.sessions.get({ sessionID })
 ```
 
 The Effect Workerd entrypoint is `@elitza/sdk/workerd/effect`.
 
-Effect configuration uses the same keys and lifetime rules, with canonical `Session.Info` values and an Effect-returning factory. `configure` may require services; `OpenCode.create` and `OpenCode.layer` carry those requirements, so the application satisfies them where it builds the SDK, as with any other Effect callback:
+Effect configuration uses the same keys and lifetime rules, with canonical `Session.Info` values and an Effect-returning factory. `configure` may require services; `Elitza.create` and `Elitza.layer` carry those requirements, so the application satisfies them where it builds the SDK, as with any other Effect callback:
 
 ```ts
-import { OpenCode } from "@elitza/sdk/effect"
+import { Elitza } from "@elitza/sdk/effect"
 import { Effect, Layer, Schema } from "effect"
 import { Threads } from "./threads-effect"
 import { slackPlugin } from "./slack-plugin-effect"
 
 const threadMetadata = Schema.decodeUnknownSync(Schema.Struct({ threadID: Schema.String }))
-const opencode = OpenCode.layer({
+const opencode = Elitza.layer({
   database: { path: "./sessions.db" },
   instances: {
     key: (session) => threadMetadata(session.metadata).threadID,
@@ -140,4 +140,4 @@ const opencode = OpenCode.layer({
 }).pipe(Layer.provide(Threads.layer))
 ```
 
-Resources acquired in `configure` still belong to the instance, not to the Scope the SDK was built in. Both Workerd entrypoints also accept `instances`. The public `OpenCode.InstanceOptions` and `OpenCode.InstanceConfiguration` types describe the corresponding Promise or Effect callbacks.
+Resources acquired in `configure` still belong to the instance, not to the Scope the SDK was built in. Both Workerd entrypoints also accept `instances`. The public `Elitza.InstanceOptions` and `Elitza.InstanceConfiguration` types describe the corresponding Promise or Effect callbacks.

@@ -1,11 +1,11 @@
 import { expect, test } from "bun:test"
 import type { Page, Route } from "@playwright/test"
-import { createMockServerHandler, mockOpenCodeServer } from "../../utils/mock-server"
+import { createMockServerHandler, mockElitzaServer } from "../../utils/mock-server"
 
 test("serves an empty config document list for composer defaults", async () => {
   const server = createMockServerHandler({
     provider: {},
-    directory: "C:/OpenCode",
+    directory: "C:/Elitza",
     project: {},
     sessions: [],
     pageMessages: () => ({ items: [] }),
@@ -13,7 +13,7 @@ test("serves an empty config document list for composer defaults", async () => {
 
   try {
     const response = await server.handler(
-      new Request("http://localhost/api/config?location%5Bdirectory%5D=C%3A%2FOpenCode"),
+      new Request("http://localhost/api/config?location%5Bdirectory%5D=C%3A%2FElitza"),
     )
 
     expect(response.status).toBe(200)
@@ -39,9 +39,9 @@ test("applies message latency after a list response gate is released", async () 
     },
   } as unknown as Page
 
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     provider: {},
-    directory: "C:/OpenCode",
+    directory: "C:/Elitza",
     project: {},
     sessions: [{ id: "session" }],
     messageDelay: 25,
@@ -97,9 +97,9 @@ test("routes requests through the HttpApi contract", async () => {
     },
   } as unknown as Page
 
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     provider: {},
-    directory: "C:/OpenCode",
+    directory: "C:/Elitza",
     project: {},
     sessions: [],
     pageMessages: () => ({ items: [] }),

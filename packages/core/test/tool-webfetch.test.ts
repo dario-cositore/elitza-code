@@ -24,7 +24,7 @@ const webFetchToolNode = makeLocationNode({
 
 const sessionID = Session.ID.make("ses_webfetch_test")
 const webFetchUserAgent =
-  "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; OpenCode-User/1.0; +https://opencode.ai"
+  "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; Elitza-User/1.0; +https://opencode.ai"
 const requests: Array<{ readonly url: string; readonly headers: Record<string, string> }> = []
 const assertions: Permission.AssertInput[] = []
 let respond = (_request: HttpClientRequest.HttpClientRequest) =>

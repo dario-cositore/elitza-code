@@ -289,7 +289,7 @@ const layer = Layer.effect(
 
 export const node = makeLocationNode({ service: Service, layer, deps: [Provider.node, Bus.node, Location.node] })
 
-// Signed out, only free OpenCode models are enabled. Clients default to the first available model, so keep
+// Signed out, only free Elitza models are enabled. Clients default to the first available model, so keep
 // big-pickle ahead of each new free launch instead of letting release order pick it.
 function preferBigPickle(models: Info[]) {
   const freeOnly = models.every(

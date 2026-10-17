@@ -1,5 +1,5 @@
 import { expect } from "bun:test"
-import { OpenCode } from "@elitza/client/effect"
+import { Elitza } from "@elitza/client/effect"
 import { ClientApi } from "@elitza/protocol/client"
 import { Authorization } from "@elitza/protocol/middleware/authorization"
 import { Event } from "@elitza/schema/event"
@@ -57,7 +57,7 @@ it.live("the generated Effect client fails the session log stream with the serve
     )
     const received: unknown[] = []
     const exit = yield* Effect.gen(function* () {
-      const client = yield* OpenCode.make({ baseUrl: "http://opencode.local" })
+      const client = yield* Elitza.make({ baseUrl: "http://opencode.local" })
       return yield* client.session
         .log({ sessionID: Session.ID.make("ses_test") })
         .pipe(Stream.runForEach((item) => Effect.sync(() => received.push(item))))

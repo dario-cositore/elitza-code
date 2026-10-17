@@ -3,7 +3,7 @@ import { createSignal, onCleanup } from "solid-js"
 import { Markdown } from "./markdown"
 
 export default {
-  title: "OpenCode/Conversation/Markdown response",
+  title: "Elitza/Conversation/Markdown response",
   id: "components-markdown",
   component: Markdown,
   parameters: {

@@ -1,8 +1,8 @@
-import type { LocationGetOutput, OpenCodeClient } from "@elitza/client/promise"
+import type { LocationGetOutput, ElitzaClient } from "@elitza/client/promise"
 import type { Data } from "@elitza/client/solid"
 
 export async function createWorktree(input: {
-  api: Pick<OpenCodeClient, "location" | "worktree">
+  api: Pick<ElitzaClient, "location" | "worktree">
   data: Pick<Data, "location">
   directory: string
   project?: LocationGetOutput["project"]

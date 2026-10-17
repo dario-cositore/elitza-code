@@ -5,7 +5,7 @@ import { tmpdir } from "./fixture/fixture"
 import { createAppFixture } from "./fixture/app"
 
 // Elitza's model dialog offers only the OpenRouter free endpoint plus providers the
-// user connected themselves (BYOK). OpenCode's Zen models are rejected by the
+// user connected themselves (BYOK). Elitza's Zen models are rejected by the
 // upstream free tier and paid OpenRouter models are out of scope, so both stay hidden.
 test("model dialog offers only the OpenRouter free endpoint and BYOK providers", async () => {
   await using state = await tmpdir()
@@ -40,7 +40,7 @@ test("model dialog offers only the OpenRouter free endpoint and BYOK providers",
           location,
           data: [
             { id: "openrouter", name: "OpenRouter" },
-            { id: "opencode", name: "OpenCode" },
+            { id: "opencode", name: "Elitza" },
             { id: "demo", name: "Demo" },
           ],
         })

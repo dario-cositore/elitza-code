@@ -203,7 +203,7 @@ describe("provider error classification", () => {
     ).toBe("ContentPolicy")
   })
 
-  test("recovers policy codes that OpenCode Zen preserves only in its message label", () => {
+  test("recovers policy codes that Elitza Zen preserves only in its message label", () => {
     // Zen drops upstream codes outside its allow-list and replaces the type, but
     // `Protocol.errorMessage` keeps the original code as a `[code]` prefix.
     const zen = {
@@ -262,7 +262,7 @@ describe("provider error classification", () => {
     expect(classifyProviderFailure({ message: "Payment Required", status: 402 })._tag).toBe("QuotaExceeded")
   })
 
-  test("classifies OpenCode Zen account limits as quota rather than throttling", () => {
+  test("classifies Elitza Zen account limits as quota rather than throttling", () => {
     const typed = (type: string, message: string) => ({ type: "error", error: { type, message } })
     const substituted = (message: string) => ({
       error: { type: "server_error", message: `Upstream request failed: ${message}` },

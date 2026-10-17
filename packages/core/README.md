@@ -1,3 +1,3 @@
 # @elitza/core
 
-Core runtime services for OpenCode.
+Core runtime services for Elitza.

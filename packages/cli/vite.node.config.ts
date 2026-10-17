@@ -131,7 +131,7 @@ function nodePrelude(input: NodeBuildInput) {
       : undefined
   const opencodePtyAsset = input.target.opencodePtyAsset
   const promiseModule = `const sdk = globalThis[Symbol.for("opencode.plugin.v2.promise")]
-if (!sdk) throw new Error("OpenCode Promise plugin SDK is unavailable")
+if (!sdk) throw new Error("Elitza Promise plugin SDK is unavailable")
 export const Agent = sdk.Agent
 export const Command = sdk.Command
 export const Connection = sdk.Connection
@@ -146,14 +146,14 @@ export const Skill = sdk.Skill`
     .replace("opencode.plugin.v2.promise", "opencode.plugin.v2.effect")
     .replace("Promise plugin", "Effect plugin")
   const promisePluginModule = `const sdk = globalThis[Symbol.for("opencode.plugin.v2.promise")]
-if (!sdk) throw new Error("OpenCode Promise plugin SDK is unavailable")
+if (!sdk) throw new Error("Elitza Promise plugin SDK is unavailable")
 export const define = sdk.Plugin.define`
   const effectPluginModule = promisePluginModule
     .replace("opencode.plugin.v2.promise", "opencode.plugin.v2.effect")
     .replace("Promise plugin", "Effect plugin")
   const promiseToolModule = `export {}`
   const effectToolModule = `const sdk = globalThis[Symbol.for("opencode.plugin.v2.effect")]
-if (!sdk) throw new Error("OpenCode Effect plugin SDK is unavailable")
+if (!sdk) throw new Error("Elitza Effect plugin SDK is unavailable")
 export const Error = sdk.Tool.Error
 `
   return `#!/usr/bin/env -S node ${nodeExecArgv.join(" ")}

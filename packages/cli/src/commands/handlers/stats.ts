@@ -1,4 +1,4 @@
-import { ClientError, OpenCode, type SessionStatsInfo } from "@elitza/client"
+import { ClientError, Elitza, type SessionStatsInfo } from "@elitza/client"
 import { Service } from "@elitza/client/effect/service"
 import { TokenUsage } from "@elitza/schema/token-usage"
 import { activityCalendar } from "@elitza/util/activity-calendar"
@@ -20,7 +20,7 @@ const handler = Effect.fn("cli.stats")(function* (input: Runtime.Input<typeof Co
     server: Option.getOrUndefined(input.server),
     standalone: input.standalone,
   })
-  const client = OpenCode.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
+  const client = Elitza.make({ baseUrl: server.endpoint.url, headers: Service.headers(server.endpoint) })
   const range = statsRange({ days, year, all: input.all })
   const projectID =
     project === "."

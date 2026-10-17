@@ -60,7 +60,7 @@ export const ApiKey = {
   render: renderConnection("openrouter", [{ type: "key", label: "API key" }]),
 }
 
-export const OpenCodeZen = {
+export const ElitzaZen = {
   render: renderConnection("opencode", [{ type: "key", label: "API key" }]),
 }
 

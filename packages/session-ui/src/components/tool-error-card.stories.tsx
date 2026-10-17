@@ -61,7 +61,7 @@ const samples: { tool: string; error: string; subtitle?: string; defaultOpen?: b
 ]
 
 export default {
-  title: "OpenCode/Tools/Failure details",
+  title: "Elitza/Tools/Failure details",
   id: "components-tool-error-card",
   component: ToolErrorCard,
   tags: ["autodocs"],

@@ -60,7 +60,7 @@ await Bun.write(
     `pkgname=${name}`,
     `pkgver=${pkgver}`,
     "pkgrel=1",
-    "pkgdesc='OpenCode beta - the AI coding agent for the terminal'",
+    "pkgdesc='Elitza beta - the AI coding agent for the terminal'",
     "url='https://github.com/dario-cositore/elitza-code'",
     "arch=('x86_64' 'aarch64')",
     "license=('MIT')",

@@ -6,11 +6,11 @@ import { SimulationRenderer } from "../src/frontend/renderer"
 import { SimulationSemantics } from "../src/frontend/semantics"
 
 test("matches literal screen text", () => {
-  const harness = { screen: () => "OpenCode [ready].*" }
+  const harness = { screen: () => "Elitza [ready].*" }
 
-  expect(matches(harness, "OpenCode")).toBe(true)
+  expect(matches(harness, "Elitza")).toBe(true)
   expect(matches(harness, "[ready].*")).toBe(true)
-  expect(matches(harness, "OpenCode.*ready")).toBe(false)
+  expect(matches(harness, "Elitza.*ready")).toBe(false)
   expect(matches(harness, "opencode")).toBe(false)
 })
 

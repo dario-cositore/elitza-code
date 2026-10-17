@@ -1,4 +1,4 @@
-export function OpenCodeLogo(props: { class?: string }) {
+export function ElitzaLogo(props: { class?: string }) {
   return (
     <svg
       data-component="opencode-logo"

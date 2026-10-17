@@ -18,7 +18,7 @@ import type { PluginInternal } from "../internal.js"
 const providerID = Provider.ID.gitlab
 const integrationID = Integration.ID.make("gitlab")
 const methodID = Integration.MethodID.make("pkce")
-// Instance-owned, trusted GitLab OAuth application for OpenCode. Registered with
+// Instance-owned, trusted GitLab OAuth application for Elitza. Registered with
 // redirect URI http://127.0.0.1:8080/callback on gitlab.com. Self-managed instances
 // need their own application; override with GITLAB_OAUTH_CLIENT_ID in that case.
 const bundledClientID = "fd180700a8f9c5d5557aca231632dd0611a1135a3bb510a741d5a988a3394fa7"

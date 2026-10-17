@@ -1,5 +1,5 @@
 import type { Data } from "@elitza/client/solid"
-import type { LocationRef, OpenCodeClient, ProjectListOutput, WorktreeDirectory } from "@elitza/client/promise"
+import type { LocationRef, ElitzaClient, ProjectListOutput, WorktreeDirectory } from "@elitza/client/promise"
 import type { Schema } from "effect"
 import type { JSX } from "solid-js"
 import type { Store } from "solid-js/store"
@@ -20,7 +20,7 @@ export interface ServerRef {
   /** The HTTP basic password the user configured; undefined when there is none. */
   readonly password?: string
   /** The server's API client. */
-  readonly client: OpenCodeClient
+  readonly client: ElitzaClient
   /** The server's synced data (sessions, projects, …). Reactive. */
   readonly data: Data
   /** The built-in local server or a loopback http server. */

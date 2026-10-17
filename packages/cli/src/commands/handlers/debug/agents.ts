@@ -1,6 +1,6 @@
 import { EOL } from "os"
 import { Effect } from "effect"
-import { OpenCode } from "@elitza/client"
+import { Elitza } from "@elitza/client"
 import { Commands } from "../../commands"
 import { Runtime } from "../../../framework/runtime"
 import { Service } from "@elitza/client/effect/service"
@@ -10,7 +10,7 @@ export default Runtime.handler(
   Commands.commands.debug.commands.agents,
   Effect.fn("cli.debug.agents")(function* () {
     const { endpoint } = yield* ServerConnection.resolve()
-    const client = OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
+    const client = Elitza.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
     const response = yield* Effect.promise(() => client.agent.list({ location: { directory: process.cwd() } }))
     process.stdout.write(
       JSON.stringify(

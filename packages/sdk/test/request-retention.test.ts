@@ -3,7 +3,7 @@ import { fullGC, heapStats } from "bun:jsc"
 import { Effect, Layer } from "effect"
 import { tmpdirScoped } from "../../core/test/fixture/tmpdir"
 import { testEffect } from "../../core/test/lib/effect"
-import { OpenCode } from "../src/effect"
+import { Elitza } from "../src/effect"
 import { OwnedFetch } from "../src/internal/fetch"
 
 const it = testEffect(Layer.empty)
@@ -11,7 +11,7 @@ const it = testEffect(Layer.empty)
 it.live("releases completed embedded requests while the host stays open", () =>
   Effect.gen(function* () {
     const directory = yield* tmpdirScoped()
-    const client = yield* OpenCode.create({
+    const client = yield* Elitza.create({
       app: { version: "request-retention-test" },
       config: { directory: directory.path, project: false, content: "{}" },
       events: { persist: true },
@@ -94,7 +94,7 @@ it.live("keeps caller abort and host shutdown wired to active requests", () =>
     const closed = transport.close()
     const failure = await second.catch((error: unknown) => error)
     expect(failure).toBeInstanceOf(Error)
-    expect(failure).toMatchObject({ message: "OpenCode host is closed" })
+    expect(failure).toMatchObject({ message: "Elitza host is closed" })
     await closed
     expect(disposed).toBe(true)
     expect(seen).toEqual(["caller", failure])
@@ -125,7 +125,7 @@ it.live("cancels an open response body on host shutdown before disposing the han
     const reason = await cancelled.promise
 
     expect(reason).toBeInstanceOf(Error)
-    expect(reason).toMatchObject({ message: "OpenCode host is closed" })
+    expect(reason).toMatchObject({ message: "Elitza host is closed" })
     expect(await reading.catch((cause: unknown) => cause)).toBe(reason)
     await closing
     expect(disposed).toBe(true)

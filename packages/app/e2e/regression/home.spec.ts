@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test"
 import { expectPath, holdRoute, NO_PROVIDER, project, REMOTE_SERVER, seed, sessionHref } from "../utils/app"
-import { mockOpenCodeServer } from "../utils/mock-server"
+import { mockElitzaServer } from "../utils/mock-server"
 import { fixture, mockStressTimeline } from "../utils/session-fixture"
 import { mockRemoteServer } from "../utils/workspace"
 import { APP_READY_TIMEOUT, expectAppVisible } from "../utils/waits"
@@ -137,7 +137,7 @@ test("adding a project to a signed-out server re-pairs it, then continues at the
   // The saved address rejects the new token, so saving moves the server to the link's address.
   const paired = "http://127.0.0.1:4098"
   await mockRemoteServer(page, { name: "Remote", password: "old-password" })
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     server: paired,
     directory: "/remote/paired",
     project: project({ id: "proj_paired", directory: "/remote/paired" }),
@@ -165,7 +165,7 @@ test("adding a project to a signed-out server re-pairs it, then continues at the
 
 test("a server whose saved password changes works with the new password", async ({ page }) => {
   const accepted = { password: "old-password" }
-  await mockOpenCodeServer(page, {
+  await mockElitzaServer(page, {
     server: REMOTE_SERVER,
     directory: "/remote/project",
     project: project({ id: "proj_remote", directory: "/remote/project" }),
@@ -208,10 +208,10 @@ test("a server whose saved password changes works with the new password", async 
   await expect(picker.getByText("Unable to read this folder")).toHaveCount(0)
 })
 
-const recovery = "C:/OpenCode/Worktrees/project-menu-recovery"
+const recovery = "C:/Elitza/Worktrees/project-menu-recovery"
 
 const worktree =
-  "C:/OpenCode/Worktrees/project-42/long-folder-name-for-checking-wrapped-worktree-paths/another-long-folder-name"
+  "C:/Elitza/Worktrees/project-42/long-folder-name-for-checking-wrapped-worktree-paths/another-long-folder-name"
 
 for (const state of [
   { name: "local", directory: fixture.directory, icon: "monitor" },

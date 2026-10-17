@@ -1,5 +1,5 @@
 import type { CancelNotification, PromptRequest, PromptResponse, RequestError } from "@agentclientprotocol/sdk"
-import type { OpenCodeClient, OpenCodeEvent } from "@elitza/client/effect"
+import type { ElitzaClient, ElitzaEvent } from "@elitza/client/effect"
 import { TokenUsage } from "@elitza/schema/token-usage"
 import {
   Cause,
@@ -43,7 +43,7 @@ export const CancelDrainTimeout = Context.Reference<Duration.Input>("@elitza/cli
 
 type Subscription = {
   readonly scope: Scope.Closeable
-  readonly events: Queue.Dequeue<OpenCodeEvent, unknown>
+  readonly events: Queue.Dequeue<ElitzaEvent, unknown>
   readonly askQueue: Queue.Queue<Effect.Effect<void, ACPError.Error | RequestError>>
   readonly settled: Map<string, Deferred.Deferred<void>>
 }
@@ -57,7 +57,7 @@ type Turn = {
 }
 
 export const make = Effect.fnUntraced(function* (input: {
-  readonly client: OpenCodeClient
+  readonly client: ElitzaClient
   readonly connection: ACPConnection.Interface
   readonly sessions: ACPSessions.Interface
   readonly catalog: ACPCatalog.Interface

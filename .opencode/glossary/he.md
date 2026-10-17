@@ -11,7 +11,7 @@
 
 ## Do Not Translate (Locale Additions)
 
-- `OpenCode` (preserve casing in prose and UI copy)
+- `Elitza` (preserve casing in prose and UI copy)
 - `API`, `MCP`, `LSP`, `OAuth`, `Git`, model names, and provider names
 - Commands, flags, keyboard shortcuts, file paths, URLs, identifiers, hashes, and code literals
 - Keep `commit` and `diff` when they name the exact Git artifact or operation

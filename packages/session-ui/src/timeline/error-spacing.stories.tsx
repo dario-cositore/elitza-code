@@ -5,7 +5,7 @@ import { timelinePresets } from "./detail"
 import { SessionTimeline } from "./session-timeline"
 
 export default {
-  title: "OpenCode/Conversation/Error spacing",
+  title: "Elitza/Conversation/Error spacing",
   id: "current-session-error-spacing",
   component: SessionTimeline,
   parameters: { layout: "fullscreen" },

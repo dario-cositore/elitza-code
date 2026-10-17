@@ -1,4 +1,4 @@
-import type { ExperimentalPersistentPtyConnectTokenInput, OpenCodeClient, PtyConnectTokenInput } from "../promise"
+import type { ExperimentalPersistentPtyConnectTokenInput, ElitzaClient, PtyConnectTokenInput } from "../promise"
 
 export type PtyClientOptions = {
   readonly url: string
@@ -18,7 +18,7 @@ export type PersistentPtyConnectInput = {
   readonly takeover?: boolean
 }
 
-export function createPtyClient(api: OpenCodeClient, options: PtyClientOptions) {
+export function createPtyClient(api: ElitzaClient, options: PtyClientOptions) {
   return {
     async connect(input: PtyConnectInput) {
       const result = await api.pty.connect.token({
@@ -41,7 +41,7 @@ export function createPtyClient(api: OpenCodeClient, options: PtyClientOptions) 
   }
 }
 
-export function createPersistentPtyClient(api: OpenCodeClient, options: PtyClientOptions) {
+export function createPersistentPtyClient(api: ElitzaClient, options: PtyClientOptions) {
   return {
     async connect(input: PersistentPtyConnectInput) {
       const token = await api.experimental.persistentPty.connectToken({

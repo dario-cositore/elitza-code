@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises"
 import { join } from "node:path"
 import { Schema } from "effect"
 import { tmpdir } from "../../core/test/fixture/tmpdir"
-import { OpenCode, Session, SessionMessage } from "../src"
+import { Elitza, Session, SessionMessage } from "../src"
 
 const metadata = Schema.decodeUnknownSync(Schema.Struct({ account: Schema.String }))
 const hostOptions = (directory: string) => ({
@@ -21,12 +21,12 @@ test("Promise instances are lazy, share by key and Location, and stay isolated b
   const setups: string[] = []
   const cleanups: string[] = []
   const createHost = (name: string) => {
-    const instances: OpenCode.InstanceOptions = {
+    const instances: Elitza.InstanceOptions = {
       key(session) {
         expect(typeof session.time.created).toBe("number")
         return metadata(session.metadata).account
       },
-      configure(key): OpenCode.InstanceConfiguration {
+      configure(key): Elitza.InstanceConfiguration {
         configured.push(`${name}:${key}`)
         return {
           plugins: [
@@ -47,7 +47,7 @@ test("Promise instances are lazy, share by key and Location, and stay isolated b
         }
       },
     }
-    return OpenCode.create({
+    return Elitza.create({
       ...hostOptions(directory.path),
       database: { path: join(directory.path, `${name}.sqlite`) },
       instances,
@@ -149,7 +149,7 @@ test.each(["configuration", "plugin setup"])(
     const configured: string[] = []
     const setups: string[] = []
     const cleanups: string[] = []
-    await using opencode = await OpenCode.create({
+    await using opencode = await Elitza.create({
       ...hostOptions(directory.path),
       instances: {
         key: (session) => metadata(session.metadata).account,
@@ -226,7 +226,7 @@ test("Promise instances reconstruct callbacks for persisted Sessions only on a c
   const configured: string[] = []
   const setups: number[] = []
   const cleanups: number[] = []
-  const options: OpenCode.CreateOptions = {
+  const options: Elitza.CreateOptions = {
     ...hostOptions(directory.path),
     instances: {
       key: (session) => metadata(session.metadata).account,
@@ -252,7 +252,7 @@ test("Promise instances reconstruct callbacks for persisted Sessions only on a c
       },
     },
   }
-  await using first = await OpenCode.create(options)
+  await using first = await Elitza.create(options)
   const created = await first.sessions.create({
     id: sessionID,
     location: { directory: directory.path },
@@ -263,7 +263,7 @@ test("Promise instances reconstruct callbacks for persisted Sessions only on a c
   await first.close()
   expect(cleanups).toEqual([1])
 
-  await using second = await OpenCode.create(options)
+  await using second = await Elitza.create(options)
   expect(await second.sessions.get({ sessionID })).toMatchObject({
     id: sessionID,
     location: created.location,
@@ -299,7 +299,7 @@ test("Promise instance plugin ID collisions reject admission and reconstruct on 
   const configured: string[] = []
   const setups: string[] = []
   const cleanups: string[] = []
-  await using opencode = await OpenCode.create({
+  await using opencode = await Elitza.create({
     ...hostOptions(directory.path),
     plugins: [
       {

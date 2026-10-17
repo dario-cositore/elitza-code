@@ -1,7 +1,7 @@
 # Diff Highlighting
 
 Manual Chromium benchmark of the production `File` component, `normalize`, Pierre
-pool, and bundled workers. No OpenCode server, session, or stored data is used.
+pool, and bundled workers. No Elitza server, session, or stored data is used.
 
 From `packages/session-ui`, set `HIGHLIGHT_BUNDLE` to an external artifact
 directory, then run:

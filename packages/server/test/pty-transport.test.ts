@@ -4,7 +4,7 @@ import { HttpServer } from "effect/http"
 import fs from "node:fs/promises"
 import os from "node:os"
 import path from "node:path"
-import { OpenCode } from "../../client/src/promise/index"
+import { Elitza } from "../../client/src/promise/index"
 import { it } from "../../core/test/lib/effect"
 import { ServerProcess } from "../src/process"
 
@@ -29,7 +29,7 @@ live(
         fs: { filewatcher: false },
       })
       const base = HttpServer.formatAddress(server.address)
-      const client = OpenCode.make({ baseUrl: base, headers: { authorization: `Basic ${btoa("opencode:secret")}` } })
+      const client = Elitza.make({ baseUrl: base, headers: { authorization: `Basic ${btoa("opencode:secret")}` } })
       const location = { directory }
       const terminal = yield* Effect.acquireRelease(
         Effect.promise(() =>

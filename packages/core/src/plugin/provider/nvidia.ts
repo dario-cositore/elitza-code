@@ -13,7 +13,7 @@ export const NvidiaPlugin = define({
             ...provider.headers,
             "HTTP-Referer": "https://opencode.ai/",
             "X-Title": "opencode",
-            "X-BILLING-INVOKE-ORIGIN": provider.headers?.["X-BILLING-INVOKE-ORIGIN"] ?? "OpenCode",
+            "X-BILLING-INVOKE-ORIGIN": provider.headers?.["X-BILLING-INVOKE-ORIGIN"] ?? "Elitza",
           }
         })
       }

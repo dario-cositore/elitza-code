@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { ClientError, OpenCode } from "@elitza/client/promise"
+import { ClientError, Elitza } from "@elitza/client/promise"
 import { OPENCODE_VERSION } from "../src/version"
 import path from "node:path"
 import { createMiniConnection, mergeInput as mergeInteractiveInput, resolveMiniTarget } from "../src/mini"
@@ -80,8 +80,8 @@ describe("mini command", () => {
   })
 
   test("re-resolves a managed target when the endpoint moves before transport construction", async () => {
-    const initial = OpenCode.make({ baseUrl: "https://initial.opencode.test" })
-    const replacement = OpenCode.make({ baseUrl: "https://replacement.opencode.test" })
+    const initial = Elitza.make({ baseUrl: "https://initial.opencode.test" })
+    const replacement = Elitza.make({ baseUrl: "https://replacement.opencode.test" })
     const controller = new AbortController()
     const seen: (typeof initial)[] = []
     let reconnects = 0

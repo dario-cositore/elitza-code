@@ -1,5 +1,5 @@
 import { Service, type Endpoint } from "@elitza/client/effect/service"
-import { ClientError, OpenCode, type OpenCodeClient } from "@elitza/client/promise"
+import { ClientError, Elitza, type ElitzaClient } from "@elitza/client/promise"
 import type { MiniFrontendInput } from "@elitza/tui/mini"
 import { setTimeout } from "node:timers/promises"
 import { readStdin } from "./util/io"
@@ -43,7 +43,7 @@ export async function runMini(input: MiniCommandInput) {
       const requested = parseModel(input.model)
       const model = requested ? { providerID: requested.providerID, modelID: requested.id } : undefined
       const prepare = prepareTarget(input.agent)
-      const resolveTarget = async (initial: OpenCodeClient, signal: AbortSignal) => {
+      const resolveTarget = async (initial: ElitzaClient, signal: AbortSignal) => {
         const resolved = await resolveMiniTarget({
           sdk: initial,
           reconnect: connection.reconnect,
@@ -79,7 +79,7 @@ export async function runMini(input: MiniCommandInput) {
         }
       }
       const create = (
-        client: OpenCodeClient,
+        client: ElitzaClient,
         next: {
           location: { directory: string }
           agent: string | undefined
@@ -137,7 +137,7 @@ export async function runMini(input: MiniCommandInput) {
 /** @internal Exported for CLI boundary tests. */
 export function createMiniConnection(input: MiniCommandInput["server"]) {
   const make = (endpoint: Endpoint) =>
-    OpenCode.make({
+    Elitza.make({
       baseUrl: endpoint.url,
       headers: Service.headers(endpoint),
     })
@@ -155,10 +155,10 @@ export function createMiniConnection(input: MiniCommandInput["server"]) {
 
 /** @internal Exported for reconnect lifecycle tests. */
 export async function resolveMiniTarget<A>(input: {
-  sdk: OpenCodeClient
-  reconnect?: (signal: AbortSignal) => Promise<OpenCodeClient>
+  sdk: ElitzaClient
+  reconnect?: (signal: AbortSignal) => Promise<ElitzaClient>
   signal: AbortSignal
-  resolve: (sdk: OpenCodeClient) => Promise<A>
+  resolve: (sdk: ElitzaClient) => Promise<A>
 }) {
   let sdk = input.sdk
   while (true) {

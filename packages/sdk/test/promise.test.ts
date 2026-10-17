@@ -2,13 +2,13 @@ import { expect, test } from "bun:test"
 import { mkdir } from "node:fs/promises"
 import { join } from "node:path"
 import { tmpdir } from "../../core/test/fixture/tmpdir"
-import { OpenCode, Session } from "../src"
+import { Elitza, Session } from "../src"
 
 test("Promise host uses the embedded router", async () => {
   await using directory = await tmpdir("opencode-promise-sdk-")
   const config = join(directory.path, "config")
   await mkdir(config)
-  const opencode = await OpenCode.create({
+  const opencode = await Elitza.create({
     events: { persist: true },
     config: { directory: config, project: false, content: "{}" },
   })
@@ -38,7 +38,7 @@ test("Promise event streams support cancellation", async () => {
   const config = join(directory.path, "config")
   await mkdir(config)
   {
-    await using opencode = await OpenCode.create({ config: { directory: config, project: false, content: "{}" } })
+    await using opencode = await Elitza.create({ config: { directory: config, project: false, content: "{}" } })
     const controller = new AbortController()
     const events = opencode.events.subscribe({ signal: controller.signal })[Symbol.asyncIterator]()
     expect(await events.next()).toMatchObject({ value: { type: "server.connected" }, done: false })
@@ -54,7 +54,7 @@ test("closing cancels active Promise event streams", async () => {
   await using directory = await tmpdir("opencode-promise-stream-close-")
   const config = join(directory.path, "config")
   await mkdir(config)
-  const opencode = await OpenCode.create({ config: { directory: config, project: false, content: "{}" } })
+  const opencode = await Elitza.create({ config: { directory: config, project: false, content: "{}" } })
   const events = opencode.events.subscribe()[Symbol.asyncIterator]()
   expect(await events.next()).toMatchObject({ value: { type: "server.connected" }, done: false })
   const pending = events.next()

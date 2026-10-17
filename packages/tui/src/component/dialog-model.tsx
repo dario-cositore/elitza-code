@@ -213,7 +213,7 @@ export function sortModelOptions<
 
 // Elitza ships two model sources: the OpenRouter free endpoint and providers the
 // user connects themselves (BYOK — the server already restricts the model list to
-// available providers). OpenCode's hosted Zen/Go providers are force-enabled here
+// available providers). Elitza's hosted Zen/Go providers are force-enabled here
 // but gated to the official client, so they are always rejected from this fork.
 function offered(model: { providerID: string; id: string }) {
   if (model.providerID === "opencode" || model.providerID === "opencode-go") return false

@@ -39,7 +39,7 @@ test("encodes provider-neutral partial tool input as OpenAI deltas", async () =>
       Stream.make(
         { type: "toolInputStart", index: 0, id: "call_lookup", name: "lookup" },
         { type: "toolInputDelta", index: 0, text: '{"query":' },
-        { type: "toolInputDelta", index: 0, text: '"OpenCode"}' },
+        { type: "toolInputDelta", index: 0, text: '"Elitza"}' },
         { type: "finish", reason: "tool-calls" },
       ),
   }
@@ -54,7 +54,7 @@ test("encodes provider-neutral partial tool input as OpenAI deltas", async () =>
     [
       'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_lookup","function":{"name":"lookup","arguments":""}}]}}]}',
       'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\\"query\\":"}}]}}]}',
-      'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"\\"OpenCode\\"}"}}]}}]}',
+      'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"\\"Elitza\\"}"}}]}}]}',
       'data: {"choices":[{"delta":{},"finish_reason":"tool_calls"}]}',
       "data: [DONE]",
       "",

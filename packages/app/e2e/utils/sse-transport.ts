@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test"
-import type { OpenCodeEvent } from "@elitza/client/promise"
+import type { ElitzaEvent } from "@elitza/client/promise"
 
 export type SseConnectionRecord = {
   id: number
@@ -28,7 +28,7 @@ export type SseEventOptions = {
   marker?: string
 }
 
-export type SseTransport<T extends OpenCodeEvent> = {
+export type SseTransport<T extends ElitzaEvent> = {
   server: string
   waitForConnection(options?: { after?: number; timeout?: number }): Promise<SseConnectionRecord>
   send(payload: T, options?: SseEventOptions): Promise<SseDeliveryAcknowledgement>
@@ -57,7 +57,7 @@ type BrowserTransport = Window & {
 
 // `keepalive` (default true) writes an SSE comment every 15 s like the real server, so long scenarios do not trip the
 // client's stall watchdog. Set it to false only to test that watchdog.
-export async function installSseTransport<T extends OpenCodeEvent = OpenCodeEvent>(
+export async function installSseTransport<T extends ElitzaEvent = ElitzaEvent>(
   page: Page,
   options: { server: string; retry?: number; keepalive?: boolean },
 ): Promise<SseTransport<T>> {
