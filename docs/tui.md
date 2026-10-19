@@ -2,6 +2,15 @@
 
 Elitza's terminal app is built around one composer and one command surface. You get sessions, tabs, mentions, slash commands, a fuzzy palette and inline diffs, all from the same input. The [README](../README.md#inside-the-tui) lists the highlights; this page documents every command, keybinding and screen.
 
+<p align="center">
+  <img src="assets/session.png" alt="Elitza session transcript" width="900">
+</p>
+
+<p align="center">
+  <img src="assets/palette.png" alt="Elitza command palette" width="900">
+</p>
+
+
 ## The composer
 
 The composer is the input at the bottom of the screen. Everything starts there.
@@ -10,7 +19,7 @@ The composer is the input at the bottom of the screen. Everything starts there.
 | --- | --- |
 | `@name` | Mention a file, directory, skill, agent or reference and pull it into context (`packages/tui/src/prompt/display.ts`, `packages/tui/src/component/prompt/autocomplete.tsx`) |
 | `/name` | The slash command menu, with fuzzy filtering |
-| `!command` | Shell mode, from an empty composer with the cursor at the start: your line runs as a shell command instead of a prompt (`packages/tui/src/component/prompt/index.tsx`) |
+| `!command` | Shell mode, from an empty composer with the cursor at the start: your line runs as a shell command instead of a prompt (`packages/tui/src/component/prompt/index.tsx:975`) |
 | `tab` | Complete the suggestion under the cursor |
 | `return` | Accept the highlighted suggestion, or send the prompt |
 | `up` / `down` | Move through suggestions, then through prompt history |
@@ -24,13 +33,13 @@ Press `esc` while a turn is running. The footer hint reads `esc interrupt`, then
 
 ## The command palette
 
-Press `ctrl+p`. The dialog is titled **Commands** (`packages/tui/src/component/command-palette.tsx`) and it is opened by the `command.palette.show` command (`packages/tui/src/context/keymap.tsx`). It fuzzy-searches every palette-visible command, sorted into categories with their keybinding in the footer, plus every entry from the settings dialog. Suggested commands float to the top while the filter is empty.
+Press `ctrl+p`. The dialog is titled **Commands** (`packages/tui/src/component/command-palette.tsx`) and it is opened by the `command.palette.show` command (`packages/tui/src/context/keymap.tsx:53`). It fuzzy-searches every palette-visible command, sorted into categories with their keybinding in the footer, plus every entry from the settings dialog. Suggested commands float to the top while the filter is empty.
 
 The prompt footer advertises it as `ctrl+p commands` (`packages/tui/src/feature-plugins/prompt/footer.tsx`). `ctrl+o` opens recent sessions and projects instead.
 
 ## Keybindings
 
-`ctrl+x` is the leader key: hold it, then press the second key. All defaults live in `packages/tui/src/config/keybind.ts`.
+`ctrl+x` is the leader key: hold it, then press the second key. All defaults live in `packages/tui/src/config/keybind.ts` (the leader itself is defined at `packages/tui/src/config/keybind.ts:41`).
 
 | Keys | What they do |
 | --- | --- |
@@ -61,7 +70,7 @@ Type `/` in the composer. Type `/` then a name to filter. Full list with aliases
 
 | Command | What it does |
 | --- | --- |
-| `/sessions` (aliases: `/resume`, `/continue`) | Open the session list and resume one (`dialog-session-list.tsx`) |
+| `/sessions` (aliases: `/resume`, `/continue`) | Open the session list and resume one (`packages/tui/src/component/dialog-session-list.tsx`) |
 | `/new` | Start a new session, keeping your current model and agent |
 | `/clear` | Leave the current transcript and open a fresh session |
 | `/open` (aliases: `/projects`, `/project`) | Open a session, project or worktree |

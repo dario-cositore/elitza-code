@@ -66,7 +66,7 @@ The launcher is a small shell script, not a symlink. It pins every runtime direc
 | `XDG_CACHE_HOME` | `~/.elitza/home/cache` |
 | `OPENCODE_DB` | `~/.elitza/home/data/elitza.db` |
 
-It also sources `~/.elitza/.env` with `set -a`, so every variable you put there (like `OPENROUTER_API_KEY`) reaches the process, then execs `~/.elitza/agent/elitza`. Always start Elitza through the launcher. Run the bare binary and config, sessions and logs fall back to machine-default paths.
+It also sources `~/.elitza/.env` with `set -a`, so every variable you put there (like `OPENROUTER_API_KEY`) reaches the process, then execs `~/.elitza/agent/elitza`. Always start Elitza through the launcher. Skip it and config, sessions and logs land in machine-default paths that other tools share.
 
 ## Platforms
 

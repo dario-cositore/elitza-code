@@ -105,7 +105,7 @@ The installer downloads a prebuilt binary plus the brain plugin, installs them a
 | `elitza plugin add` | Install a plugin from npm or git |
 | `elitza session list` | List, export or delete sessions |
 | `elitza service start` | Control the background server |
-| `elitza upgrade` | Self-update to the latest release |
+| `elitza upgrade` | Built in updater, gated off unless `ELITZA_SELF_UPDATE=1` (use the installer until then) |
 | `elitza debug config` | Dump the resolved configuration |
 
 <details>
@@ -127,7 +127,7 @@ The installer downloads a prebuilt binary plus the brain plugin, installs them a
 | `service start\|restart\|status\|stop\|get\|set\|unset` | Background server control |
 | `pair` | One-time pairing links, `--remote` for a tunnel |
 | `reload` | Reload configuration without a restart |
-| `upgrade` / `uninstall` | Self-update, or remove while keeping session data |
+| `upgrade` / `uninstall` | Built in updater (needs `ELITZA_SELF_UPDATE=1`), or remove while keeping session data |
 | `debug agents\|config\|paths` | Diagnostics |
 
 Global flags: `--standalone` (private server), `--server <url>`, `--auto` (auto-approve permissions), `--session <id>`, `--continue`, `--prompt <text>`, `--log-level`, `--print-logs`, `--completions <shell>`.
@@ -175,8 +175,8 @@ Type `/` in the composer for the command menu, `ctrl+p` for the fuzzy command pa
 | `ctrl+o` | Session list |
 | `ctrl+x` then `l` / `n` / `m` | Switch session, new session, switch model |
 | `shift+tab` | Cycle agents |
-| `esc` | Interrupt a running turn |
-| `ctrl+c` (selection) | Copy selection |
+| `esc` | Interrupt a running turn, press it twice |
+| `tab` | Complete a file, command or mention |
 
 </details>
 
@@ -200,7 +200,8 @@ Full reference: [docs/brain.md](docs/brain.md).
 | `~/.elitza/brain/soul_v2.db` | Memories, links, recall log, session log |
 | `~/.elitza/SOUL.md` | Her identity. Edit to make her yours |
 | `~/.elitza/personas`, `roles`, `hooks` | Persona, role and hook definitions |
-| `~/.elitza/home/config` | Installed config (`elitza.json`) and session database |
+| `~/.elitza/home/config` | Installed config (`opencode.json`) and service credential |
+| `~/.elitza/home/data/elitza.db` | Session database for the installed copy |
 | `~/.elitza/.env` | Provider keys, loaded by the launcher |
 | `./elitza.json`, `./.elitza/` | Per project configuration |
 
@@ -277,7 +278,7 @@ The software is MIT licensed and costs nothing. Inference is either a free `:fre
 <details>
 <summary><b>Where does my data go?</b></summary>
 
-Nowhere but your machine. Keys, config, sessions and memory live under `~/.elitza`. The only outbound connections are to the model provider you configured and to update metadata for `elitza upgrade`. There is no analytics or telemetry client in the tree.
+Nowhere but your machine. Keys, config, sessions and memory live under `~/.elitza`. The only outbound connections are to the model provider you configured and to release metadata when you install or update. There is no analytics or telemetry client in the tree.
 </details>
 
 <details>
