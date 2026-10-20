@@ -15,6 +15,8 @@
  */
 
 import fs from "node:fs"
+import { readFile } from "node:fs/promises"
+import { fileURLToPath } from "node:url"
 import { Plugin } from "@elitza/plugin"
 import { EmotionEngine } from "./emotion.js"
 import { currentReflection, noteInteraction, startHeartbeat } from "./heartbeat.js"
@@ -67,12 +69,42 @@ export default Plugin.define({
     // -----------------------------------------------------------------
     await ctx.tool.transform((editor) => {
       const existing = new Set(editor.list().map((t) => t.name))
-      for (const tool of makeBrainTools()) {
+      for (const tool of makeBrainTools(ctx as never)) {
         if (existing.has(tool.name)) continue
         editor.add(tool as never)
         debug(`tool registered: ${tool.name}`)
       }
     })
+
+    // -----------------------------------------------------------------
+    // Skills — Remote Viewing methodology (ships with the brain plugin)
+    // -----------------------------------------------------------------
+    try {
+      const skillFile = new URL("./skills/remoteview/SKILL.md", import.meta.url)
+      const raw = await readFile(skillFile, "utf8")
+      const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
+      const fm = fmMatch ? fmMatch[1] : ""
+      const content = fmMatch ? fmMatch[2] : raw
+      const get = (key: string) => {
+        const m = fm.match(new RegExp(`^${key}:\\s*(.*)$`, "m"))
+        return m ? m[1].trim().replace(/^['"]|['"]$/g, "") : ""
+      }
+      const { Skill } = await import("@elitza/plugin")
+      const skill = Skill.Info.make({
+        id: Skill.ID.make("remoteview"),
+        name: Skill.Name.make(get("name") || "remoteview"),
+        description: get("description") || "Remote Viewing (dual-mind) skill",
+        autoinvoke: get("disable-model-invocation") !== "true",
+        path: Skill.Info.fields.path.make(fileURLToPath(skillFile)),
+        content,
+      })
+      await ctx.skill.transform((editor) => {
+        if (!editor.get(skill.id)) editor.add(skill)
+      })
+      debug("skill registered: remoteview")
+    } catch (error) {
+      debug(`skill-register-error: ${String(error)}`)
+    }
 
     // -----------------------------------------------------------------
     // System-prompt injection — soul + memories + feelings, appended to

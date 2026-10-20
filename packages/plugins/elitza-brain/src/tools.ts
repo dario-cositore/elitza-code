@@ -24,6 +24,7 @@ import {
 } from "./memory.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
+import { runRemoteViewing } from "./remoteview.js"
 
 // The promise-API tool shape: execute returns a Promise.
 export interface BrainToolInfo {
@@ -34,7 +35,7 @@ export interface BrainToolInfo {
   options?: { codemode: boolean }
 }
 
-export function makeBrainTools(): BrainToolInfo[] {
+export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: string }) => Promise<{ data: { text: string } }> } }): BrainToolInfo[] {
   const tools: BrainToolInfo[] = [
     {
       name: "brain_search",
@@ -260,5 +261,54 @@ export function makeBrainTools(): BrainToolInfo[] {
       execute: async () => ({ content: doctorHistory(7) }),
     },
   ]
+
+  // Remote Viewing (dual-mind) tool — only when a generate API is available.
+  if (ctx) {
+    tools.push({
+      name: "rv_session",
+      description:
+        "Run a Remote Viewing (dual-mind) session. A Subconscious Engine emits raw sensory 'bits' for a TARGET stimulus and a Conscious Engine filters/qualifies them. Returns the iteration log and a final composite description. Use for impressionistic target description without identifying objects.",
+      input: {
+        type: "object",
+        properties: {
+          coordinate: {
+            type: "string",
+            description: "Session coordinate / target identifier (e.g. '4892-1045'). Optional.",
+          },
+          iterations: {
+            type: "integer",
+            description: "Number of TARGET pulls (default 4, max 7).",
+            default: 4,
+          },
+        },
+      },
+      execute: async (input) => {
+        const coordinate = String(input.coordinate ?? "TARGET")
+        const iterations = Number(input.iterations ?? 4)
+        const result = await runRemoteViewing(
+          async (prompt: string) => {
+            const out = await ctx.generate.text({ prompt })
+            return (out as { data: { text: string } }).data.text
+          },
+          coordinate,
+          iterations,
+        )
+        const lines: string[] = []
+        lines.push(`## Remote Viewing Session — ${result.coordinate}`)
+        lines.push(`Iterations: ${result.iterations}`)
+        lines.push("")
+        for (const it of result.log) {
+          lines.push(`### Iteration ${it.iteration}`)
+          lines.push(`Bits: ${it.bits}`)
+          lines.push(it.conscious)
+          lines.push("")
+        }
+        lines.push("## Final Summary")
+        lines.push(result.summary)
+        return { content: lines.join("\n") }
+      },
+    })
+  }
+
   return tools.map((tool) => ({ ...tool, options: { codemode: false as const } }))
 }
