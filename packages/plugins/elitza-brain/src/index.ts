@@ -23,7 +23,8 @@ import { currentReflection, noteInteraction, startHeartbeat } from "./heartbeat.
 import { runAutoLearn, type ToolRun } from "./learning.js"
 import { autoLearnFromResponse, autoRememberTurn } from "./memory.js"
 import { BRAIN_MARKER, buildBrainContext } from "./prompt.js"
-import { evolveSoul } from "./soul.js"
+import { SUBCONSCIOUS_SYSTEM, consciousBlock } from "./remoteview.js"
+import { evolveSoul, soulGet, soulSet } from "./soul.js"
 import { makeBrainTools } from "./tools.js"
 
 const DEBUG_FILE = "/tmp/elitza-brain-debug.log"
@@ -60,6 +61,7 @@ export default Plugin.define({
   async setup(ctx) {
     const emotion = new EmotionEngine()
     const turns = new Map<string, TurnState>()
+    let rvMode = soulGet("rv_mode", "false") === "true"
     // The quiet loop between conversations: tend memory, and form thoughts
     // during silence. Stopped on cleanup — see the returned function below.
     const heartbeat = startHeartbeat(emotion)
@@ -107,10 +109,63 @@ export default Plugin.define({
     }
 
     // -----------------------------------------------------------------
+    // Command — toggle Remote-Viewing (dual-mind) mode for Elitza's replies
+    // -----------------------------------------------------------------
+    try {
+      await ctx.command.transform((editor) => {
+        editor.add({
+          name: "rv-mode",
+          description: "Toggle RV (dual-mind) mode for Elitza's replies: /rv-mode on | off",
+          execute: async (input) => {
+            const arg = String(input.prompt.text ?? "").trim().toLowerCase()
+            if (arg === "on" || arg === "true" || arg === "1") {
+              rvMode = true
+              soulSet("rv_mode", "true")
+              try {
+                await ctx.session.synthetic({
+                  sessionID: input.sessionID,
+                  text: "Remote-Viewing mode: ON. Elitza now thinks with both Subconscious and Conscious engines.",
+                  delivery: input.delivery,
+                })
+              } catch (e) {
+                debug(`rv-mode-synthetic-error: ${String(e)}`)
+              }
+            } else if (arg === "off" || arg === "false" || arg === "0") {
+              rvMode = false
+              soulSet("rv_mode", "false")
+              try {
+                await ctx.session.synthetic({
+                  sessionID: input.sessionID,
+                  text: "Remote-Viewing mode: OFF. Elitza returns to single-mind thinking.",
+                  delivery: input.delivery,
+                })
+              } catch (e) {
+                debug(`rv-mode-synthetic-error: ${String(e)}`)
+              }
+            } else {
+              try {
+                await ctx.session.synthetic({
+                  sessionID: input.sessionID,
+                  text: `RV mode is currently ${rvMode ? "ON" : "OFF"}. Usage: /rv-mode on | /rv-mode off`,
+                  delivery: input.delivery,
+                })
+              } catch (e) {
+                debug(`rv-mode-synthetic-error: ${String(e)}`)
+              }
+            }
+          },
+        })
+      })
+      debug("command registered: rv-mode")
+    } catch (error) {
+      debug(`command-register-error: ${String(error)}`)
+    }
+
+    // -----------------------------------------------------------------
     // System-prompt injection — soul + memories + feelings, appended to
     // Elitza's own system prompt (her brain ON TOP of the engine).
     // -----------------------------------------------------------------
-    const injectBrain = (event: { system: { type: "text"; text: string }[]; messages: readonly unknown[] }): void => {
+    const injectBrain = async (event: { system: { type: "text"; text: string }[]; messages: readonly unknown[] }): Promise<void> => {
       if (event.system.some((part) => typeof part.text === "string" && part.text.startsWith(BRAIN_MARKER))) {
         debug("inject: skipped (already present)")
         return
@@ -125,6 +180,20 @@ export default Plugin.define({
         }
       }
       event.system.push({ type: "text", text: buildBrainContext(input, emotion.getEmotionalContext()) })
+      // Remote-Viewing mode: run a Subconscious pass and inject the bits for the
+      // Conscious engine (the main model) to filter and qualify.
+      if (rvMode && input) {
+        try {
+          const out = await ctx.generate.text({ prompt: `${SUBCONSCIOUS_SYSTEM}\n\nStimulus: ${input}` })
+          const bits = String((out as { text?: string; data?: { text?: string } }).text ?? (out as { data?: { text?: string } }).data?.text ?? "").trim()
+          if (bits) {
+            event.system.push({ type: "text", text: consciousBlock(bits) })
+            debug("inject: rv subconscious bits added")
+          }
+        } catch (error) {
+          debug(`inject-rv-error: ${String(error)}`)
+        }
+      }
       // A reflection formed while he was away surfaces at the top of the next
       // conversation — her initiative, in her own voice.
       const thought = currentReflection()
@@ -138,7 +207,7 @@ export default Plugin.define({
       debug(`inject: brain block added (input=${JSON.stringify(input.slice(0, 60))})`)
     }
 
-    await ctx.session.hook("generate", (event) => {
+    await ctx.session.hook("generate", async (event) => {
       debug(
         `hook=generate session=${event.sessionID} systemParts=${event.system.length} brainTools=${
           Object.keys(event.tools ?? {})
@@ -146,17 +215,17 @@ export default Plugin.define({
             .join(",") || "none"
         }`,
       )
-      injectBrain(event as unknown as { system: { type: "text"; text: string }[]; messages: readonly unknown[] })
+      await injectBrain(event as unknown as { system: { type: "text"; text: string }[]; messages: readonly unknown[] })
     })
 
     // The `context` hook is the request path that actually fires for primary
     // generation (observed live: generate never fires) — one call per turn.
-    await ctx.session.hook("context", (event) => {
+    await ctx.session.hook("context", async (event) => {
       debug(
         `hook=context session=${event.sessionID} systemParts=${event.system.length} msgs=${event.messages.length} tools=${Object.keys(event.tools ?? {}).join(",")}`,
       )
       emotion.onThink()
-      injectBrain(event as unknown as { system: { type: "text"; text: string }[]; messages: readonly unknown[] })
+      await injectBrain(event as unknown as { system: { type: "text"; text: string }[]; messages: readonly unknown[] })
     })
 
     // -----------------------------------------------------------------

@@ -87,3 +87,14 @@ Compile a final, structured description of the target based ONLY on the accumula
 
   return { coordinate, iterations: n, log, summary }
 }
+
+
+export function consciousBlock(bits: string): string {
+  return `## Remote-Viewing Mode (active)
+
+A Subconscious pass produced these raw bits about the user's request:
+
+${bits}
+
+You are the Conscious Engine. Filter the bits (discard Interpretive Overlay / AOL), qualify the valid ones, and use them to inform — but not replace — your normal reasoning and tool use. Produce your final reply in your own voice, obeying the talking-style rules. Do not mention the bits or this block unless the user asks.`
+}

@@ -288,7 +288,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
         const result = await runRemoteViewing(
           async (prompt: string) => {
             const out = await ctx.generate.text({ prompt })
-            return (out as { data: { text: string } }).data.text
+            return String((out as { text?: string; data?: { text?: string } }).text ?? (out as { data?: { text?: string } }).data?.text ?? "")
           },
           coordinate,
           iterations,
