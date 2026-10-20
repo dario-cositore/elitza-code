@@ -189,7 +189,7 @@ const make = Effect.gen(function* () {
       )
   })
 
-  const curlPath = path.resolve(global.home, "agent", process.platform === "win32" ? "elitza.exe" : "elitza")
+  const curlPath = path.resolve(global.home, ".elitza", "agent", process.platform === "win32" ? "elitza.exe" : "elitza")
   const curlBinary = yield* fs.realPath(curlPath).pipe(Effect.orElseSucceed(() => curlPath))
   // Back-compat with any legacy OpenCode-style curl installs.
   const legacyCurlPath = path.resolve(global.home, ".opencode", "bin", process.platform === "win32" ? "opencode.exe" : "opencode")
