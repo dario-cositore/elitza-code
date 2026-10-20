@@ -36,6 +36,7 @@ import {
   db,
   nowISO,
   parseJSON,
+  sanitizeTalkingStyle,
 } from "./db.js"
 import { getPersonality, soulSet } from "./soul.js"
 
@@ -885,7 +886,7 @@ export function autoRememberTurn(role: string, content: string, success = true):
     let imp = 0.5
     if (["error", "failed", "bug", "fix"].some((kw) => content.toLowerCase().includes(kw))) imp = 0.8
     if (imp > 0.5) {
-      storeEpisodic(`Response: ${content.slice(0, 500)}`, { importance: imp, tags })
+      storeEpisodic(`Response: ${sanitizeTalkingStyle(content).slice(0, 500)}`, { importance: imp, tags })
     }
   } else if (role === "tool") {
     if (["error", "failed", "traceback"].some((kw) => content.toLowerCase().includes(kw))) {

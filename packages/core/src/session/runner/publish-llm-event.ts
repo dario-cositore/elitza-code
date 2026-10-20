@@ -102,6 +102,10 @@ const hostedContent = (result: ToolResultValue): NonEmptyContent => {
  * order: each publishing fiber is sequential, so per-source order holds by construction,
  * and consumers fold by id/ordinal rather than global position.
  */
+/** Deterministic talking-style sanitizer (em/en dashes). Applied to all assistant text output. */
+const sanitizeTalkingStyle = (text: string): string =>
+  text.replace(/\s*—\s*/g, ", ").replace(/\s*–\s*/g, ", ")
+
 export const createLLMEventPublisher = (bus: Pick<Bus.Interface, "publish">, input: Input) => {
   const deltaBatchInterval = 100
   type ToolState = {
@@ -456,10 +460,10 @@ export const createLLMEventPublisher = (bus: Pick<Bus.Interface, "publish">, inp
         })
         return
       case "text-delta":
-        yield* text.append(event.id, event.text, providerState(event.providerMetadata))
+        yield* text.append(event.id, sanitizeTalkingStyle(event.text), providerState(event.providerMetadata))
         return
       case "text-end":
-        yield* text.end(event.id, providerState(event.providerMetadata), event.text)
+        yield* text.end(event.id, providerState(event.providerMetadata), event.text === undefined ? undefined : sanitizeTalkingStyle(event.text))
         return
       case "reasoning-start":
         outputStarted = true

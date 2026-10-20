@@ -144,3 +144,11 @@ export function parseJSON<T>(text: string | null | undefined, fallback: T): T {
     return fallback
   }
 }
+
+
+/** Best-effort deterministic sanitizer for Elitza's talking style (em/en dashes). */
+export function sanitizeTalkingStyle(text: string): string {
+  return text
+    .replace(/\s*—\s*/g, ", ")
+    .replace(/\s*–\s*/g, ", ")
+}
