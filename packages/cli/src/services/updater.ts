@@ -67,25 +67,6 @@ const wingetArgs = [
   "--disable-interactivity",
 ]
 
-// Elitza ships her own release pipeline. Everything below this point still speaks
-// Elitza's update endpoints, installs Elitza's binaries, and removes Elitza's
-// packages, so none of it may run against an Elitza install: `upgrade` would hand
-// Elitza over to Elitza's installer, and `removal` would uninstall Elitza from
-// the machine. Gating here rather than only at the two call sites keeps every
-// entry point covered — `apply` reaches `upgrade` through `install`, and the TUI
-// calls `apply` directly without going through `check`.
-// Set ELITZA_SELF_UPDATE=1 to exercise the updater during development.
-const gated = () => process.env.ELITZA_SELF_UPDATE !== "1"
-
-const elitzaUpgradeError = (retry: string) =>
-  new UpgradeError({
-    title: "Self-update is off in this Elitza build",
-    detail: "Elitza's built-in updater only knows Elitza's release endpoints, so it cannot update Elitza safely.",
-    retry,
-  })
-
-const elitzaRetry = "Update with: curl -fsSL https://elitza.life/install.sh | bash"
-
 function conciseDetail(input: string) {
   const lines = stripVTControlCharacters(input)
     .trim()
@@ -208,13 +189,11 @@ const make = Effect.gen(function* () {
       )
   })
 
-  const curlPath = path.resolve(
-    global.home,
-    ".opencode",
-    "bin",
-    process.platform === "win32" ? "opencode.exe" : "opencode",
-  )
+  const curlPath = path.resolve(global.home, "agent", process.platform === "win32" ? "elitza.exe" : "elitza")
   const curlBinary = yield* fs.realPath(curlPath).pipe(Effect.orElseSucceed(() => curlPath))
+  // Back-compat with any legacy OpenCode-style curl installs.
+  const legacyCurlPath = path.resolve(global.home, ".opencode", "bin", process.platform === "win32" ? "opencode.exe" : "opencode")
+  const legacyCurlBinary = yield* fs.realPath(legacyCurlPath).pipe(Effect.orElseSucceed(() => legacyCurlPath))
 
   // On Windows a bare `bash` may be the WSL launcher, which cannot run the installer against Windows paths.
   const installerBash = Effect.fnUntraced(function* () {
@@ -233,7 +212,7 @@ const make = Effect.gen(function* () {
   })
 
   const method = Effect.fnUntraced(function* () {
-    if (executable === curlBinary) return "curl"
+    if (executable === curlBinary || executable === legacyCurlBinary) return "curl"
     if (installedFormula) return "brew"
     if (installedWinget) return "winget"
     if (!installedPackage) return
@@ -279,9 +258,6 @@ const make = Effect.gen(function* () {
   }
 
   const removal = (method: Method) => {
-    // The removal commands target Elitza's packages, so running them against an
-    // Elitza install would uninstall Elitza from the machine.
-    if (gated()) return undefined
     const command = removalCommand(method)
     if (!command) return undefined
     return {
@@ -297,7 +273,6 @@ const make = Effect.gen(function* () {
   }
 
   const release = Effect.fnUntraced(function* (method?: Method) {
-    if (gated()) return yield* Effect.fail(elitzaUpgradeError(elitzaRetry))
     const distribution = method === "brew" ? "homebrew" : "npm"
     // Homebrew Core builds its formula on its own schedule, so the tap release does not describe it.
     const core = method === "brew" && installedFormula === "opencode"
@@ -383,10 +358,51 @@ const make = Effect.gen(function* () {
     return version
   })
 
+  // Elitza: resolve the latest release tag from our own GitHub repository.
+  const githubLatestTag = Effect.fnUntraced(function* () {
+    const response = yield* Effect.tryPromise({
+      try: (signal) =>
+        fetch("https://api.github.com/repos/dario-cositore/elitza-code/releases/latest", {
+          signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
+          headers: { Accept: "application/vnd.github+json" },
+        }),
+      catch: (cause) =>
+        new UpgradeError(
+          { title: "Could not check for Elitza updates", detail: errorDetail(cause), retry: "Check your network, then run elitza upgrade again." },
+          { cause },
+        ),
+    })
+    if (!response.ok)
+      return yield* Effect.fail(
+        new UpgradeError({
+          title: "Could not check for Elitza updates",
+          detail: `The update service returned HTTP ${response.status}.`,
+          retry: "Try again in a few minutes.",
+        }),
+      )
+    const data: { tag_name?: string } = yield* Effect.tryPromise({
+      try: () => response.json(),
+      catch: (cause) =>
+        new UpgradeError(
+          { title: "Could not read the Elitza update information", detail: errorDetail(cause), retry: "Try again in a few minutes." },
+          { cause },
+        ),
+    })
+    if (!data.tag_name)
+      return yield* Effect.fail(
+        new UpgradeError({
+          title: "Could not read the Elitza update information",
+          detail: "The update service returned incomplete release information.",
+          retry: "Try again in a few minutes.",
+        }),
+      )
+    return data.tag_name
+  })
+
   const latest = (selected?: Method) =>
     (selected ? Effect.succeed(selected) : method()).pipe(
       Effect.flatMap((method) =>
-        method === "winget" ? wingetVersion() : release(method).pipe(Effect.map((data) => data.version)),
+        method === "winget" ? wingetVersion() : method === "curl" ? githubLatestTag() : release(method).pipe(Effect.map((data) => data.version)),
       ),
     )
 
@@ -403,7 +419,7 @@ const make = Effect.gen(function* () {
     // Only the installed binary is at stake; source checkouts run inside bun or node.
     const owned =
       method === "curl"
-        ? executable === curlBinary
+        ? executable === curlBinary || executable === legacyCurlBinary
         : method === "winget"
           ? installedWinget
           : installedPackage !== undefined
@@ -448,9 +464,6 @@ const make = Effect.gen(function* () {
   }
 
   const upgrade = Effect.fnUntraced(function* (method: Method, input: string) {
-    // Every branch below installs Elitza: the curl branch downloads and runs
-    // Elitza's own installer, which writes ~/.opencode/bin. Refuse up front.
-    if (gated()) return yield* Effect.fail(elitzaUpgradeError(elitzaRetry))
     if (!parseReleaseVersion(input)) return yield* Effect.fail(new Error(`Invalid version: ${input}`))
     const version = input.trim().replace(/^v/, "")
     const packageName =
@@ -458,7 +471,9 @@ const make = Effect.gen(function* () {
         ? wingetPackage
         : method === "brew" && installedFormula === "opencode"
           ? "opencode"
-          : (yield* release(method)).package
+          : method === "curl"
+            ? "elitza"
+            : (yield* release(method)).package
     const target = `${packageName}@${version}`
     if (installedPackage && packageName !== installedPackage && (method === "pnpm" || method === "yarn")) {
       return yield* Effect.fail(new Error(`Reinstall ${target} with ${method} to migrate from ${installedPackage}.`))
@@ -507,8 +522,8 @@ const make = Effect.gen(function* () {
           const installer = path.join(directory, "install")
           yield* runUpgrade({
             method,
-            command: ["curl", "-fsSL", "-o", installer, "https://opencode.ai/v2/install"],
-            displayCommand: ["curl", "-fsSL", "https://opencode.ai/v2/install"],
+            command: ["curl", "-fsSL", "-o", installer, "https://elitza.life/install.sh"],
+            displayCommand: ["curl", "-fsSL", "https://elitza.life/install.sh"],
             title: "Could not download the Elitza installer",
             retry: "Check your network, then run elitza upgrade again.",
           })
@@ -559,24 +574,12 @@ const make = Effect.gen(function* () {
   })
 
   const inspect = Effect.fnUntraced(function* () {
-    // Elitza: the background check speaks Elitza's update endpoints, so it reports
-    // stock Elitza's version as Elitza's latest and can hand the install to Elitza's
-    // own installer. Updates go through ours instead (re-run https://elitza.life/install.sh).
-    // Set ELITZA_SELF_UPDATE=1 to exercise the updater during development, matching check().
-    if (process.env.ELITZA_SELF_UPDATE !== "1") {
-      yield* Effect.logInfo("update check skipped", {
-        reason: "elitza-installer",
-        version: OPENCODE_VERSION,
-        channel: OPENCODE_CHANNEL,
-      })
+    if (OPENCODE_LOCAL) {
+      yield* Effect.logInfo("update check skipped", { reason: "local-install", version: OPENCODE_VERSION })
       return undefined
     }
-    if (OPENCODE_LOCAL || ["1", "true"].includes(process.env.OPENCODE_DISABLE_AUTOUPDATE?.toLowerCase() ?? "")) {
-      yield* Effect.logInfo("update check skipped", {
-        reason: OPENCODE_LOCAL ? "local-install" : "disabled",
-        version: OPENCODE_VERSION,
-        channel: OPENCODE_CHANNEL,
-      })
+    if (["1", "true"].includes(process.env.ELITZA_DISABLE_AUTOUPDATE?.toLowerCase() ?? "")) {
+      yield* Effect.logInfo("update check skipped", { reason: "disabled", version: OPENCODE_VERSION })
       return undefined
     }
     const policy = yield* readPolicy()
@@ -623,15 +626,6 @@ const make = Effect.gen(function* () {
   })
 
   const check = Effect.fn("cli.updater.check")(function* () {
-    // Elitza: the built-in updater still speaks Elitza's update endpoints and
-    // would silently replace Elitza with stock Elitza. Updates go through our
-    // own release pipeline instead (re-run https://elitza.life/install.sh).
-    // Set ELITZA_SELF_UPDATE=1 to exercise the updater during development.
-    if (process.env.ELITZA_SELF_UPDATE !== "1")
-      return {
-        type: "unavailable" as const,
-        message: "In-app self-update is off. Update with: curl -fsSL https://elitza.life/install.sh | bash",
-      }
     if (OPENCODE_LOCAL)
       return {
         type: "unavailable" as const,
