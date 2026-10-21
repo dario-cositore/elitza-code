@@ -107,6 +107,31 @@ const SCHEMA = `
       topics TEXT DEFAULT '[]',
       key_moments TEXT DEFAULT '[]'
   );
+
+  CREATE TABLE IF NOT EXISTS task (
+      id TEXT NOT NULL,
+      session_id TEXT NOT NULL,
+      parent_task_id TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      summary TEXT NOT NULL,
+      owner TEXT,
+      created_at TEXT,
+      last_event_at TEXT,
+      ended_at TEXT,
+      cleanup_after TEXT,
+      PRIMARY KEY (session_id, id)
+  );
+
+  CREATE TABLE IF NOT EXISTS task_event (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      task_id TEXT NOT NULL,
+      at TEXT,
+      kind TEXT,
+      summary TEXT
+  );
+
+  CREATE INDEX IF NOT EXISTS task_event_task ON task_event (session_id, task_id);
 `
 
 let instance: Database | undefined

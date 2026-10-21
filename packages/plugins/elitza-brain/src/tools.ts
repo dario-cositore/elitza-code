@@ -25,13 +25,28 @@ import {
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
 import { runRemoteViewing } from "./remoteview.js"
+import {
+  abandonTask,
+  blockTask,
+  createTask,
+  describeTask,
+  doneTask,
+  listTasks,
+  renameTask,
+  startTask,
+  unblockTask,
+  type TaskStatus,
+} from "./tasks.js"
 
 // The promise-API tool shape: execute returns a Promise.
 export interface BrainToolInfo {
   name: string
   description: string
   input: { type: "object"; properties: Record<string, unknown>; required?: string[] }
-  execute: (input: Record<string, any>) => Promise<{ content: string }>
+  execute: (
+    input: Record<string, any>,
+    ctx?: { sessionID?: string },
+  ) => Promise<{ content: string }>
   options?: { codemode: boolean }
 }
 
@@ -259,6 +274,105 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
       description: "View health check history over the past week.",
       input: { type: "object", properties: {} },
       execute: async () => ({ content: doctorHistory(7) }),
+    },
+    {
+      name: "task",
+      description:
+        "Track multi-step work as tasks, so a job survives across turns and restarts. Use it whenever a request has three or more steps, or when you need to track progress on something already in flight. Operations: create (summary, optional parent_id), list (optional status, optional include_terminal), get (id), start (id), block (id, event_summary), unblock (id), done (id, event_summary), abandon (id, event_summary), rename (id, summary). Statuses move open -> in_progress, either -> blocked, blocked -> open, either -> done or abandoned. Ids are hierarchical: T1, T2, T1.1.",
+      input: {
+        type: "object",
+        properties: {
+          operation: {
+            type: "object",
+            description: "The task operation to perform.",
+            properties: {
+              action: {
+                type: "string",
+                enum: ["create", "list", "get", "start", "block", "unblock", "done", "abandon", "rename"],
+                description: "Which operation to run.",
+              },
+              id: {
+                type: "string",
+                description: "Task id, for every operation except create and list.",
+              },
+              summary: {
+                type: "string",
+                description: "What the task is, for create and rename.",
+              },
+              parent_id: {
+                type: "string",
+                description: "Parent task id, for create. Leave empty for a top-level task.",
+              },
+              event_summary: {
+                type: "string",
+                description: "A short note about what just happened, for start, block, unblock, done and abandon.",
+              },
+              status: {
+                type: "string",
+                enum: ["open", "in_progress", "blocked", "done", "abandoned", "all"],
+                description: "Filter for list.",
+              },
+              include_terminal: {
+                type: "boolean",
+                description: "For list: include finished tasks. They are hidden after a week.",
+              },
+            },
+            required: ["action"],
+          },
+        },
+        required: ["operation"],
+      },
+      execute: async (input, toolCtx) => {
+        const sessionID = toolCtx?.sessionID ?? "default"
+        const op = (input.operation ?? {}) as Record<string, any>
+        const action = String(op.action ?? "")
+        try {
+          switch (action) {
+            case "create": {
+              const task = createTask(sessionID, String(op.summary ?? ""), op.parent_id ?? null)
+              return { content: `Created ${task.id}: ${task.summary}` }
+            }
+            case "list": {
+              const tasks = listTasks(sessionID, {
+                status: op.status as TaskStatus | "all" | undefined,
+                includeTerminal: Boolean(op.include_terminal),
+              })
+              if (!tasks.length) return { content: "No tasks." }
+              return { content: tasks.map((t) => `${t.id} [${t.status}] ${t.summary}`).join("\n") }
+            }
+            case "get":
+              return { content: describeTask(sessionID, String(op.id ?? "")) }
+            case "start": {
+              const task = startTask(sessionID, String(op.id ?? ""), op.event_summary)
+              return { content: `Started ${task.id}: ${task.summary}` }
+            }
+            case "block": {
+              const task = blockTask(sessionID, String(op.id ?? ""), op.event_summary)
+              return { content: `Blocked ${task.id}: ${task.summary}` }
+            }
+            case "unblock": {
+              const task = unblockTask(sessionID, String(op.id ?? ""), op.event_summary)
+              return { content: `Unblocked ${task.id}: ${task.summary}` }
+            }
+            case "done": {
+              const task = doneTask(sessionID, String(op.id ?? ""), op.event_summary)
+              return { content: `Done ${task.id}: ${task.summary}` }
+            }
+            case "abandon": {
+              const task = abandonTask(sessionID, String(op.id ?? ""), op.event_summary)
+              return { content: `Abandoned ${task.id}: ${task.summary}` }
+            }
+            case "rename": {
+              const task = renameTask(sessionID, String(op.id ?? ""), String(op.summary ?? ""))
+              return { content: `Renamed ${task.id}: ${task.summary}` }
+            }
+            default:
+              return { content: `Unknown task action "${action}". Use one of: create, list, get, start, block, unblock, done, abandon, rename.` }
+          }
+        } catch (error) {
+          return { content: `Task error: ${String(error)}` }
+        }
+      },
     },
   ]
 

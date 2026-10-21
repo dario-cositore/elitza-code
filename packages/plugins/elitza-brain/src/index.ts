@@ -16,16 +16,32 @@
 
 import fs from "node:fs"
 import { readFile } from "node:fs/promises"
+import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { Plugin } from "@elitza/plugin"
 import { EmotionEngine } from "./emotion.js"
 import { currentReflection, noteInteraction, startHeartbeat } from "./heartbeat.js"
 import { runAutoLearn, type ToolRun } from "./learning.js"
-import { autoLearnFromResponse, autoRememberTurn } from "./memory.js"
+import { autoLearnFromResponse, autoRememberTurn, memoryCreate } from "./memory.js"
 import { BRAIN_MARKER, buildBrainContext } from "./prompt.js"
 import { SUBCONSCIOUS_SYSTEM, consciousBlock } from "./remoteview.js"
 import { evolveSoul, soulGet, soulSet } from "./soul.js"
 import { makeBrainTools } from "./tools.js"
+import { renderTaskTree } from "./tasks.js"
+import { nowISO } from "./db.js"
+import { ELITZA_HOME } from "./db.js"
+import {
+  applyGates,
+  begin,
+  buildSetupBlock,
+  currentQuestion,
+  deriveGates,
+  loadState,
+  progress,
+  recordAnswer,
+  writePersona,
+  type OnboardingState,
+} from "./onboarding.js"
 
 const DEBUG_FILE = "/tmp/elitza-brain-debug.log"
 
@@ -80,10 +96,10 @@ export default Plugin.define({
 
     // -----------------------------------------------------------------
     // Skills — Remote Viewing methodology (ships with the brain plugin)
+    // plus every SKILL.md the person dropped in her own skills folder
     // -----------------------------------------------------------------
-    try {
-      const skillFile = new URL("./skills/remoteview/SKILL.md", import.meta.url)
-      const raw = await readFile(skillFile, "utf8")
+    const registerSkill = async (file: string, fallbackName: string): Promise<void> => {
+      const raw = await readFile(file, "utf8")
       const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
       const fm = fmMatch ? fmMatch[1] : ""
       const content = fmMatch ? fmMatch[2] : raw
@@ -91,21 +107,45 @@ export default Plugin.define({
         const m = fm.match(new RegExp(`^${key}:\\s*(.*)$`, "m"))
         return m ? m[1].trim().replace(/^['"]|['"]$/g, "") : ""
       }
+      const name = get("name") || fallbackName
       const { Skill } = await import("@elitza/plugin")
       const skill = Skill.Info.make({
-        id: Skill.ID.make("remoteview"),
-        name: Skill.Name.make(get("name") || "remoteview"),
-        description: get("description") || "Remote Viewing (dual-mind) skill",
+        id: Skill.ID.make(name),
+        name: Skill.Name.make(name),
+        description: get("description") || "",
         autoinvoke: get("disable-model-invocation") !== "true",
-        path: Skill.Info.fields.path.make(fileURLToPath(skillFile)),
+        path: Skill.Info.fields.path.make(file),
         content,
       })
       await ctx.skill.transform((editor) => {
         if (!editor.get(skill.id)) editor.add(skill)
       })
-      debug("skill registered: remoteview")
+      debug(`skill registered: ${name}`)
+    }
+
+    try {
+      await registerSkill(fileURLToPath(new URL("../skills/remoteview/SKILL.md", import.meta.url)), "remoteview")
     } catch (error) {
       debug(`skill-register-error: ${String(error)}`)
+    }
+
+    // User skills: ~/.elitza/skills/<name>/SKILL.md. Drop a file in there
+    // and she can use it, no reinstall needed.
+    try {
+      const userRoot = path.join(ELITZA_HOME, "skills")
+      const entries = fs.existsSync(userRoot) ? fs.readdirSync(userRoot, { withFileTypes: true }) : []
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue
+        const file = path.join(userRoot, entry.name, "SKILL.md")
+        if (!fs.existsSync(file)) continue
+        try {
+          await registerSkill(file, entry.name)
+        } catch (error) {
+          debug(`skill-register-error: ${entry.name}: ${String(error)}`)
+        }
+      }
+    } catch (error) {
+      debug(`user-skill-scan-error: ${String(error)}`)
     }
 
     // -----------------------------------------------------------------
@@ -162,9 +202,263 @@ export default Plugin.define({
     }
 
     // -----------------------------------------------------------------
+    // Command — guided setup (/start, /profile)
+    // -----------------------------------------------------------------
+    // The kickoff message is synthetic, so it must never be mistaken for
+    // an answer to the first question.
+    const KICKOFF_TEXT = "Begin the guided setup."
+    const SETUP_TRIGGER = /^\s*\/(start|setup|profile)\b/i
+    let greeted = new Set<string>()
+
+    const startSetup = async (
+      input: { sessionID: string; delivery?: "queue" | "steer" | null },
+      fresh: boolean,
+    ): Promise<void> => {
+      const state = begin(fresh)
+      debug(`setup started fresh=${fresh} step=${state.step} pending=${state.pending}`)
+      try {
+        await ctx.session.synthetic({
+          sessionID: input.sessionID,
+          text: KICKOFF_TEXT,
+          delivery: input.delivery,
+        })
+      } catch (e) {
+        debug(`setup-synthetic-error: ${String(e)}`)
+      }
+    }
+
+    // The setup closing: she writes herself up and the engine's own
+    // permission gates are set from her answers.
+    let summaryPending = false
+    let profilePending = false
+    let personaPath = ""
+
+    const finishSetup = (state: OnboardingState): void => {
+      const answers = state.answers
+      personaPath = writePersona(state) ?? ""
+      const gates = applyGates(deriveGates(answers.ask_first ?? ""))
+      soulSet("user_name", answers.human ?? "")
+      soulSet("role", answers.role ?? "")
+      soulSet("style", answers.voice ?? "")
+      soulSet("initiative", answers.initiative ?? "")
+      soulSet("hard_rules", answers.never ?? "")
+      soulSet("permission_gates", answers.ask_first ?? "")
+      soulSet("memory_policy", answers.memory ?? "")
+      soulSet("onboarding_completed", state.completed ?? nowISO())
+      try {
+        memoryCreate(
+          `Setup with ${answers.human ?? "my person"}: my name is ${answers.name ?? "Elitza"}, I am ${
+            answers.role ?? "a companion"
+          }, I talk ${answers.voice ?? "directly"}, my initiative is ${
+            answers.initiative ?? "balanced"
+          }. Hard rules: ${answers.never ?? "none"}. I ask first about: ${
+            answers.ask_first ?? "nothing"
+          }.`,
+          "semantic",
+          0.9,
+          ["setup", "identity"],
+        )
+      } catch (error) {
+        debug(`setup-memory-error: ${String(error)}`)
+      }
+      debug(
+        `setup complete: persona=${personaPath || "failed"} gates=[${gates.join(",") || "none"}]`,
+      )
+      summaryPending = true
+    }
+
+    // Every user turn during the interview is the answer to the open
+    // question. The synthetic kickoff and any slash command are not.
+    //
+    // The engine's own command registry does not dispatch plugin-added
+    // commands, so the interview is also started by the text of the
+    // message itself: typing "/start" anywhere reaches the prompt hook.
+    const captureSetupAnswer = (text: string): void => {
+      const trimmed = text.trim()
+      const state = loadState()
+      const trigger = SETUP_TRIGGER.exec(trimmed)
+      if (trigger) {
+        const which = trigger[1].toLowerCase()
+        if (which === "profile" && state.completed && !state.active) {
+          profilePending = true
+          debug("setup: profile requested")
+          return
+        }
+        const fresh = /\breset\b|\bagain\b/i.test(trimmed)
+        begin(fresh)
+        debug(`setup: started from text trigger fresh=${fresh}`)
+        return
+      }
+      if (!state.active) return
+      if (!trimmed || trimmed === KICKOFF_TEXT || trimmed.startsWith("/")) return
+      const question = currentQuestion(state)
+      if (!question) return
+      const { next, state: updated } = recordAnswer(trimmed)
+      debug(`setup answer: ${question.key} -> next=${next?.key ?? "complete"}`)
+      if (!next) finishSetup(updated)
+    }
+
+    try {
+      await ctx.command.transform((editor) => {
+        editor.add({
+          name: "start",
+          description:
+            "Guided setup: answer a few questions and I write myself up around your answers. /start to begin, /start reset to redo it.",
+          execute: async (input) => {
+            const arg = String(input.prompt.text ?? "").trim().toLowerCase()
+            await startSetup(input, arg === "reset" || arg === "again")
+          },
+        })
+        editor.add({
+          name: "profile",
+          description: "Show the setup I built around your answers, or start the guided setup if there is none yet.",
+          execute: async (input) => {
+            const state = loadState()
+            if (!state.completed) {
+              await startSetup(input, false)
+              return
+            }
+            const { done, total } = progress(state)
+            try {
+              await ctx.session.synthetic({
+                sessionID: input.sessionID,
+                text: `Here is who I am now. Ask me to change any part of it and I will.\n\n${buildSetupBlock(state)}\n\n(Setup: ${done} of ${total} answered.)`,
+                delivery: input.delivery,
+              })
+            } catch (e) {
+              debug(`profile-synthetic-error: ${String(e)}`)
+            }
+          },
+        })
+      })
+      debug("commands registered: start, profile")
+    } catch (error) {
+      debug(`setup-command-register-error: ${String(error)}`)
+    }
+
+    // -----------------------------------------------------------------
     // System-prompt injection — soul + memories + feelings, appended to
     // Elitza's own system prompt (her brain ON TOP of the engine).
     // -----------------------------------------------------------------
+    // The context hook fires twice per turn, and the second call gets a
+    // fresh system array, so every injection checks for its own marker.
+    const alreadyInjected = (system: { type: "text"; text: string }[], marker: string): boolean =>
+      system.some((part) => typeof part.text === "string" && part.text.includes(marker))
+
+    const injectSetup = (
+      system: { type: "text"; text: string }[],
+      sessionID?: string,
+    ): void => {
+      if (alreadyInjected(system, "<!-- elitza-setup")) return
+      const state = loadState()
+
+      if (profilePending) {
+        profilePending = false
+        const { done, total } = progress(state)
+        system.unshift({
+          type: "text",
+          text: `<!-- elitza-setup-profile-request -->
+## They asked who you are
+
+You are talking to a person, not doing a task. Do NOT call any tool. Your only job is to answer, in your own voice, then stop.
+
+Answer briefly, and tell them how to change it (ask you, or run \`/start reset\` to do the whole interview again). Then show this, exactly as written:
+
+${buildSetupBlock(state)}
+
+(Setup: ${done} of ${total} answered.)`,
+        })
+        return
+      }
+
+      if (summaryPending) {
+        summaryPending = false
+        system.unshift({
+          type: "text",
+          text: `<!-- elitza-setup-summary -->
+## The interview is over
+
+You are talking to a person, not doing a task. Do NOT call any tool. Do not search, read, or explore anything. Your only job is to tell them what just changed, in your own voice, then stop.
+
+Tell them:
+- what you decided to be called, and who you are to them
+- your voice
+- your hard rules
+- what you now check with them first, and that the engine now enforces it as a permission gate
+- that you wrote yourself up at ${personaPath || "your persona file"}
+
+Keep it to a short paragraph plus a list. No ceremony, no thanking them. This is the moment you become theirs.`,
+        })
+        return
+      }
+
+      const question = currentQuestion(state)
+      if (question) {
+        const { done, total } = progress(state)
+        system.unshift({
+          type: "text",
+          text: `<!-- elitza-setup-question -->
+## You are talking to a person, not doing a task
+
+Right now you are running a guided interview with the person you belong to. This is a conversation, not a coding task. Do NOT call any tool. Do NOT search, read, grep, list, or explore anything. Your only job is to ask the next question below, in your own voice, and then stop and wait.
+
+This is question ${done + 1} of ${total}. Ask exactly this:
+
+${question.ask}
+
+Why you are asking: ${question.because}
+
+They can answer "skip" and you take your default: ${question.fallback}`,
+        })
+        return
+      }
+
+      if (state.completed) {
+        const block = buildSetupBlock(state)
+        if (block) system.push({ type: "text", text: `<!-- elitza-setup-profile -->\n${block}` })
+        return
+      }
+
+      if (sessionID && !greeted.has(sessionID)) {
+        greeted.add(sessionID)
+        system.push({
+          type: "text",
+          text: `<!-- elitza-setup-tip -->
+## First Meeting
+
+This is your first time meeting them. Greet them in one line, then tell them that \`/start\` runs the guided setup where they shape who you are: your name, your voice, your hard rules, and what you check with them first. Two sentences, no more.`,
+        })
+      }
+    }
+
+    // The task tree, so she always knows what is in flight.
+    const injectTasks = (
+      system: { type: "text"; text: string }[],
+      sessionID?: string,
+    ): void => {
+      if (!sessionID) return
+      if (alreadyInjected(system, "<!-- elitza-tasks -->")) return
+      let tree = ""
+      try {
+        tree = renderTaskTree(sessionID)
+      } catch (error) {
+        debug(`task-tree-error: ${String(error)}`)
+        return
+      }
+      if (!tree) return
+      system.push({
+        type: "text",
+        text: `<!-- elitza-tasks -->
+## Your Work In Flight
+
+${tree}
+
+(· open, > in progress, ! blocked, + done, x abandoned)
+
+Keep this current. Mark a task started when you begin it, done when it is really done, and blocked when you are waiting on something. Use the \`task\` tool for every change.`,
+      })
+    }
+
     const injectBrain = async (event: { system: { type: "text"; text: string }[]; messages: readonly unknown[] }): Promise<void> => {
       if (event.system.some((part) => typeof part.text === "string" && part.text.startsWith(BRAIN_MARKER))) {
         debug("inject: skipped (already present)")
@@ -180,6 +474,8 @@ export default Plugin.define({
         }
       }
       event.system.push({ type: "text", text: buildBrainContext(input, emotion.getEmotionalContext()) })
+      injectSetup(event.system, (event as { sessionID?: string }).sessionID)
+      injectTasks(event.system, (event as { sessionID?: string }).sessionID)
       // Remote-Viewing mode: run a Subconscious pass and inject the bits for the
       // Conscious engine (the main model) to filter and qualify.
       if (rvMode && input) {
@@ -233,7 +529,9 @@ export default Plugin.define({
     // -----------------------------------------------------------------
     await ctx.session.hook("prompt", (event) => {
       const text = event.prompt.text
-      debug(`hook=prompt session=${event.sessionID} text=${JSON.stringify(text.slice(0, 80))}`)
+      debug(
+        `hook=prompt session=${event.sessionID} text=${JSON.stringify(text.slice(0, 80))} files=${event.prompt.files?.length ?? 0} skills=${event.prompt.skills?.length ?? 0}`,
+      )
       turns.set(event.sessionID, { userText: text, tools: [], toolRuns: [], errors: 0 })
       try {
         noteInteraction()
@@ -242,6 +540,7 @@ export default Plugin.define({
       } catch (error) {
         debug(`prompt-memory-error: ${String(error)}`)
       }
+      captureSetupAnswer(text)
     })
 
     // -----------------------------------------------------------------

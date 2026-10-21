@@ -197,6 +197,14 @@ ${AUTONOMY_BLOCK}`)
   return parts.join("\n\n")
 }
 
+/** How she tracks multi-step work. */
+const TASK_RULES = `## How You Work
+
+- When something needs three or more steps, or spans more than one turn, make a task for it with the \`task\` tool before you start, and keep it current as you go.
+- One task is one outcome. Sub-steps become child tasks, not a paragraph crammed into the summary.
+- Mark a task started when you begin it, done when it is genuinely done, blocked when you are waiting on something you cannot get yourself.
+- Do not mark something done because you stopped working on it. Abandon it instead, and say why.`
+
 /**
  * The block this plugin appends to the agent's system prompt per request:
  * soul → memories/personality → feelings → time → autonomy.
@@ -208,6 +216,7 @@ export function buildBrainContext(currentInput: string, emotion: EmotionalContex
     buildFullContext(currentInput),
     feelingsBlock(emotion),
     timeBlock(),
+    TASK_RULES,
     TALKING_RULES,
     AUTONOMY_BLOCK,
   ]
