@@ -4,6 +4,14 @@ import { redactedErrorRequest } from "../src/http/recorder"
 import { make, redactHeaders, redactUrl } from "../src/redaction/redactor"
 import { secretFindings } from "../src/redaction/secrets"
 
+// A Google-shaped key, assembled at runtime. The value still matches the
+// detector's pattern, so the test exercises the real thing, but no literal
+// in this file looks like a credential: GitHub's secret scanning treats any
+// AIza-prefixed string in a public repository as a live key and blocks the
+// push. The literal that used to be here was a real key, and it was public
+// for five days before this was noticed.
+const FAKE_GOOGLE_KEY = ["AIza", "0".repeat(35)].join("")
+
 describe("redaction", () => {
   test("redacts sensitive URL query parameters", () => {
     expect(
@@ -77,7 +85,7 @@ describe("redaction", () => {
               url: "https://example.test/path?key=sk-123456789012345678901234",
               headers: {},
               body: JSON.stringify({
-                nested: "REMOVED-LEAKED-CREDENTIAL",
+                nested: FAKE_GOOGLE_KEY,
               }),
             },
             response: {
