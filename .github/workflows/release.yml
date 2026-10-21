@@ -13,7 +13,11 @@ env:
   OPENCODE_CHANNEL: latest
 
 jobs:
-  build:
+  # Linux and macOS are separate jobs on purpose. GitHub allocates macOS
+  # runners on a much smaller pool, and a single matrix that mixes them makes
+  # the whole release wait for macOS, sometimes for hours. Linux publishes the
+  # release first and macOS adds its assets when a runner shows up.
+  build-linux:
     name: build (${{ matrix.settings.name }})
     strategy:
       fail-fast: false
@@ -26,14 +30,6 @@ jobs:
           - name: linux-arm64
             host: ubuntu-latest
             target: elitza-linux-arm64
-            smoke: false
-          - name: darwin-arm64
-            host: macos-latest
-            target: elitza-darwin-arm64
-            smoke: true
-          - name: darwin-x64
-            host: macos-latest
-            target: elitza-darwin-x64
             smoke: false
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -71,14 +67,64 @@ jobs:
           path: packages/cli/${{ matrix.settings.target }}.tar.gz
           if-no-files-found: error
 
+  build-mac:
+    name: build (${{ matrix.settings.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - name: darwin-arm64
+            host: macos-latest
+            target: elitza-darwin-arm64
+            smoke: true
+          - name: darwin-x64
+            host: macos-latest
+            target: elitza-darwin-x64
+            smoke: false
+    runs-on: ${{ matrix.settings.host }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup Bun
+        uses: ./.github/actions/setup-bun
+
+      - name: Build
+        working-directory: packages/cli
+        env:
+          OPENCODE_VERSION: ${{ github.ref_name }}
+        run: OPENCODE_VERSION="${OPENCODE_VERSION#v}" bun script/build.ts --target=${{ matrix.settings.target }} --outdir=dist
+
+      - name: Smoke test
+        if: matrix.settings.smoke
+        working-directory: packages/cli
+        run: ./dist/cli-*/bin/elitza --version
+
+      - name: Package
+        working-directory: packages/cli
+        run: |
+          mkdir -p bundle
+          cp dist/cli-*/bin/elitza bundle/elitza
+          cp -R ../../packages/plugins/elitza-brain bundle/elitza-brain
+          rm -rf bundle/elitza-brain/node_modules bundle/elitza-brain/script bundle/elitza-brain/tsconfig.json bundle/elitza-brain/.turbo bundle/elitza-brain/dist
+          tar -czf ${{ matrix.settings.target }}.tar.gz -C bundle .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.settings.target }}
+          path: packages/cli/${{ matrix.settings.target }}.tar.gz
+          if-no-files-found: error
+
   release:
     name: publish release
-    needs: build
+    needs: build-linux
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
+          pattern: elitza-linux-*
           merge-multiple: true
 
       - name: Create GitHub release
@@ -92,4 +138,28 @@ jobs:
             gh release create "$GITHUB_REF_NAME" elitza-*.tar.gz -R "$GITHUB_REPOSITORY" \
               --title "Elitza $GITHUB_REF_NAME" \
               --notes "Install: curl -fsSL https://elitza.life/install.sh | bash — free models, bring your own key (https://openrouter.ai/keys)"
+          fi
+
+  release-mac:
+    name: add macOS assets
+    needs: build-mac
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: elitza-darwin-*
+          merge-multiple: true
+
+      - name: Add macOS assets to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "The release for $GITHUB_REF_NAME does not exist yet, creating it with the macOS assets."
+            gh release create "$GITHUB_REF_NAME" elitza-*.tar.gz -R "$GITHUB_REPOSITORY" \
+              --title "Elitza $GITHUB_REF_NAME" \
+              --notes "Install: curl -fsSL https://elitza.life/install.sh | bash — free models, bring your own key (https://openrouter.ai/keys)"
+          else
+            gh release upload "$GITHUB_REF_NAME" elitza-*.tar.gz -R "$GITHUB_REPOSITORY" --clobber
           fi
