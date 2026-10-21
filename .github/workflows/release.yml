@@ -92,3 +92,7 @@ jobs:
               --title "Elitza $GITHUB_REF_NAME" --notes "$NOTES" \
             || gh release upload "$GITHUB_REF_NAME" ${{ matrix.settings.target }}.tar.gz -R "$GITHUB_REPOSITORY" --clobber
           fi
+          # gh can leave a release it created as a draft, which hides it from
+          # /releases/latest and from the installer, so publish it explicitly.
+          gh release edit "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --draft=false || true
+          gh release edit "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --latest || true
