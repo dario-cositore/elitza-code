@@ -483,6 +483,46 @@ delete process.env.RESEND_URL
 delete process.env.RESEND_API_KEY
 delete process.env.RESEND_FROM
 
+// --- disposition: verdicts stop the cadence and route the client -------------
+await crmOp({ action: "add", name: "Pizzeria Bianca", vertical: "food", status: "scouted" })
+await outreachOp({ action: "add", client_id: 2 })
+const saidYes = await outreachOp({ action: "dispose", id: 2, verdict: "yes", note: "asked for a pilot" })
+assert.ok(saidYes.content.includes("client 2 → diagnose"), "yes moves the client into production")
+const yesClient = JSON.parse((await crmOp({ action: "get", id: 2 })).content) as { status: string }
+assert.equal(yesClient.status, "diagnose", "production starts at diagnose")
+const yesRow = listPipeline().find((r) => r.id === 2)!
+assert.equal(yesRow.stage, "yes", "the verdict is kept on the pipeline row")
+assert.equal(yesRow.next_touch_at, null, "no verdict ever leaves a follow-up scheduled")
+assert.equal(yesRow.approved, 0, "no verdict ever leaves a draft approved")
+await outreachOp({ action: "dispose", id: 1, verdict: "no", note: "not now" })
+const noClient = JSON.parse((await crmOp({ action: "get", id: 1 })).content) as { status: string }
+assert.equal(noClient.status, "stale", "a no moves the client to the stale list")
+assert.ok(
+  (await crmOp({ action: "search", status: "stale" })).content.includes("Studio Rossi"),
+  "the stale list is queryable for nurture",
+)
+const badVerdict = await outreachOp({ action: "dispose", id: 1, verdict: "maybe" })
+assert.ok(badVerdict.content.includes("Unknown verdict"), "unknown verdict refused")
+
+await crmOp({ action: "add", name: "Studio Verdi", status: "scouted" })
+await crmOp({ action: "update", id: 3, email: "verdi@example.test" })
+await outreachOp({ action: "add", client_id: 3 })
+const sweepConn = new Database(`${home}/brain/crm.db`)
+sweepConn.run("UPDATE pipeline SET touch = 4, stage = 'followup_3', next_touch_at = NULL WHERE id = 3")
+sweepConn.run("UPDATE clients SET status = 'followup_3' WHERE id = 3")
+sweepConn.close()
+const swept = await outreachOp({ action: "sweep" })
+assert.ok(swept.content.includes("Moved 1 client"), "four silent touches close the cadence")
+const silentRow = listPipeline().find((r) => r.id === 3)!
+assert.equal(silentRow.stage, "stale", "exhausted row marked stale")
+const silentClient = JSON.parse((await crmOp({ action: "get", id: 3 })).content) as { status: string }
+assert.equal(silentClient.status, "stale", "exhausted client moved to the stale list")
+assert.ok(
+  (await crmOp({ action: "interactions", id: 3 })).content.includes("cadence_exhausted"),
+  "the silent end is recorded as an interaction",
+)
+assert.ok((await outreachOp({ action: "sweep" })).content.includes("No silent cadence"), "sweep is idempotent")
+
 // --- guided setup: MiMo-only provider wiring --------------------------------
 const onboarding = await import("../src/onboarding.js")
 const setupAnswers: [string, string][] = [

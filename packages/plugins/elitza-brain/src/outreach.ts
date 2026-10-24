@@ -417,3 +417,95 @@ function followupCopy(pipelineRow: OutreachRow, business: string): { subject: st
     ? { subject: `Re: ${topic}`, body: line }
     : { subject: `${business}: still worth a conversation?`, body: line }
 }
+
+// ---------------------------------------------------------------------------
+// Disposition (Task F)
+// ---------------------------------------------------------------------------
+
+/** What a conversation ends as: interested, rejected, or silent. */
+export type Verdict = "yes" | "no" | "stale"
+
+/** Where the client lives afterwards: production, or the nurture list. */
+const VERDICT_CLIENT_STATUS: Record<Verdict, string> = {
+  yes: "diagnose",
+  no: "stale",
+  stale: "stale",
+}
+
+/**
+ * Close a conversation. Every verdict stops the cadence the same way —
+ * next touch cancelled, nothing left approved, any waiting draft de-queued —
+ * and the client is moved: `yes` enters the work production pipeline at
+ * `diagnose`, `no` and `stale` both land in the stale list that feeds the
+ * newsletter and nurture. The verdict itself is kept on the pipeline row.
+ */
+export function dispose(
+  id: number,
+  verdict: string,
+  note?: string,
+): { row: OutreachRow; client_status: string } {
+  const pipelineRow = getPipelineRow(id)
+  if (!pipelineRow) throw new Error(`No pipeline row with id ${id}.`)
+  const clientStatus = VERDICT_CLIENT_STATUS[verdict as Verdict]
+  if (!clientStatus) throw new Error(`Unknown verdict "${verdict}". Use yes, no or stale.`)
+
+  const now = nowISO()
+  crmDb().run(
+    `UPDATE pipeline SET stage = ?, next_touch_at = NULL, approved = 0, queued_touch = 0, updated_at = ?
+     WHERE id = ?`,
+    [verdict, now, id],
+  )
+  updateClient(pipelineRow.client_id, { status: clientStatus })
+  logInteraction(pipelineRow.client_id, {
+    kind: "disposition",
+    direction: "in",
+    channel: "note",
+    status: verdict,
+    subject: `disposition: ${verdict}`,
+    body: note ?? "",
+    occurred_at: now,
+  })
+  return { row: getPipelineRow(id) ?? pipelineRow, client_status: clientStatus }
+}
+
+/**
+ * The silent end of the cadence: four touches went out, nothing came back,
+ * so the row joins the stale list. Runs from the same heartbeat pass as the
+ * scheduler, and on demand. Rows already disposed are left alone.
+ */
+export function sweepExhausted(now = nowISO()): OutreachRow[] {
+  const exhausted = rows<OutreachRow>(
+    `SELECT * FROM pipeline
+       WHERE touch >= 4
+         AND next_touch_at IS NULL
+         AND stage NOT IN (${TERMINAL_STAGES.map(() => "?").join(",")})
+       ORDER BY id`,
+    TERMINAL_STAGES,
+  )
+  for (const pipelineRow of exhausted) {
+    crmDb().run(
+      "UPDATE pipeline SET stage = 'stale', approved = 0, queued_touch = 0, updated_at = ? WHERE id = ?",
+      [now, pipelineRow.id],
+    )
+    updateClient(pipelineRow.client_id, { status: "stale" })
+    logInteraction(pipelineRow.client_id, {
+      kind: "cadence_exhausted",
+      direction: "note",
+      channel: "note",
+      status: "stale",
+      subject: "4 touches, no reply",
+      occurred_at: now,
+    })
+    debugSweep(pipelineRow.id)
+  }
+  return exhausted
+}
+
+function debugSweep(id: number): void {
+  if (!process.env.ELITZA_BRAIN_DEBUG) return
+  try {
+    fs.appendFileSync("/tmp/elitza-brain-debug.log", `${new Date().toISOString()} outreach: sweep ${id} -> stale\n`)
+  } catch {
+    // Logging is best-effort.
+  }
+}

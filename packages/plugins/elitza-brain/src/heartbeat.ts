@@ -33,7 +33,8 @@
  *           that is due (+3 / +7 / +14 days after the last one) as a file
  *           waiting for the same batch review. Drafts only — approval and
  *           sending stay the human's call, and a row already holding a
- *           waiting draft is left alone.
+ *           waiting draft is left alone. A cadence that ran all four touches
+ *           in silence moves that client to the stale list (Task F).
  *
  * Everything here is best-effort. A tick that throws is logged and swallowed
  * — it must never take down the host process. Config:
@@ -49,7 +50,7 @@
 import fs from "node:fs"
 import { consolidate, getMetamemory, pruneAll, recall } from "./memory.js"
 import { pollPipeline } from "./pipeline.js"
-import { queueFollowups } from "./outreach.js"
+import { queueFollowups, sweepExhausted } from "./outreach.js"
 import { soulGet, soulSet } from "./soul.js"
 import type { EmotionEngine } from "./emotion.js"
 
@@ -186,12 +187,14 @@ export function startHeartbeat(emotion: EmotionEngine, cadenceMs?: number): Hear
       })
       .catch((error) => debug(`poll-error: ${String(error)}`))
 
-    // CADENCE — follow-ups due now -> draft files for the next batch review.
+    // CADENCE — follow-ups due now -> draft files for the next batch review,
+    // and four silent touches -> the stale list (Task F).
     if (process.env.ELITZA_FOLLOWUPS !== "0") {
       try {
         const queued = queueFollowups()
-        if (queued.queued.length || queued.skipped.length) {
-          debug(`cadence queued=${queued.queued.length} skipped=${queued.skipped.length}`)
+        const swept = sweepExhausted()
+        if (queued.queued.length || queued.skipped.length || swept.length) {
+          debug(`cadence queued=${queued.queued.length} skipped=${queued.skipped.length} swept=${swept.length}`)
         }
       } catch (error) {
         debug(`cadence-error: ${String(error)}`)

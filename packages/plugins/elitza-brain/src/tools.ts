@@ -36,7 +36,17 @@ import {
   type ClientPatch,
 } from "./crm.js"
 import { scoutBusinesses, scoutKeyPresent, discoverEmail } from "./scouting.js"
-import { addToPipeline, approveDrafts, listDue, listPipeline, queueFollowups, sendApproved, writeDraft } from "./outreach.js"
+import {
+  addToPipeline,
+  approveDrafts,
+  dispose,
+  listDue,
+  listPipeline,
+  queueFollowups,
+  sendApproved,
+  sweepExhausted,
+  writeDraft,
+} from "./outreach.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
 import { runRemoteViewing } from "./remoteview.js"
@@ -600,7 +610,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
     {
       name: "outreach",
       description:
-        "Run the email outreach pipeline (Resend, batch approval). Operations: add (client_id — push a CRM client in at stage scouted), list (stage, limit), draft (client_id, subject, body — writes a reviewable file to ~/.elitza/pipeline/<date>/ with the opt-out footer; nothing is sent), approve (ids — mark drafts approved after a human read of the files), send (ids — send only approved drafts, then move the client to contacted/followup_1/2/3, set last_contact and schedule the next touch at +3/+7/+14 days), due (list follow-ups whose day has come), queue (draft every due follow-up now — what the heartbeat does each tick). Sending needs RESEND_API_KEY and RESEND_FROM in the mode-600 .env.",
+        "Run the email outreach pipeline (Resend, batch approval). Operations: add (client_id — push a CRM client in at stage scouted), list (stage, limit), draft (client_id, subject, body — writes a reviewable file to ~/.elitza/pipeline/<date>/ with the opt-out footer; nothing is sent), approve (ids — mark drafts approved after a human read of the files), send (ids — send only approved drafts, then move the client to contacted/followup_1/2/3, set last_contact and schedule the next touch at +3/+7/+14 days), due (list follow-ups whose day has come), queue (draft every due follow-up now — what the heartbeat does each tick), dispose (id, verdict yes|no|stale, note — stops the cadence dead and moves the client: yes to production, no and stale to the nurture list), sweep (close cadences that ran all four touches in silence). Sending needs RESEND_API_KEY and RESEND_FROM in the mode-600 .env.",
       input: {
         type: "object",
         properties: {
@@ -610,7 +620,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
             properties: {
               action: {
                 type: "string",
-                enum: ["add", "list", "draft", "approve", "send", "due", "queue"],
+                enum: ["add", "list", "draft", "approve", "send", "due", "queue", "dispose", "sweep"],
                 description: "Which operation to run.",
               },
               client_id: { type: "integer", description: "Client id, for add and draft." },
@@ -626,6 +636,12 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
                 type: "string",
                 description: "Email body in your voice: short, concrete, no marketing fluff, one ask. The opt-out footer is appended automatically.",
               },
+              verdict: {
+                type: "string",
+                enum: ["yes", "no", "stale"],
+                description: "Disposition: yes moves the client into production (diagnose), no and stale both move it to the stale list.",
+              },
+              note: { type: "string", description: "Why, recorded as an interaction with the disposition." },
             },
             required: ["action"],
           },
@@ -715,9 +731,26 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
                   .join("\n"),
               }
             }
+            case "dispose": {
+              const result = dispose(Number(op.id), String(op.verdict ?? ""), op.note !== undefined ? String(op.note) : undefined)
+              return {
+                content: `Disposed pipeline ${op.id} as ${result.row.stage}: cadence stopped, nothing left approved to send, client ${result.row.client_id} → ${result.client_status}.`,
+              }
+            }
+            case "sweep": {
+              const swept = sweepExhausted()
+              if (!swept.length) {
+                return { content: "No silent cadence to close — nothing has run all four touches without a reply." }
+              }
+              return {
+                content: `Moved ${swept.length} client(s) to stale after four silent touches: ${swept
+                  .map((r) => r.id)
+                  .join(", ")}. They stay in the CRM for newsletter and nurture.`,
+              }
+            }
             default:
               return {
-                content: `Unknown outreach action "${action}". Use one of: add, list, draft, approve, send, due, queue.`,
+                content: `Unknown outreach action "${action}". Use one of: add, list, draft, approve, send, due, queue, dispose, sweep.`,
               }
           }
         } catch (error) {
