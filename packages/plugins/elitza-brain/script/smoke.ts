@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 23, "twenty-three brain tools")
+assert.equal(tools.length, 24, "twenty-four brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -250,6 +250,7 @@ const expected = [
   "gapfeed_build_pipeline",
   "gapfeed_query_signals",
   "outreach",
+  "playbook",
   "production",
   "task",
 ]
@@ -578,6 +579,37 @@ assert.ok(
 assert.ok(
   (await prodOp({ action: "record_payment", id: 2, amount: 100 })).content.includes("already in the done queue"),
   "a closed case refuses new work steps",
+)
+
+// --- knowledge base: curated playbooks seed once, operator edits win --------
+const { ensureKnowledge, readPlaybook } = await import("../src/knowledge.js")
+const { listProceduralSkills } = await import("../src/memory.js")
+assert.equal(ensureKnowledge().length, 6, "six curated playbooks seeded on first run")
+assert.ok(
+  fs.existsSync(`${home}/brain/procedural/ai-enablement-diagnosis.md`),
+  "playbook lands in the procedural folder",
+)
+assert.equal(ensureKnowledge().length, 0, "a second seed never overwrites")
+fs.appendFileSync(`${home}/brain/procedural/payment-terms.md`, "\nOperator edit.\n")
+ensureKnowledge()
+assert.ok(readPlaybook("payment-terms")?.includes("Operator edit"), "operator edits survive reseeding")
+assert.equal(readPlaybook("../../soul"), null, "playbook names cannot leave the folder")
+const parsed = listProceduralSkills().find((skill) => skill.name === "workbook-library")
+assert.ok(parsed?.description.includes("workbook"), "the existing procedural parser reads the description line")
+
+const playbookTool = tools.find((t) => t.name === "playbook")
+assert.ok(playbookTool, "playbook registered")
+const playbookList = await playbookTool!.execute({ operation: { action: "list" } })
+assert.ok(playbookList.content.includes("discovery-call-script"), "playbook list shows the library")
+const playbookRead = await playbookTool!.execute({
+  operation: { action: "read", name: "fixed-scope-proposal" },
+})
+assert.ok(playbookRead.content.includes("EUR 2,500"), "playbook read returns the template text")
+assert.ok(
+  (await playbookTool!.execute({ operation: { action: "read", name: "nope" } })).content.includes(
+    "No playbook named",
+  ),
+  "unknown playbook explained",
 )
 
 // --- guided setup: MiMo-only provider wiring --------------------------------

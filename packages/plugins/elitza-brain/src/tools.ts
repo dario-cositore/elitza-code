@@ -14,8 +14,10 @@ import { doctorCheck, doctorHistory, doctorRepair } from "./doctor.js"
 
 import { configSection, validateConfig } from "./configview.js"
 import { getLearningStats } from "./learning.js"
+import { ensureKnowledge, readPlaybook } from "./knowledge.js"
 import {
   getMetamemory,
+  listProceduralSkills,
   memoryConsolidate,
   memoryCreate,
   memoryForget,
@@ -763,6 +765,60 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
           }
         } catch (error) {
           return { content: `Outreach error: ${String(error)}` }
+        }
+      },
+    },
+    {
+      name: "playbook",
+      description:
+        "Read the AI Enablement knowledge base — the curated playbooks that say how a case is actually run: diagnosis checklist, fixed-scope proposal, workbook library, discovery call script, payment terms, client handover. Operations: list (what exists, one line each), read (name — full text exactly as it is on disk, including operator edits), seed (write any missing curated playbook; never overwrites an edited one). Reach for the playbook before doing the work it covers.",
+      input: {
+        type: "object",
+        properties: {
+          operation: {
+            type: "object",
+            description: "The knowledge base operation to perform.",
+            properties: {
+              action: { type: "string", enum: ["list", "read", "seed"], description: "Which operation to run." },
+              name: {
+                type: "string",
+                description: "Playbook name without .md, for read — e.g. ai-enablement-diagnosis.",
+              },
+            },
+            required: ["action"],
+          },
+        },
+        required: ["operation"],
+      },
+      execute: async (input) => {
+        const op = (input.operation ?? {}) as Record<string, any>
+        const action = String(op.action ?? "")
+        switch (action) {
+          case "list": {
+            const skills = listProceduralSkills()
+            if (!skills.length) {
+              const seeded = ensureKnowledge()
+              if (!seeded.length) return { content: "No playbooks on disk." }
+              return {
+                content: listProceduralSkills()
+                  .map((skill) => `${skill.name} — ${skill.description}`)
+                  .join("\n"),
+              }
+            }
+            return { content: skills.map((skill) => `${skill.name} — ${skill.description}`).join("\n") }
+          }
+          case "read": {
+            const text = readPlaybook(String(op.name ?? ""))
+            if (!text) return { content: `No playbook named "${op.name}". Run playbook list to see what exists.` }
+            return { content: text }
+          }
+          case "seed": {
+            const seeded = ensureKnowledge()
+            if (!seeded.length) return { content: "Every curated playbook is already on disk (edits untouched)." }
+            return { content: `Seeded ${seeded.length} playbook(s): ${seeded.map((file) => file.split("/").pop()).join(", ")}` }
+          }
+          default:
+            return { content: `Unknown playbook action "${action}". Use one of: list, read, seed.` }
         }
       },
     },

@@ -22,6 +22,7 @@ import { Plugin } from "@elitza/plugin"
 import { EmotionEngine } from "./emotion.js"
 import { currentReflection, noteInteraction, startHeartbeat } from "./heartbeat.js"
 import { runAutoLearn, type ToolRun } from "./learning.js"
+import { ensureKnowledge, playbookFiles } from "./knowledge.js"
 import { autoLearnFromResponse, autoRememberTurn, memoryCreate } from "./memory.js"
 import { BRAIN_MARKER, buildBrainContext } from "./prompt.js"
 import { SUBCONSCIOUS_SYSTEM, consciousBlock } from "./remoteview.js"
@@ -149,6 +150,20 @@ export default Plugin.define({
       }
     } catch (error) {
       debug(`user-skill-scan-error: ${String(error)}`)
+    }
+
+    // Knowledge base (Task H): seed the curated playbooks once — existing
+    // files are never overwritten, so operator edits survive restarts — then
+    // register every playbook as a skill, the same path a user skill takes.
+    try {
+      const seeded = ensureKnowledge()
+      if (seeded.length) debug(`knowledge seeded: ${seeded.length} playbook(s)`)
+      for (const playbook of playbookFiles()) {
+        await registerSkill(playbook.path, playbook.name)
+      }
+      debug(`knowledge registered: ${playbookFiles().length} playbook(s)`)
+    } catch (error) {
+      debug(`knowledge-register-error: ${String(error)}`)
     }
 
     // -----------------------------------------------------------------
