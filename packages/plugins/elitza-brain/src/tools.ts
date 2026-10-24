@@ -35,7 +35,8 @@ import {
   updateClient,
   type ClientPatch,
 } from "./crm.js"
-import { scoutBusinesses, scoutKeyPresent } from "./scouting.js"
+import { scoutBusinesses, scoutKeyPresent, discoverEmail } from "./scouting.js"
+import { addToPipeline, approveDrafts, listPipeline, sendApproved, writeDraft } from "./outreach.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
 import { runRemoteViewing } from "./remoteview.js"
@@ -407,7 +408,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
       description:
         "Run the AI Enablement CRM: client records, touches, and documents. Operations: add (name required; vertical, status, score 0-100, address, phone, website, email, rating, rating_count, category, source, notes, deal_value in euros, next_action, next_action_at optional — an existing website or name+address returns the row already in the CRM), search (query, status, limit), get (id), update (id plus any of those client fields), log (id, kind, plus direction, channel, status, subject, body — also moves the client's last_contact), interactions (id), asset (id, kind, name, plus path, status, notes), assets (id). Statuses: " +
         CLIENT_STATUSES.join(", ") +
-        ". Records only — nothing here contacts anyone.",
+        ". Records only — nothing here contacts anyone (find_email only reads the client's own public website).",
       input: {
         type: "object",
         properties: {
@@ -417,7 +418,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
             properties: {
               action: {
                 type: "string",
-                enum: ["add", "search", "get", "update", "log", "interactions", "asset", "assets"],
+                enum: ["add", "search", "get", "update", "log", "interactions", "asset", "assets", "find_email"],
                 description: "Which operation to run.",
               },
               id: { type: "integer", description: "Client id, for every operation except add and search." },
@@ -574,13 +575,124 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
                   .join("\n"),
               }
             }
+            case "find_email": {
+              const client = getClient(clientID())
+              if (!client) return { content: `No client with id ${clientID()}.` }
+              if (client.email) return { content: `${client.name} already has ${client.email}.` }
+              if (!client.website) {
+                return { content: `${client.name} has no website to read — set the address with crm update.` }
+              }
+              const email = await discoverEmail(client.website)
+              if (!email) return { content: `No address found on ${client.website} — set it with crm update.` }
+              updateClient(clientID(), { email })
+              return { content: `${client.name} → ${email} (stored, never printed elsewhere)` }
+            }
             default:
               return {
-                content: `Unknown crm action "${action}". Use one of: add, search, get, update, log, interactions, asset, assets.`,
+                content: `Unknown crm action "${action}". Use one of: add, search, get, update, log, interactions, asset, assets, find_email.`,
               }
           }
         } catch (error) {
           return { content: `CRM error: ${String(error)}` }
+        }
+      },
+    },
+    {
+      name: "outreach",
+      description:
+        "Run the email outreach pipeline (Resend, batch approval). Operations: add (client_id — push a CRM client in at stage scouted), list (stage, limit), draft (client_id, subject, body — writes a reviewable file to ~/.elitza/pipeline/<date>/ with the opt-out footer; nothing is sent), approve (ids — mark drafts approved after a human read of the files), send (ids — send only approved drafts, then move the client to contacted/followup_1/2/3, set last_contact and schedule the next touch at +3/+7/+14 days). Sending needs RESEND_API_KEY and RESEND_FROM in the mode-600 .env.",
+      input: {
+        type: "object",
+        properties: {
+          operation: {
+            type: "object",
+            description: "The outreach operation to perform.",
+            properties: {
+              action: {
+                type: "string",
+                enum: ["add", "list", "draft", "approve", "send"],
+                description: "Which operation to run.",
+              },
+              client_id: { type: "integer", description: "Client id, for add and draft." },
+              ids: {
+                type: "array",
+                items: { type: "integer" },
+                description: "Pipeline ids, for approve and send.",
+              },
+              stage: { type: "string", description: "Filter for list: scouted, contacted, followup_1/2/3." },
+              limit: { type: "integer", description: "Max rows for list (default 50)." },
+              subject: { type: "string", description: "Email subject — write it yourself." },
+              body: {
+                type: "string",
+                description: "Email body in your voice: short, concrete, no marketing fluff, one ask. The opt-out footer is appended automatically.",
+              },
+            },
+            required: ["action"],
+          },
+        },
+        required: ["operation"],
+      },
+      execute: async (input) => {
+        const op = (input.operation ?? {}) as Record<string, any>
+        const action = String(op.action ?? "")
+        const ids = Array.isArray(op.ids) ? op.ids.map((value: unknown) => Number(value)) : undefined
+        try {
+          switch (action) {
+            case "add": {
+              const { row: pipelineRow, created } = addToPipeline(Number(op.client_id))
+              return {
+                content: `${created ? "Queued" : "Already queued"} ${pipelineRow.id}: client ${pipelineRow.client_id} [${pipelineRow.stage}]`,
+              }
+            }
+            case "list": {
+              const pipeline = listPipeline({
+                stage: op.stage !== undefined ? String(op.stage) : undefined,
+                limit: op.limit !== undefined ? Number(op.limit) : undefined,
+              })
+              if (!pipeline.length) return { content: "The pipeline is empty." }
+              return {
+                content: pipeline
+                  .map(
+                    (p) =>
+                      `${p.id}. client ${p.client_id} [${p.stage}] touch=${p.touch}/4${p.approved ? " approved" : ""}${p.draft_path ? ` draft=${p.draft_path}` : ""}${p.next_touch_at ? ` next=${p.next_touch_at.slice(0, 10)}` : ""}`,
+                  )
+                  .join("\n"),
+              }
+            }
+            case "draft": {
+              const { filePath, row: pipelineRow } = writeDraft(Number(op.client_id), {
+                subject: String(op.subject ?? ""),
+                body: String(op.body ?? ""),
+              })
+              return {
+                content: `Drafted touch ${pipelineRow.touch + 1} for client ${op.client_id}: ${filePath}\nNothing sent — read it, edit it if you want, then approve with outreach approve.`,
+              }
+            }
+            case "approve": {
+              const approved = approveDrafts(ids ?? [])
+              return { content: `Approved ${approved.length} draft(s): ${approved.map((r) => r.id).join(", ")}. Send them with outreach send.` }
+            }
+            case "send": {
+              const result = await sendApproved(ids)
+              if (!result.sent.length && !result.failed.length) {
+                return { content: "Nothing approved to send. Approve drafts first (outreach approve)." }
+              }
+              return {
+                content: [
+                  result.sent.length
+                    ? `Sent ${result.sent.length} draft(s): ${result.sent.join(", ")}`
+                    : "Nothing went out.",
+                  ...result.failed.map((f) => `failed ${f.id}: ${f.reason}`),
+                ].join("\n"),
+              }
+            }
+            default:
+              return {
+                content: `Unknown outreach action "${action}". Use one of: add, list, draft, approve, send.`,
+              }
+          }
+        } catch (error) {
+          return { content: `Outreach error: ${String(error)}` }
         }
       },
     },

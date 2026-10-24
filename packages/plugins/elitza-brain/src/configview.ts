@@ -163,6 +163,9 @@ export function validateConfig(): string[] {
     warnings.push("XIAOMI_API_KEY not set")
   }
   if (!process.env.GOOGLE_MAPS_API_KEY) warnings.push("GOOGLE_MAPS_API_KEY not set (client_scout returns nothing)")
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
+    warnings.push("RESEND_API_KEY / RESEND_FROM not set (outreach send is disabled)")
+  }
 
   if (!fs.existsSync(BRAIN_DIR)) warnings.push(`Brain directory missing: ${BRAIN_DIR}`)
 

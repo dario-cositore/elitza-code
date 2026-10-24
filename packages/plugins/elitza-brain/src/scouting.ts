@@ -132,3 +132,35 @@ function toBusiness(place: NonNullable<PlacesResponse["places"]>[number]): Scout
     google_maps: place.googleMapsUri ?? null,
   }
 }
+
+const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i
+const EMAIL_NOISE = ["example.", "example@", "sentry.", "wixpress", "yourdomain"]
+
+/**
+ * Find a contact address on a business's own website — Places never returns
+ * emails, so the first touch needs this. Reads the homepage once: a
+ * `mailto:` wins, otherwise the first plain address that is not placeholder
+ * junk. Returns null rather than guessing (a made-up info@ only bounces).
+ */
+export async function discoverEmail(website: string): Promise<string | null> {
+  const raw = website.trim()
+  if (!raw) return null
+  const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+  try {
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      headers: { "User-Agent": "Elitza contact lookup" },
+    })
+    if (!response.ok) return null
+    const html = (await response.text()).slice(0, 500_000)
+    const mailto = /mailto:\s*([^\s"'?#]+)/i.exec(html)
+    const candidates = mailto ? [mailto[1]] : html.match(new RegExp(EMAIL_PATTERN, "gi")) ?? []
+    for (const candidate of candidates) {
+      const email = decodeURIComponent(candidate).trim().replace(/[.,;:]+$/, "").toLowerCase()
+      if (EMAIL_PATTERN.test(email) && !EMAIL_NOISE.some((noise) => email.includes(noise))) return email
+    }
+    return null
+  } catch {
+    return null
+  }
+}

@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 21, "twenty-one brain tools")
+assert.equal(tools.length, 22, "twenty-two brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -249,6 +249,7 @@ const expected = [
   "doctor_history",
   "gapfeed_build_pipeline",
   "gapfeed_query_signals",
+  "outreach",
   "task",
 ]
 assert.deepEqual(
@@ -370,6 +371,72 @@ assert.equal(
   "client rows stay out of the soul database",
 )
 soulDb.close()
+
+// --- outreach pipeline: draft, batch approval, Resend send ------------------
+const { listPipeline } = await import("../src/outreach.js")
+const outreachTool = tools.find((t) => t.name === "outreach")
+assert.ok(outreachTool, "outreach registered")
+const outreachOp = (operation: Record<string, unknown>) => outreachTool!.execute({ operation })
+await crmOp({ action: "update", id: 1, email: "info@rossi.example" })
+assert.ok((await outreachOp({ action: "add", client_id: 1 })).content.startsWith("Queued 1:"), "client queued")
+const drafted = await outreachOp({
+  action: "draft",
+  client_id: 1,
+  subject: "Faster intake for Studio Rossi",
+  body: "Hello — I automate intake for dental studios in Cremona. Worth 15 minutes this week?",
+})
+assert.ok(drafted.content.includes("Nothing sent"), "draft states nothing was sent")
+const draftPath = drafted.content.split("\n")[0].split(": ")[1] ?? ""
+assert.ok(fs.existsSync(draftPath), "draft file written")
+const draftText = fs.readFileSync(draftPath, "utf8")
+assert.ok(draftText.includes('Reply "no"'), "opt-out footer present at review time")
+assert.ok(draftText.includes("status: drafted"), "draft starts unapproved")
+const noKey = await outreachOp({ action: "send", ids: [1] })
+assert.ok(noKey.content.includes("RESEND_API_KEY is not set"), "sending without a key explains the fix")
+
+let resendRequest: { auth: string | null; body: string } | null = null
+const resendServer = Bun.serve({
+  port: 0,
+  fetch: async (request) => {
+    resendRequest = { auth: request.headers.get("Authorization"), body: await request.text() }
+    return Response.json({ id: "email_smoke" })
+  },
+})
+process.env.RESEND_URL = `http://127.0.0.1:${resendServer.port}`
+process.env.RESEND_API_KEY = "re_smoke_key"
+process.env.RESEND_FROM = "Dario Cositore <hello@elitza.life>"
+const unapproved = await outreachOp({ action: "send", ids: [1] })
+assert.ok(unapproved.content.includes("failed 1: not approved"), "unapproved drafts never send")
+assert.equal(resendRequest, null, "no Resend call was made before approval")
+await outreachOp({ action: "approve", ids: [1] })
+const sent = await outreachOp({ action: "send", ids: [1] })
+assert.ok(sent.content.startsWith("Sent 1 draft"), "approved draft goes out")
+assert.ok(resendRequest?.auth?.includes("re_smoke_key"), "Resend called with the operator's key as a bearer")
+const sentBody = JSON.parse(resendRequest!.body) as { from: string; to: string[]; subject: string; text: string }
+assert.equal(sentBody.to[0], "info@rossi.example", "recipient comes from the CRM row")
+assert.ok(sentBody.text.includes('Reply "no"'), "the sent message keeps the opt-out")
+const afterSend = JSON.parse((await crmOp({ action: "get", id: 1 })).content) as {
+  status: string
+  last_contact: string | null
+}
+assert.equal(afterSend.status, "contacted", "first send moves the client to contacted")
+assert.ok(afterSend.last_contact, "last_contact set by the send")
+const pipelineRow = listPipeline()[0]
+assert.equal(pipelineRow.touch, 1, "touch count after the first send")
+assert.equal(pipelineRow.stage, "contacted", "pipeline stage mirrors the client status")
+assert.equal(pipelineRow.approved, 0, "a sent draft can never be re-approved")
+const expectedNext = Date.parse(pipelineRow.last_touch_at!) + 3 * 86_400_000
+assert.ok(Math.abs(Date.parse(pipelineRow.next_touch_at!) - expectedNext) < 5_000, "next touch due in 3 days")
+assert.ok(
+  (await crmOp({ action: "interactions", id: 1 })).content.includes("first_touch"),
+  "the send is recorded as an interaction",
+)
+assert.ok(fs.readFileSync(draftPath, "utf8").includes("status: sent"), "draft file marked sent in place")
+assert.ok(/sent_at: \d{4}-\d{2}-\d{2}T/.test(fs.readFileSync(draftPath, "utf8")), "sent_at stamped once, as an ISO time")
+resendServer.stop(true)
+delete process.env.RESEND_URL
+delete process.env.RESEND_API_KEY
+delete process.env.RESEND_FROM
 
 // --- guided setup: MiMo-only provider wiring --------------------------------
 const onboarding = await import("../src/onboarding.js")

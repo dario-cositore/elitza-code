@@ -101,6 +101,26 @@ const SCHEMA = `
   CREATE INDEX IF NOT EXISTS clients_next_action ON clients(next_action_at);
   CREATE INDEX IF NOT EXISTS interactions_client ON client_interactions(client_id, occurred_at);
   CREATE INDEX IF NOT EXISTS assets_client ON client_assets(client_id);
+
+  -- Task D: the outreach pipeline. Stage mirrors clients.status (kept in
+  -- sync by outreach.ts); this table owns the cadence bookkeeping and the
+  -- draft file the human reviews before anything is approved to send.
+  CREATE TABLE IF NOT EXISTS pipeline (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      client_id INTEGER NOT NULL UNIQUE REFERENCES clients(id) ON DELETE CASCADE,
+      stage TEXT NOT NULL DEFAULT 'scouted',
+      channel TEXT NOT NULL DEFAULT 'email',
+      touch INTEGER NOT NULL DEFAULT 0,
+      draft_path TEXT,
+      approved INTEGER NOT NULL DEFAULT 0,
+      last_touch_at TEXT,
+      next_touch_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS pipeline_stage ON pipeline(stage);
+  CREATE INDEX IF NOT EXISTS pipeline_next ON pipeline(next_touch_at);
 `
 
 let instance: Database | undefined

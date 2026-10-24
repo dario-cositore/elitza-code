@@ -161,13 +161,13 @@ function markDrafted(id: string): void {
   soulSet("pipeline_drafted", JSON.stringify(next))
 }
 
-function slug(text: string): string {
+export function slug(text: string, fallback = "signal"): string {
   return (
     text
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "")
-      .slice(0, 40) || "signal"
+      .slice(0, 40) || fallback
   )
 }
 
