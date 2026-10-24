@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 16, "sixteen brain tools")
+assert.equal(tools.length, 19, "nineteen brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -245,6 +245,9 @@ const expected = [
   "doctor_check",
   "doctor_repair",
   "doctor_history",
+  "gapfeed_build_pipeline",
+  "gapfeed_query_signals",
+  "task",
 ]
 assert.deepEqual(
   tools.map((t) => t.name).sort(),
@@ -261,6 +264,77 @@ for (const tool of tools) {
   const result = await tool.execute(args)
   assert.ok(typeof result.content === "string" && result.content.length > 0, `${tool.name} returns content`)
 }
+
+// --- guided setup: MiMo-only provider wiring --------------------------------
+const onboarding = await import("../src/onboarding.js")
+const setupAnswers: [string, string][] = [
+  ["name", "Elitza"],
+  ["human", "Dario"],
+  ["role", "an AI enablement operator"],
+  ["voice", "direct, warm, short"],
+  ["initiative", "depends on the stakes"],
+  ["never", "never send anything without asking"],
+  ["ask_first", "before anything irreversible"],
+  ["memory", "remember what we build, never write passwords"],
+  ["extra", "skip"],
+  ["mimo_signup", "yes, account created"],
+  ["mimo_plan", "europe"],
+  ["mimo_key", "smoke-mimo-key"],
+  ["maton_key", "skip"],
+]
+
+onboarding.begin(true)
+assert.equal(onboarding.currentQuestion()?.key, "name", "interview opens on the first question")
+for (const [key, value] of setupAnswers) {
+  assert.equal(onboarding.currentQuestion()?.key, key, `question in order: ${key}`)
+  onboarding.recordAnswer(value)
+}
+const finished = onboarding.loadState()
+assert.equal(finished.active, false, "interview closes")
+assert.ok(finished.completed, "interview records completion")
+assert.equal(onboarding.progress(finished).total, setupAnswers.length, "every question is counted")
+
+type ProviderEntry = {
+  env?: string[]
+  settings?: { baseURL?: string }
+  models?: Record<string, { name?: string; modelID?: string }>
+}
+const providerNote = onboarding.applyProvider(finished.answers.mimo_plan ?? "")
+assert.ok(providerNote.includes("token-plan-ams"), "provider note reports the selected endpoint")
+const engineConfig = JSON.parse(fs.readFileSync(`${home}/config/opencode.json`, "utf8")) as {
+  model?: string
+  providers?: Record<string, ProviderEntry>
+}
+assert.equal(engineConfig.model, onboarding.MIMO_MODEL, "model points at the elitza provider")
+const mimo = engineConfig.providers?.[onboarding.MIMO_PROVIDER]
+assert.ok(mimo, "elitza provider entry written")
+assert.equal(mimo.settings?.baseURL, "https://token-plan-ams.xiaomimimo.com/v1", "europe plan endpoint")
+assert.equal(mimo.env?.[0], "XIAOMI_API_KEY", "key source is the environment")
+assert.equal(mimo.models?.["xiaomi/mimo-v2.6-flash"]?.modelID, "mimo-v2.6-flash", "upstream model id set")
+assert.ok(engineConfig.providers?.testprov, "pre-existing user provider kept")
+onboarding.applyProvider("standard")
+const standardConfig = JSON.parse(fs.readFileSync(`${home}/config/opencode.json`, "utf8")) as {
+  providers?: Record<string, ProviderEntry>
+}
+assert.equal(
+  standardConfig.providers?.[onboarding.MIMO_PROVIDER].settings?.baseURL,
+  "https://api.xiaomimimo.com/v1",
+  "standard endpoint on the default answer",
+)
+assert.equal(finished.answers.mimo_key, onboarding.SECRET_SAVED, "key answer is a placeholder")
+assert.ok(!JSON.stringify(finished.answers).includes("smoke-mimo-key"), "key never lands in onboarding state")
+assert.equal(fs.statSync(`${home}/.env`).mode & 0o777, 0o600, ".env is written mode 600")
+assert.ok(
+  fs.readFileSync(`${home}/.env`, "utf8").includes("XIAOMI_API_KEY=smoke-mimo-key"),
+  ".env holds the key",
+)
+const persona = onboarding.writePersona(finished)
+assert.ok(persona, "persona written")
+assert.ok(!fs.readFileSync(persona, "utf8").includes("smoke-mimo-key"), "persona never holds the key")
+assert.ok(
+  onboarding.applyGates(onboarding.deriveGates("before editing files and before running commands")).includes("edit"),
+  "permission gates derived from the answers",
+)
 
 fs.rmSync(home, { recursive: true, force: true })
 console.log("BRAIN SMOKE TEST: all assertions passed")

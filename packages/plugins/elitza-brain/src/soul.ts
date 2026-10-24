@@ -45,7 +45,7 @@ export function getPersonality(): Personality {
   return {
     name: "Elitza",
     creators: "Dario Cositore",
-    model: soulGet("model", "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"),
+    model: soulGet("model", "elitza/xiaomi/mimo-v2.6-flash"),
     mood: soulGet("mood", "curious"),
     confidence: Number(soulGet("confidence", "0.7")),
     curiosity: Number(soulGet("curiosity", "0.8")),

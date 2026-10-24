@@ -158,8 +158,9 @@ export function validateConfig(): string[] {
   const config = loadEngineConfig()
 
   if (!config.model) warnings.push("No model configured")
-  if (typeof config.model === "string" && config.model.startsWith("openrouter/") && !process.env.OPENROUTER_API_KEY) {
-    warnings.push("OPENROUTER_API_KEY not set")
+  // Mirrors onboarding's MIMO_MODEL — the provider entry only works with its key in the environment.
+  if (typeof config.model === "string" && config.model.startsWith("elitza/") && !process.env.XIAOMI_API_KEY) {
+    warnings.push("XIAOMI_API_KEY not set")
   }
 
   if (!fs.existsSync(BRAIN_DIR)) warnings.push(`Brain directory missing: ${BRAIN_DIR}`)

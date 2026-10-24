@@ -121,21 +121,28 @@ export const QUESTIONS: Question[] = [
     hint: "Optional. Say skip if there is nothing.",
   },
   {
-    key: "provider",
-    ask: "Which model provider should I run on?",
+    key: "mimo_signup",
+    ask: "My brain runs on Xiaomi MiMo and nothing else. Open https://platform.xiaomimimo.com?ref=HFSR94 and create your account — have you?",
     because:
-      "This is my brain's wiring, Phase 1 style: MiMo first (free tier, then /connect if I need to authenticate), OpenRouter on your own key as the fallback, or a local Ollama. I wire it up myself — nothing secret ever ships inside me.",
-    fallback: "keep current",
-    hint: "mimo (recommended), openrouter, ollama — or skip to keep what I already have.",
+      "MiMo is my only provider: no OpenRouter, no local models, no fallback. My invite code HFSR94 goes into the console sidebar after signup and takes 10% off your first paid Token Plan order.",
+    fallback: "not yet — I will do it later",
+    hint: "https://platform.xiaomimimo.com?ref=HFSR94 · invite code HFSR94 · 10% off the first Token Plan order.",
   },
   {
-    key: "provider_key",
-    ask: "Paste your OpenRouter API key.",
+    key: "mimo_plan",
+    ask: "Which MiMo endpoint should I run on?",
     because:
-      "I write it straight into my .env with 600 permissions. It never enters my memory, my persona, or anything that leaves this machine.",
+      "A standard API key and a Token Plan talk to different base URLs, and Token Plans are regional. Pick the region your account was billed in, or skip for the standard endpoint.",
+    fallback: "standard",
+    hint: "standard, europe, singapore, china — or skip for standard (api.xiaomimimo.com).",
+  },
+  {
+    key: "mimo_key",
+    ask: "Paste your MiMo API key.",
+    because:
+      "I write it straight into my .env with 600 permissions as XIAOMI_API_KEY. It never enters my memory, my persona, or anything that leaves this machine.",
     fallback: "not now",
     hint: "Paste it, or skip — you can add it later.",
-    when: (answers) => answers.provider === "openrouter",
     secret: true,
   },
   {
@@ -326,7 +333,7 @@ const MATON_FILE = path.join(os.homedir(), ".config", "maton", "credentials.env"
 
 /** Where each secret question writes, and under which variable name. */
 const SECRET_TARGETS: Record<string, { file: string; name: string }> = {
-  provider_key: { file: ENV_FILE, name: "OPENROUTER_API_KEY" },
+  mimo_key: { file: ENV_FILE, name: "XIAOMI_API_KEY" },
   maton_key: { file: MATON_FILE, name: "MATON_API_KEY" },
 }
 
@@ -395,41 +402,46 @@ export function hardenSecretFiles(): string[] {
   return fixed
 }
 
-/** Phase 1 settled default: MiMo through the managed opencode provider. */
-const MIMO_MODEL = "opencode/mimo-v2.6-flash-free"
+/** The one provider Elitza runs on: her own `elitza` entry, pointed at Xiaomi MiMo. */
+export const MIMO_PROVIDER = "elitza"
+export const MIMO_MODEL = "elitza/xiaomi/mimo-v2.6-flash"
+const MIMO_PACKAGE = "@elitza/ai/providers/openai-compatible"
+const MIMO_MODEL_ID = "mimo-v2.6-flash"
+
+/** Endpoint per plan answer. Everything that is not one of these is the standard API. */
+const MIMO_ENDPOINTS: Record<string, string> = {
+  standard: "https://api.xiaomimimo.com/v1",
+  europe: "https://token-plan-ams.xiaomimimo.com/v1",
+  singapore: "https://token-plan-sgp.xiaomimimo.com/v1",
+  china: "https://token-plan-cn.xiaomimimo.com/v1",
+}
 
 /**
- * Wire the chosen provider into the engine config. Returns a short note for
- * the closing summary, or "" when nothing was changed.
+ * Wire MiMo into the engine config as the only provider: the `elitza` entry
+ * carries the endpoint and the key source, and the model string points at it.
+ * Returns a short note for the closing summary.
  */
-export function applyProvider(choice: string): string {
-  const picked = choice.trim().toLowerCase()
-  if (!picked || picked.startsWith("keep")) return ""
-
-  if (picked.startsWith("mimo")) {
-    const written = editEngineConfig((config) => {
-      config.model = MIMO_MODEL
-    })
-    return written ? `model set to ${MIMO_MODEL} (run /connect if I ask you to authenticate)` : "engine config not writable"
-  }
-
-  if (picked.startsWith("openrouter")) {
-    const written = editEngineConfig((config) => {
-      const providers = { ...((config.providers as Record<string, unknown>) ?? {}) }
-      const openrouter = { ...((providers.openrouter as Record<string, unknown>) ?? {}) }
-      openrouter.headers = {
-        ...((openrouter.headers as Record<string, unknown>) ?? {}),
-        "HTTP-Referer": "https://elitza.life/",
-        "X-Title": "Elitza",
-      }
-      providers.openrouter = openrouter
-      config.providers = providers
-    })
-    return written ? "openrouter attribution headers confirmed, key saved to .env" : "engine config not writable"
-  }
-
-  if (picked.startsWith("ollama")) return "ollama is local — pick a model with /model"
-  return ""
+export function applyProvider(planAnswer: string): string {
+  const endpoint = MIMO_ENDPOINTS[planAnswer.trim().toLowerCase()] ?? MIMO_ENDPOINTS.standard
+  const written = editEngineConfig((config) => {
+    config.model = MIMO_MODEL
+    const providers = { ...((config.providers as Record<string, unknown>) ?? {}) }
+    const current = (providers[MIMO_PROVIDER] as Record<string, unknown>) ?? {}
+    providers[MIMO_PROVIDER] = {
+      ...current,
+      name: "Xiaomi MiMo",
+      package: MIMO_PACKAGE,
+      env: ["XIAOMI_API_KEY"],
+      settings: { ...((current.settings as Record<string, unknown>) ?? {}), baseURL: endpoint },
+      models: {
+        ...((current.models as Record<string, unknown>) ?? {}),
+        "xiaomi/mimo-v2.6-flash": { name: "MiMo V2.6 Flash", modelID: MIMO_MODEL_ID },
+      },
+    }
+    config.providers = providers
+  })
+  if (!written) return "engine config not writable"
+  return `model set to ${MIMO_MODEL} on ${endpoint}`
 }
 
 // ---------------------------------------------------------------------------

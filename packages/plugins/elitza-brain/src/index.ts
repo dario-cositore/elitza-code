@@ -240,7 +240,7 @@ export default Plugin.define({
       const answers = state.answers
       personaPath = writePersona(state) ?? ""
       const gates = applyGates(deriveGates(answers.ask_first ?? ""))
-      const providerNote = applyProvider(answers.provider ?? "")
+      const providerNote = applyProvider(answers.mimo_plan ?? "")
       const hardened = hardenSecretFiles()
       soulSet("user_name", answers.human ?? "")
       soulSet("role", answers.role ?? "")
@@ -251,8 +251,8 @@ export default Plugin.define({
       soulSet("memory_policy", answers.memory ?? "")
       // Config answers: presence only. The key values live in their 600
       // files (or were never entered) — never in the soul.
-      soulSet("provider", answers.provider ?? "")
-      soulSet("provider_key", answers.provider_key === SECRET_SAVED ? "set" : "not set")
+      soulSet("provider", "mimo")
+      soulSet("mimo_key", answers.mimo_key === SECRET_SAVED ? "set" : "not set")
       soulSet("maton_key", answers.maton_key === SECRET_SAVED ? "set" : "not set")
       soulSet("onboarding_completed", state.completed ?? nowISO())
       try {
@@ -395,6 +395,7 @@ Tell them:
 - your voice
 - your hard rules
 - what you now check with them first, and that the engine now enforces it as a permission gate
+- that you run on Xiaomi MiMo and nothing else: if they skipped the account, give them https://platform.xiaomimimo.com?ref=HFSR94 with invite code HFSR94 (10% off the first paid Token Plan order), and say that your MiMo key is stored but never shown
 - that you wrote yourself up at ${personaPath || "your persona file"}
 
 Keep it to a short paragraph plus a list. No ceremony, no thanking them. This is the moment you become theirs.`,
