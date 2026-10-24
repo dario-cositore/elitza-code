@@ -12,7 +12,6 @@
 
 import { doctorCheck, doctorHistory, doctorRepair } from "./doctor.js"
 
-import { armoryRun, fetchRegistry, fetchTool } from "./armory.js"
 import { configSection, validateConfig } from "./configview.js"
 import { getLearningStats } from "./learning.js"
 import {
@@ -349,63 +348,6 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
             "Review each draft before anything goes out — the pipeline never sends.",
           ].join("\n"),
         }
-      },
-    },
-    {
-      name: "armory_list_tools",
-      description:
-        "List the verified first-party tools published in the Armory registry (hub.dariocositore.com). Returns name, tier, status, and summary per tool. The registry is first-party-only: everything listed is authored and maintained by dario-cositore.",
-      input: { type: "object", properties: {} },
-      execute: async () => {
-        const registry = await fetchRegistry()
-        if (!registry) {
-          return {
-            content:
-              "The Armory registry is unreachable (https://hub.dariocositore.com/api/v1/registry). Check connectivity, or point ARMORY_BASE_URL at a local instance.",
-          }
-        }
-        const lines = registry.tools.map(
-          (tool) => `- ${tool.id} (${tool.name}) v${tool.version} [${tool.tier}/${tool.status}] — ${tool.summary}`,
-        )
-        return {
-          content: [`Armory registry v${registry.registry_version} — ${registry.count} first-party tools:`, "", ...lines].join("\n"),
-        }
-      },
-    },
-    {
-      name: "armory_fetch_tool",
-      description:
-        "Fetch one tool's full schema and execution contract from the first-party Armory registry. The entry is runtime-validated against the registry contract; malformed entries are refused, not repaired.",
-      input: {
-        type: "object",
-        properties: {
-          slug: { type: "string", description: "Tool id, e.g. gapfeed-signals, playwright-screenshot" },
-        },
-        required: ["slug"],
-      },
-      execute: async (input) => {
-        const fetched = await fetchTool(String(input.slug))
-        if ("error" in fetched) return { content: fetched.error }
-        return { content: JSON.stringify(fetched.tool, null, 2) }
-      },
-    },
-    {
-      name: "armory_run_tool",
-      description:
-        "Execute an Armory registry tool — interactively confirmed, two-phase. FIRST call: leave confirm unset (or false) to see the exact command/URL and input; nothing runs. SECOND call with confirm=true executes the reviewed request (10-minute TTL). http GET and command-recipe tools run on this machine; schema-preview and client-build entries are never executable.",
-      input: {
-        type: "object",
-        properties: {
-          slug: { type: "string", description: "Tool id from the registry" },
-          input: { type: "object", description: "Tool input, validated against the tool's input_schema" },
-          confirm: { type: "boolean", description: "Set true ONLY to execute an already-reviewed request" },
-        },
-        required: ["slug"],
-      },
-      execute: async (input) => {
-        const toolInput = (input.input && typeof input.input === "object" ? input.input : {}) as Record<string, unknown>
-        const content = await armoryRun(String(input.slug), toolInput, input.confirm === true)
-        return { content }
       },
     },
     {
