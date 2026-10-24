@@ -233,6 +233,7 @@ function UpdateNotification(props: { width: number }) {
   return (
     <Show when={update.notification()} keyed>
       {(state) => {
+        const version = state.version.replace(/^v/, "")
         const remote = state.source === "server" && state.remote
         return (
           <Show when={!remote || state.type === "available"}>
@@ -261,8 +262,8 @@ function UpdateNotification(props: { width: number }) {
                 {remote
                   ? "remote server update available"
                   : state.type === "installed"
-                    ? ` restart to use v${state.version}`
-                    : ` to install v${state.version}`}
+                    ? ` restart to use v${version}`
+                    : ` to install v${version}`}
               </FadeInText>
             </box>
           </Show>
