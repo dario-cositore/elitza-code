@@ -7,7 +7,7 @@
  * and — when silence stretches — form a thought worth surfacing next time
  * Dario opens a session.
  *
- * Two passes per tick:
+ * Three passes per tick:
  *
  *   TEND    consolidation (which links related memories and promotes
  *           episodic -> semantic) plus a prune back to caps. Idempotent,
@@ -23,15 +23,25 @@
  *           context. No network, no notifications, no side effects outside
  *           her own files.
  *
+ *   POLL    the gapfeed radar (Task 4b): every ELITZA_GAPFEED_POLL_MINUTES
+ *           (default 6h) read the LOCAL gapfeed backend and write outreach
+ *           drafts to ~/.elitza/pipeline/. Interval-gated inside
+ *           pollPipeline, so ticks are free when it is not due. A stopped
+ *           backend is a no-op; drafts are files, nothing is ever sent.
+ *
  * Everything here is best-effort. A tick that throws is logged and swallowed
  * — it must never take down the host process. Config:
  *
  *   ELITZA_HEARTBEAT=0            disable the loop entirely
  *   ELITZA_HEARTBEAT_MINUTES=30   tick cadence (default 30, min 5)
+ *   ELITZA_GAPFEED=0              disable the gapfeed poll pass
+ *   ELITZA_GAPFEED_POLL_MINUTES   poll interval (default 360 = 6h)
+ *   GAPFEED_LOCAL_URL             gapfeed backend base (default 127.0.0.1:5002)
  */
 
 import fs from "node:fs"
 import { consolidate, getMetamemory, pruneAll, recall } from "./memory.js"
+import { pollPipeline } from "./pipeline.js"
 import { soulGet, soulSet } from "./soul.js"
 import type { EmotionEngine } from "./emotion.js"
 
@@ -160,6 +170,13 @@ export function startHeartbeat(emotion: EmotionEngine, cadenceMs?: number): Hear
       // A heartbeat that throws must never take the host down.
       debug(`tick-error: ${String(error)}`)
     }
+    // POLL — gapfeed radar -> pipeline drafts. Interval-gated inside, and
+    // pollPipeline never throws; the catch is belt on the async path.
+    void pollPipeline()
+      .then((result) => {
+        if (result?.drafted.length) debug(`poll drafted ${result.drafted.length} new file(s)`)
+      })
+      .catch((error) => debug(`poll-error: ${String(error)}`))
   }
 
   const timer = setInterval(tick, cadenceMs ?? cadence * 60_000)

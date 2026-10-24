@@ -22,6 +22,7 @@ import {
   memorySearch,
   memoryStats,
 } from "./memory.js"
+import { pollPipeline, querySignals } from "./pipeline.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
 import { runRemoteViewing } from "./remoteview.js"
@@ -274,6 +275,80 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
       description: "View health check history over the past week.",
       input: { type: "object", properties: {} },
       execute: async () => ({ content: doctorHistory(7) }),
+    },
+    {
+      name: "gapfeed_query_signals",
+      description:
+        "Scan the local gapfeed radar for real-time buyer-intent signals: fresh pain points and operational bottlenecks from the market feed. Reads the LOCAL gapfeed backend (127.0.0.1:5002, overridable with GAPFEED_LOCAL_URL) — returns an empty result when that server is not running. region filters client-side against each signal's location, so locations without a country do not match italy/eu.",
+      input: {
+        type: "object",
+        properties: {
+          vertical: {
+            type: "string",
+            description: "Filter by vertical, e.g. legal_tech, crm_ops, logistics (optional)",
+          },
+          region: {
+            type: "string",
+            enum: ["italy", "eu", "global"],
+            description: "Filter by signal location (default: global)",
+          },
+          urgency_threshold: {
+            type: "number",
+            description: "Minimum urgency 0-1 (default 0)",
+          },
+          quality_tier: {
+            type: "string",
+            enum: ["gold", "silver", "bronze", "noise"],
+            description: "Exact quality tier filter (optional)",
+          },
+          limit: {
+            type: "integer",
+            description: "Max signals to return, 1-500 (default 50)",
+          },
+        },
+      },
+      execute: async (input) => {
+        const signals = await querySignals({
+          vertical: input.vertical ? String(input.vertical) : undefined,
+          region: (input.region as "italy" | "eu" | "global" | undefined) ?? "global",
+          urgency_threshold: Number(input.urgency_threshold ?? 0),
+          quality_tier: input.quality_tier ? String(input.quality_tier) : undefined,
+          limit: Number(input.limit ?? 50),
+        })
+        if (!signals.length) {
+          return {
+            content:
+              "No signals matched (or the local gapfeed server is not running — start it with: cd gapfeed && .venv/bin/python -m ui.server)",
+          }
+        }
+        return { content: JSON.stringify({ count: signals.length, signals }, null, 2) }
+      },
+    },
+    {
+      name: "gapfeed_build_pipeline",
+      description:
+        "Run the outreach pipeline immediately: pull recent high-urgency signals from the local gapfeed radar and write a markdown outreach draft for each one not already drafted, into ~/.elitza/pipeline/<date>/. Never sends anything — drafts wait for a human read. Bypasses the 6-hour heartbeat interval.",
+      input: { type: "object", properties: {} },
+      execute: async () => {
+        const result = await pollPipeline({ force: true })
+        if (!result) return { content: "The pipeline is disabled (ELITZA_GAPFEED=0)." }
+        if (!result.fetched) {
+          return {
+            content:
+              "No signals above the draft threshold — or the local gapfeed server is not running (start it with: cd gapfeed && .venv/bin/python -m ui.server)",
+          }
+        }
+        if (!result.drafted.length) return { content: `Fetched ${result.fetched} signal(s); all already drafted (${result.skipped} skipped).` }
+        return {
+          content: [
+            `Fetched ${result.fetched} signal(s); wrote ${result.drafted.length} new draft(s), skipped ${result.skipped} already-drafted.`,
+            "",
+            ...result.drafted,
+            "",
+            "Review each draft before anything goes out — the pipeline never sends.",
+          ].join("\n"),
+        }
+      },
     },
     {
       name: "task",
