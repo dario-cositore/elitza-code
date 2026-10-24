@@ -32,6 +32,7 @@ import { nowISO } from "./db.js"
 import { ELITZA_HOME } from "./db.js"
 import {
   applyGates,
+  applyProvider,
   begin,
   buildSetupBlock,
   currentQuestion,
@@ -40,6 +41,7 @@ import {
   progress,
   recordAnswer,
   writePersona,
+  SECRET_SAVED,
   type OnboardingState,
 } from "./onboarding.js"
 
@@ -237,6 +239,7 @@ export default Plugin.define({
       const answers = state.answers
       personaPath = writePersona(state) ?? ""
       const gates = applyGates(deriveGates(answers.ask_first ?? ""))
+      const providerNote = applyProvider(answers.provider ?? "")
       soulSet("user_name", answers.human ?? "")
       soulSet("role", answers.role ?? "")
       soulSet("style", answers.voice ?? "")
@@ -244,6 +247,11 @@ export default Plugin.define({
       soulSet("hard_rules", answers.never ?? "")
       soulSet("permission_gates", answers.ask_first ?? "")
       soulSet("memory_policy", answers.memory ?? "")
+      // Config answers: presence only. The key values live in their 600
+      // files (or were never entered) — never in the soul.
+      soulSet("provider", answers.provider ?? "")
+      soulSet("provider_key", answers.provider_key === SECRET_SAVED ? "set" : "not set")
+      soulSet("maton_key", answers.maton_key === SECRET_SAVED ? "set" : "not set")
       soulSet("onboarding_completed", state.completed ?? nowISO())
       try {
         memoryCreate(
@@ -262,7 +270,7 @@ export default Plugin.define({
         debug(`setup-memory-error: ${String(error)}`)
       }
       debug(
-        `setup complete: persona=${personaPath || "failed"} gates=[${gates.join(",") || "none"}]`,
+        `setup complete: persona=${personaPath || "failed"} gates=[${gates.join(",") || "none"}] provider=${providerNote || "unchanged"}`,
       )
       summaryPending = true
     }

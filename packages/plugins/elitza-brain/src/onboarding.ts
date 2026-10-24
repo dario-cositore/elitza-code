@@ -17,6 +17,7 @@
  */
 
 import fs from "node:fs"
+import os from "node:os"
 import path from "node:path"
 import { ELITZA_HOME, nowISO, parseJSON } from "./db.js"
 import { soulGet, soulSet } from "./soul.js"
@@ -45,6 +46,14 @@ export interface Question {
   fallback: string
   /** Short hint for the person, printed under the question. */
   hint: string
+  /** Only asked when this holds for the answers given so far. */
+  when?: (answers: Record<string, string>) => boolean
+  /**
+   * The answer is a secret. It is written straight to a mode-600 file and
+   * a placeholder goes into the state — the value itself is never stored
+   * in the soul, the persona, or any memory.
+   */
+  secret?: boolean
 }
 
 export const QUESTIONS: Question[] = [
@@ -111,6 +120,33 @@ export const QUESTIONS: Question[] = [
     fallback: "",
     hint: "Optional. Say skip if there is nothing.",
   },
+  {
+    key: "provider",
+    ask: "Which model provider should I run on?",
+    because:
+      "This is my brain's wiring, Phase 1 style: MiMo first (free tier, then /connect if I need to authenticate), OpenRouter on your own key as the fallback, or a local Ollama. I wire it up myself — nothing secret ever ships inside me.",
+    fallback: "keep current",
+    hint: "mimo (recommended), openrouter, ollama — or skip to keep what I already have.",
+  },
+  {
+    key: "provider_key",
+    ask: "Paste your OpenRouter API key.",
+    because:
+      "I write it straight into my .env with 600 permissions. It never enters my memory, my persona, or anything that leaves this machine.",
+    fallback: "not now",
+    hint: "Paste it, or skip — you can add it later.",
+    when: (answers) => answers.provider === "openrouter",
+    secret: true,
+  },
+  {
+    key: "maton_key",
+    ask: "And your Maton gateway key, for my git work?",
+    because:
+      "The Maton gateway is how I do GitHub work on your repositories. I save it to ~/.config/maton/credentials.env with 600 permissions, loading it and never echoing it. Skip if it is already set.",
+    fallback: "not now",
+    hint: "Paste it, or skip — git simply stays manual until you add one.",
+    secret: true,
+  },
 ]
 
 const EMPTY_STATE: OnboardingState = {
@@ -140,7 +176,10 @@ export function begin(fresh: boolean): OnboardingState {
   const previous = loadState()
   const state: OnboardingState = fresh
     ? { ...EMPTY_STATE, started: nowISO() }
-    : { ...previous, active: true, completed: null, pending: QUESTIONS[0]?.key ?? null }
+    : { ...previous, completed: null, pending: QUESTIONS[0]?.key ?? null }
+  // Both branches open the interview: a fresh start must not inherit the
+  // inactive flag from EMPTY_STATE or the first answer is silently dropped.
+  state.active = true
   state.step = 0
   state.pending = QUESTIONS[0]?.key ?? null
   saveState(state)
@@ -164,11 +203,20 @@ export function recordAnswer(text: string): { next: Question | null; state: Onbo
 
   const cleaned = text.trim().replace(/^["']+|["']+$/g, "").trim()
   const skipped = !cleaned || /^(skip|none|nothing|n\/a|na)$/i.test(cleaned)
-  state.answers[question.key] = skipped ? question.fallback : cleaned.slice(0, 2000)
-
   const index = QUESTIONS.findIndex((q) => q.key === question.key)
+
+  // A secret never lands in the state: it goes straight to its 600 file
+  // and only a placeholder comes back into the answers.
+  if (question.secret && !skipped) {
+    state.answers[question.key] = saveSecret(question.key, cleaned)
+      ? SECRET_SAVED
+      : "(not saved — could not write the file)"
+  } else {
+    state.answers[question.key] = skipped ? question.fallback : cleaned.slice(0, 2000)
+  }
+
   state.step = index + 1
-  const next = QUESTIONS[index + 1] ?? null
+  const next = QUESTIONS.slice(index + 1).find((q) => !q.when || q.when(state.answers)) ?? null
   state.pending = next ? next.key : null
   if (!next) {
     state.active = false
@@ -180,7 +228,10 @@ export function recordAnswer(text: string): { next: Question | null; state: Onbo
 
 /** How many questions are answered, for the progress line. */
 export function progress(state = loadState()): { done: number; total: number } {
-  return { done: Object.keys(state.answers).length, total: QUESTIONS.length }
+  // Only questions that apply to the answers given are part of the interview,
+  // so a conditional secret question never shows up as "unanswered".
+  const total = QUESTIONS.filter((q) => !q.when || q.when(state.answers)).length
+  return { done: Object.keys(state.answers).length, total }
 }
 
 // ---------------------------------------------------------------------------
@@ -254,24 +305,110 @@ export function deriveGates(answer: string): Gate[] {
  */
 export function applyGates(gates: Gate[]): Gate[] {
   if (!gates.length) return []
+  const written = editEngineConfig((config) => {
+    const permission = { ...((config.permission as Record<string, unknown>) ?? {}) }
+    for (const gate of gates) permission[gate] = "ask"
+    config.permission = permission
+  })
+  if (!written) return []
+  return gates
+}
+
+// ---------------------------------------------------------------------------
+// Secrets & provider routing (added by the config questions)
+// ---------------------------------------------------------------------------
+
+/** What a stored secret looks like in the answers — the value itself is gone. */
+export const SECRET_SAVED = "(saved, mode 600)"
+
+const ENV_FILE = path.join(ELITZA_HOME, ".env")
+const MATON_FILE = path.join(os.homedir(), ".config", "maton", "credentials.env")
+
+/** Where each secret question writes, and under which variable name. */
+const SECRET_TARGETS: Record<string, { file: string; name: string }> = {
+  provider_key: { file: ENV_FILE, name: "OPENROUTER_API_KEY" },
+  maton_key: { file: MATON_FILE, name: "MATON_API_KEY" },
+}
+
+/**
+ * Read, edit, write the engine config in one place, preserving everything
+ * already in it. Returns false when the config is unreadable or unwritable,
+ * so callers can leave the engine alone rather than clobber it.
+ */
+function editEngineConfig(edit: (config: Record<string, unknown>) => void): boolean {
   let config: Record<string, unknown> = {}
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8")) as Record<string, unknown>
     }
   } catch {
-    return []
+    return false
   }
-  const permission = { ...((config.permission as Record<string, unknown>) ?? {}) }
-  for (const gate of gates) permission[gate] = "ask"
-  config.permission = permission
+  edit(config)
   try {
     fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true })
     fs.writeFileSync(CONFIG_FILE, `${JSON.stringify(config, null, 2)}\n`)
+    return true
   } catch {
-    return []
+    return false
   }
-  return gates
+}
+
+/**
+ * Write a key straight to its own file with 600 permissions, upserting the
+ * variable and preserving every other line. The value never stays in state.
+ */
+function saveSecret(questionKey: string, value: string): boolean {
+  const target = SECRET_TARGETS[questionKey]
+  if (!target) return false
+  try {
+    const existing = fs.existsSync(target.file) ? fs.readFileSync(target.file, "utf8") : ""
+    const kept = existing.split("\n").filter((line) => line.trim() && !line.startsWith(`${target.name}=`))
+    kept.push(`${target.name}=${value}`)
+    fs.mkdirSync(path.dirname(target.file), { recursive: true })
+    fs.writeFileSync(target.file, `${kept.join("\n")}\n`, { mode: 0o600 })
+    fs.chmodSync(target.file, 0o600)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Phase 1 settled default: MiMo through the managed opencode provider. */
+const MIMO_MODEL = "opencode/mimo-v2.6-flash-free"
+
+/**
+ * Wire the chosen provider into the engine config. Returns a short note for
+ * the closing summary, or "" when nothing was changed.
+ */
+export function applyProvider(choice: string): string {
+  const picked = choice.trim().toLowerCase()
+  if (!picked || picked.startsWith("keep")) return ""
+
+  if (picked.startsWith("mimo")) {
+    const written = editEngineConfig((config) => {
+      config.model = MIMO_MODEL
+    })
+    return written ? `model set to ${MIMO_MODEL} (run /connect if I ask you to authenticate)` : "engine config not writable"
+  }
+
+  if (picked.startsWith("openrouter")) {
+    const written = editEngineConfig((config) => {
+      const providers = { ...((config.providers as Record<string, unknown>) ?? {}) }
+      const openrouter = { ...((providers.openrouter as Record<string, unknown>) ?? {}) }
+      openrouter.headers = {
+        ...((openrouter.headers as Record<string, unknown>) ?? {}),
+        "HTTP-Referer": "https://elitza.life/",
+        "X-Title": "Elitza",
+      }
+      providers.openrouter = openrouter
+      config.providers = providers
+    })
+    return written ? "openrouter attribution headers confirmed, key saved to .env" : "engine config not writable"
+  }
+
+  if (picked.startsWith("ollama")) return "ollama is local — pick a model with /model"
+  return ""
 }
 
 // ---------------------------------------------------------------------------
