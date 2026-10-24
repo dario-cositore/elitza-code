@@ -23,6 +23,9 @@
   <a href="docs/install.md">Install</a> ·
   <a href="docs/tui.md">TUI guide</a> ·
   <a href="docs/brain.md">The brain</a> ·
+  <a href="docs/guided-setup.md">Guided setup</a> ·
+  <a href="docs/first-client.md">First client</a> ·
+  <a href="docs/handover.md">Handover</a> ·
   <a href="docs/architecture.md">Architecture</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
