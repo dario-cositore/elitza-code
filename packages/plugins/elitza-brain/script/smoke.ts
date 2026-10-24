@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 24, "twenty-four brain tools")
+assert.equal(tools.length, 25, "twenty-five brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -249,6 +249,7 @@ const expected = [
   "doctor_history",
   "gapfeed_build_pipeline",
   "gapfeed_query_signals",
+  "handover",
   "outreach",
   "playbook",
   "production",
@@ -266,6 +267,9 @@ for (const tool of tools) {
     args.content = "smoke test memory for the tool loop"
     args.memory_type = "semantic"
   }
+  // handover writes a document wherever it is pointed: keep the loop out of
+  // the real repository working tree.
+  if (tool.name === "handover") args.out = `${home}/handover-loop.md`
   const result = await tool.execute(args)
   assert.ok(typeof result.content === "string" && result.content.length > 0, `${tool.name} returns content`)
 }
@@ -611,6 +615,33 @@ assert.ok(
   ),
   "unknown playbook explained",
 )
+
+// --- handover generator: evidence-driven, names never values ----------------
+const handoverTool = tools.find((t) => t.name === "handover")
+assert.ok(handoverTool, "handover registered")
+const handoverPath = `${home}/CLIENT_SOP_HANDOVER.md`
+const handoverRun = await handoverTool!.execute({ out: handoverPath, client_id: 2 })
+assert.ok(handoverRun.content.includes(handoverPath), "generator reports where it wrote")
+assert.ok(fs.existsSync(handoverPath), "handover document written")
+const handoverText = fs.readFileSync(handoverPath, "utf8")
+for (const heading of [
+  "## Architecture",
+  "## Environment and secrets",
+  "## Daily operation",
+  "## Maintenance",
+  "## Edge cases and recovery",
+  "## Approval gates",
+  "## Support and ownership",
+]) {
+  assert.ok(handoverText.includes(heading), `section present: ${heading}`)
+}
+assert.ok(handoverText.includes("RESEND_API_KEY"), "env scan finds real variable names in tracked source")
+assert.ok(!/RESEND_API_KEY=/.test(handoverText), "no value is ever written next to a name")
+assert.ok(!handoverText.includes("re_smoke_key"), "no test secret leaks into the document")
+assert.ok(/- [0-9a-f]{7} \d{4}-\d{2}-\d{2} /m.test(handoverText), "git history is quoted as evidence")
+assert.ok(handoverText.includes("CRM client 2"), "the CRM client is named")
+const missingRepo = await handoverTool!.execute({ repo: "/nonexistent-folder-xyz", out: `${home}/nope.md` })
+assert.ok(missingRepo.content.includes("Handover error"), "a missing folder is explained, not thrown")
 
 // --- guided setup: MiMo-only provider wiring --------------------------------
 const onboarding = await import("../src/onboarding.js")

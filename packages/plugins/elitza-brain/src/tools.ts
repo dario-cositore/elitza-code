@@ -15,6 +15,7 @@ import { doctorCheck, doctorHistory, doctorRepair } from "./doctor.js"
 import { configSection, validateConfig } from "./configview.js"
 import { getLearningStats } from "./learning.js"
 import { ensureKnowledge, readPlaybook } from "./knowledge.js"
+import { generateHandover } from "./handover.js"
 import {
   getMetamemory,
   listProceduralSkills,
@@ -765,6 +766,38 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
           }
         } catch (error) {
           return { content: `Outreach error: ${String(error)}` }
+        }
+      },
+    },
+    {
+      name: "handover",
+      description:
+        "Generate CLIENT_SOP_HANDOVER.md for a delivered job: architecture from git history, environment variable NAMES found in tracked source (values are never written), run/check commands, recovery steps, the approval gates that are really in force, and ownership. Inputs: repo (folder or any path inside it, defaults to the working directory), optional client_id to name the CRM client, optional out path (defaults to the repo root). Regenerate it after any structural change.",
+      input: {
+        type: "object",
+        properties: {
+          repo: { type: "string", description: "Repository or folder inside one. Defaults to the working directory." },
+          client_id: { type: "integer", description: "CRM client this delivery belongs to." },
+          out: { type: "string", description: "Where to write. Defaults to CLIENT_SOP_HANDOVER.md at the repo root." },
+        },
+      },
+      execute: async (input) => {
+        try {
+          const result = generateHandover({
+            repo: String(input.repo ?? process.cwd()),
+            out: input.out !== undefined ? String(input.out) : undefined,
+            clientID: input.client_id !== undefined ? Number(input.client_id) : undefined,
+          })
+          return {
+            content: [
+              `Wrote ${result.path}`,
+              `${result.commits} commit(s) referenced, ${result.env_vars.length} environment variable name(s) listed.`,
+              `Sections: ${result.sections.join(", ")}.`,
+              "Names only — no secret value is ever written into it.",
+            ].join("\n"),
+          }
+        } catch (error) {
+          return { content: `Handover error: ${String(error)}` }
         }
       },
     },
