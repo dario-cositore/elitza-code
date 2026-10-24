@@ -37,6 +37,7 @@ import {
   buildSetupBlock,
   currentQuestion,
   deriveGates,
+  hardenSecretFiles,
   loadState,
   progress,
   recordAnswer,
@@ -240,6 +241,7 @@ export default Plugin.define({
       personaPath = writePersona(state) ?? ""
       const gates = applyGates(deriveGates(answers.ask_first ?? ""))
       const providerNote = applyProvider(answers.provider ?? "")
+      const hardened = hardenSecretFiles()
       soulSet("user_name", answers.human ?? "")
       soulSet("role", answers.role ?? "")
       soulSet("style", answers.voice ?? "")
@@ -270,7 +272,7 @@ export default Plugin.define({
         debug(`setup-memory-error: ${String(error)}`)
       }
       debug(
-        `setup complete: persona=${personaPath || "failed"} gates=[${gates.join(",") || "none"}] provider=${providerNote || "unchanged"}`,
+        `setup complete: persona=${personaPath || "failed"} gates=[${gates.join(",") || "none"}] provider=${providerNote || "unchanged"} hardened=${hardened.join(",") || "none"}`,
       )
       summaryPending = true
     }

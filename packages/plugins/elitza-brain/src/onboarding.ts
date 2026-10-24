@@ -374,6 +374,27 @@ function saveSecret(questionKey: string, value: string): boolean {
   }
 }
 
+/**
+ * Tighten permissions on every file that holds a secret, whether or not this
+ * run wrote one — a pre-existing .env must not stay group-readable just
+ * because its key was entered in an older session. Returns the files fixed.
+ */
+export function hardenSecretFiles(): string[] {
+  const fixed: string[] = []
+  const files = [ENV_FILE, MATON_FILE]
+  for (const file of files) {
+    try {
+      if (!fs.existsSync(file)) continue
+      if ((fs.statSync(file).mode & 0o777) === 0o600) continue
+      fs.chmodSync(file, 0o600)
+      fixed.push(file)
+    } catch {
+      // Permission tightening is best-effort.
+    }
+  }
+  return fixed
+}
+
 /** Phase 1 settled default: MiMo through the managed opencode provider. */
 const MIMO_MODEL = "opencode/mimo-v2.6-flash-free"
 
