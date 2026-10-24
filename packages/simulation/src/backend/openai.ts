@@ -1,18 +1,22 @@
 import { Effect, Schema, Stream } from "effect"
 import { HttpClientResponse } from "effect/http"
 import { HttpClientError, TransportError } from "effect/http/HttpClientError"
-import { OpenAIChatEvent, DEFAULT_BASE_URL, PATH } from "@elitza/ai/protocols/openai-chat"
+import { OpenAIChatEvent, PATH } from "@elitza/ai/protocols/openai-chat"
 import { SimulationNetwork } from "./network"
 import { SimulatedProvider } from "./simulated-provider"
 
 /**
  * Driver-answered OpenAI endpoint for the simulated network.
  *
- * Claims `POST {DEFAULT_BASE_URL}{PATH}` (the real openai-chat route
- * endpoint), invokes the simulated provider, and streams the driver's events back as
- * an OpenAI Chat SSE response terminated by `[DONE]`. Everything downstream
- * of the response bytes is the real pipeline: SSE framing, the OpenAIChat
- * event schema, the protocol state machine, and Lifecycle grammar.
+ * Claims `POST …/chat/completions` on any origin (the openai-chat route
+ * endpoint for the default base URL, and equally for a custom
+ * OpenAI-compatible provider such as the `elitza` MiMo entry — simulation
+ * must not care which endpoint the config points at), invokes the simulated
+ * provider, and streams the driver's events back as an OpenAI Chat SSE
+ * response terminated by `[DONE]`. Everything downstream of the response
+ * bytes is the real pipeline: SSE framing, the OpenAIChat event schema, the
+ * protocol state machine, and Lifecycle grammar. Every other destination is
+ * still denied outright by the simulated network.
  */
 
 const encodeChunk = Schema.encodeUnknownSync(OpenAIChatEvent)
@@ -102,7 +106,7 @@ function sseBody(
 export const route = (provider: SimulatedProvider.Interface): SimulationNetwork.Route => ({
   match: (request, url) => {
     if (request.method !== "POST") return undefined
-    if (url.origin + url.pathname !== DEFAULT_BASE_URL + PATH) return undefined
+    if (!url.pathname.endsWith(PATH)) return undefined
     return Effect.gen(function* () {
       const body =
         request.body._tag === "Uint8Array"

@@ -74,3 +74,23 @@ test("rejects malformed intercepted OpenAI JSON as an HTTP client error", async 
   expect(error).toBeInstanceOf(HttpClientError)
   expect(error.reason._tag).toBe("TransportError")
 })
+
+test("claims chat completions on a custom OpenAI-compatible origin", () => {
+  const provider: SimulatedProvider.Interface = { stream: () => Stream.empty }
+  const url = new URL("https://api.xiaomimimo.com/v1/chat/completions")
+  const request = HttpClientRequest.post(url).pipe(HttpClientRequest.bodyJsonUnsafe({ model: "mimo-v2.6-flash" }))
+
+  expect(SimulationOpenAI.route(provider).match(request, url)).toBeDefined()
+})
+
+test("leaves other methods and paths to the denying network", () => {
+  const provider: SimulatedProvider.Interface = { stream: () => Stream.empty }
+  const route = SimulationOpenAI.route(provider)
+
+  const embeddings = new URL("https://api.openai.com/v1/embeddings")
+  const post = HttpClientRequest.post(embeddings).pipe(HttpClientRequest.bodyJsonUnsafe({ model: "gpt-5" }))
+  expect(route.match(post, embeddings)).toBeUndefined()
+
+  const get = HttpClientRequest.get(new URL(DEFAULT_BASE_URL + PATH))
+  expect(route.match(get, new URL(DEFAULT_BASE_URL + PATH))).toBeUndefined()
+})
