@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/assets/home.png" alt="Elitza home screen" width="760">
-</p>
-
 <h1 align="center">Elitza</h1>
 
 <p align="center">
