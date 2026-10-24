@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 22, "twenty-two brain tools")
+assert.equal(tools.length, 23, "twenty-three brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -250,6 +250,7 @@ const expected = [
   "gapfeed_build_pipeline",
   "gapfeed_query_signals",
   "outreach",
+  "production",
   "task",
 ]
 assert.deepEqual(
@@ -522,6 +523,62 @@ assert.ok(
   "the silent end is recorded as an interaction",
 )
 assert.ok((await outreachOp({ action: "sweep" })).content.includes("No silent cadence"), "sweep is idempotent")
+
+// --- work production pipeline: diagnose -> ... -> done queue -----------------
+const prodTool = tools.find((t) => t.name === "production")
+assert.ok(prodTool, "production registered")
+const prodOp = (operation: Record<string, unknown>) => prodTool!.execute({ operation })
+const notWon = await prodOp({ action: "where", id: 3 })
+assert.ok(notWon.content.includes("not in production"), "a stale client stays out of production")
+const prodWhere = await prodOp({ action: "where", id: 2 })
+assert.ok(prodWhere.content.includes("[diagnose]"), "a yes lands at diagnose")
+assert.ok(prodWhere.content.includes("Gather the facts"), "the stage supplies the next action")
+const advanced = await prodOp({
+  action: "advance",
+  id: 2,
+  stage: "proposal",
+  note: "scope confirmed on email",
+  asset_kind: "proposal",
+  asset_name: "Draft proposal",
+  asset_path: "/tmp/proposal-pizzeria.md",
+})
+assert.ok(advanced.content.includes("diagnose → proposal"), "stage move reported")
+assert.ok((await crmOp({ action: "assets", id: 2 })).content.includes("Draft proposal"), "proposal artifact attached")
+assert.ok(
+  (await prodOp({ action: "advance", id: 2, stage: "proposal" })).content.includes("already stands"),
+  "a stage does not repeat",
+)
+assert.ok(
+  (await prodOp({ action: "advance", id: 2, stage: "banana" })).content.includes("Unknown production stage"),
+  "unknown stage refused",
+)
+await prodOp({ action: "schedule_call", id: 2, when: "2026-11-03T10:00:00Z", note: "kickoff" })
+const afterCall = JSON.parse((await crmOp({ action: "get", id: 2 })).content) as {
+  status: string
+  next_action_at: string | null
+}
+assert.equal(afterCall.status, "scheduled", "booking the call moves the case to scheduled")
+assert.equal(afterCall.next_action_at, "2026-11-03T10:00:00Z", "the call lands as a dated next action")
+const paid = await prodOp({ action: "record_payment", id: 2, amount: 1800, invoice_path: "/tmp/invoice-pizzeria.md" })
+assert.ok(paid.content.includes("€1800"), "payment amount reported")
+const afterPay = JSON.parse((await crmOp({ action: "get", id: 2 })).content) as {
+  status: string
+  deal_value: number | null
+}
+assert.equal(afterPay.status, "payment", "money moves the case to payment")
+assert.equal(afterPay.deal_value, 1800, "deal value recorded")
+assert.ok(
+  (await prodOp({ action: "advance", id: 2, stage: "done", note: "delivered" })).content.includes("payment → done"),
+  "delivery closes the case",
+)
+assert.ok(
+  (await crmOp({ action: "search", status: "done" })).content.includes("Pizzeria Bianca"),
+  "the done queue is queryable",
+)
+assert.ok(
+  (await prodOp({ action: "record_payment", id: 2, amount: 100 })).content.includes("already in the done queue"),
+  "a closed case refuses new work steps",
+)
 
 // --- guided setup: MiMo-only provider wiring --------------------------------
 const onboarding = await import("../src/onboarding.js")

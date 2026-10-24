@@ -47,6 +47,14 @@ import {
   sweepExhausted,
   writeDraft,
 } from "./outreach.js"
+import {
+  advance,
+  NEXT_ACTIONS,
+  productionState,
+  PRODUCTION_STAGES,
+  recordPayment,
+  scheduleCall,
+} from "./production.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
 import { runRemoteViewing } from "./remoteview.js"
@@ -755,6 +763,101 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
           }
         } catch (error) {
           return { content: `Outreach error: ${String(error)}` }
+        }
+      },
+    },
+    {
+      name: "production",
+      description:
+        "Run the work production pipeline for a won client (a yes from outreach lands them at diagnose). Operations: where (id — current stage, next action, deal value), advance (id, stage, plus note and optionally asset_kind/asset_name/asset_path to attach the artifact this stage needs), schedule_call (id, when ISO, note — sets the dated next action and moves an unfinished case to scheduled), record_payment (id, amount in euros, note, invoice_path — records money in, moves to payment, never charges anyone). Stages in order: " +
+        PRODUCTION_STAGES.join(" → ") +
+        ". Every move is written as an interaction, so the client record tells the whole story.",
+      input: {
+        type: "object",
+        properties: {
+          operation: {
+            type: "object",
+            description: "The production operation to perform.",
+            properties: {
+              action: {
+                type: "string",
+                enum: ["where", "advance", "schedule_call", "record_payment"],
+                description: "Which operation to run.",
+              },
+              id: { type: "integer", description: "Client id." },
+              stage: { type: "string", enum: [...PRODUCTION_STAGES], description: "Target stage for advance." },
+              when: { type: "string", description: "ISO datetime for schedule_call." },
+              amount: { type: "number", description: "Amount in euros for record_payment." },
+              note: { type: "string", description: "Why, recorded as an interaction." },
+              asset_kind: { type: "string", description: "Artifact kind for advance, e.g. proposal, workbook, invoice." },
+              asset_name: { type: "string", description: "Artifact name for advance." },
+              asset_path: { type: "string", description: "Artifact file path for advance." },
+              invoice_path: { type: "string", description: "Invoice file path for record_payment." },
+            },
+            required: ["action"],
+          },
+        },
+        required: ["operation"],
+      },
+      execute: async (input) => {
+        const op = (input.operation ?? {}) as Record<string, any>
+        const action = String(op.action ?? "")
+        try {
+          switch (action) {
+            case "where": {
+              const state = productionState(Number(op.id))
+              if (!state.in_production) {
+                return { content: `${state.name} is at "${state.status}" — not in production (a yes puts them there).` }
+              }
+              return {
+                content: [
+                  `${state.client_id}. ${state.name} [${state.stage}]`,
+                  state.stage ? `next: ${state.next_action ?? NEXT_ACTIONS[state.stage]}` : "",
+                  state.next_action_at ? `due: ${state.next_action_at}` : "",
+                  state.deal_value !== null ? `deal: €${state.deal_value}` : "",
+                ]
+                  .filter(Boolean)
+                  .join("\n"),
+              }
+            }
+            case "advance": {
+              const asset =
+                op.asset_path !== undefined
+                  ? {
+                      kind: String(op.asset_kind ?? "document"),
+                      name: String(op.asset_name ?? String(op.asset_path)),
+                      path: String(op.asset_path),
+                    }
+                  : undefined
+              const moved = advance(Number(op.id), String(op.stage ?? ""), {
+                note: op.note !== undefined ? String(op.note) : undefined,
+                asset,
+              })
+              return {
+                content: `${op.id}: ${moved.from} → ${moved.to}\nnext: ${moved.next_action}`,
+              }
+            }
+            case "schedule_call": {
+              const booked = scheduleCall(Number(op.id), String(op.when ?? ""), op.note !== undefined ? String(op.note) : undefined)
+              return { content: `Call set for ${booked.when}; client ${op.id} at [${booked.stage}].` }
+            }
+            case "record_payment": {
+              const paid = recordPayment(Number(op.id), {
+                amount: op.amount !== undefined ? Number(op.amount) : undefined,
+                note: op.note !== undefined ? String(op.note) : undefined,
+                invoice_path: op.invoice_path !== undefined ? String(op.invoice_path) : undefined,
+              })
+              return {
+                content: `Payment recorded for client ${op.id} (${paid.amount !== null ? `€${paid.amount}` : "amount not given"}); stage [${paid.stage}]. Deliver, then advance to done.`,
+              }
+            }
+            default:
+              return {
+                content: `Unknown production action "${action}". Use one of: where, advance, schedule_call, record_payment.`,
+              }
+          }
+        } catch (error) {
+          return { content: `Production error: ${String(error)}` }
         }
       },
     },
