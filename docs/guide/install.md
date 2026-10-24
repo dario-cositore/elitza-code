@@ -1,6 +1,6 @@
 # Install Elitza
 
-Elitza ships as a prebuilt binary for macOS and Linux. You install her with one command, connect a free model, and start working. The [README](../README.md) has the short version; this page has every flag, path and step.
+Elitza ships as a prebuilt binary for macOS and Linux. You install her with one command, connect a free model, and start working. The [README](../../README.md) has the short version; this page has every flag, path and step.
 
 ## Install
 
@@ -87,7 +87,7 @@ CI builds four targets on every `v*` tag (`.github/workflows/release.yml`):
 2. Type `/models` to pick a brain. Free `:free` OpenRouter endpoints sort to the top of the list (`packages/tui/src/component/dialog-model.tsx`).
 3. Type `@` to pull a file into context, then send your first prompt.
 
-Elitza ships with no API key and meters nothing. You always bring your own. Full command and TUI reference: [tui.md](tui.md).
+Elitza ships with no API key and meters nothing. You always bring your own. Full command and TUI reference: [tui.md](../reference/tui.md).
 
 ## Run from source
 
@@ -125,6 +125,6 @@ curl -fsSL https://elitza.life/install.sh | bash -s -- --uninstall
 
 ## See also
 
-- [TUI guide](tui.md): commands, keybindings, session lifecycle
-- [Configuration](configuration.md): config files, providers, environment variables
-- [README: Install](../README.md#install), [README: Where things live](../README.md#where-things-live)
+- [TUI guide](../reference/tui.md): commands, keybindings, session lifecycle
+- [Configuration](../reference/configuration.md): config files, providers, environment variables
+- [README: Install](../../README.md#install), [README: Where things live](../../README.md#where-things-live)

@@ -2,7 +2,7 @@
 
 When a job is delivered, the buyer gets `CLIENT_SOP_HANDOVER.md`: the document that says what runs where, which environment variables it needs, how to run and check it, what to do when something breaks, what needs a human yes, and who owns it afterwards.
 
-Back to the [README](../README.md), or see [guided setup](guided-setup.md) and [first client](first-client.md).
+Back to the [README](../../README.md), or see [guided setup](guided-setup.md) and [first client](first-client.md).
 
 ## Generate it
 

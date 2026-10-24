@@ -1,10 +1,21 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "elitza",
-  "description": "Elitza — the AI agent that grows with you. Free models, bring your own key.",
+  "description": "Elitza — the AI Enablement operator: scout local clients, run the CRM and outreach cadence, deliver implementation sprints from your terminal.",
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "author": "Dario Cositore",
+  "keywords": [
+    "ai-agent",
+    "ai-enablement",
+    "crm",
+    "outreach",
+    "terminal",
+    "tui",
+    "cli",
+    "local-first"
+  ],
   "packageManager": "bun@1.4.2",
   "scripts": {
     "dev": "bun run --cwd packages/cli src/index.ts",

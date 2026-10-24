@@ -5,8 +5,8 @@
 <h1 align="center">Elitza</h1>
 
 <p align="center">
-  <b>The AI agent that grows with you.</b><br>
-  Free models. Bring your own key. Her memories, her skills, her identity, all on your machine.
+  <b>The AI Enablement operator.</b><br>
+  Scout local clients, qualify them in a CRM, run the outreach cadence and deliver implementation sprints from your terminal.
 </p>
 
 <p align="center">
@@ -15,54 +15,79 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-ff8700.svg" alt="MIT license"></a>
   <a href="https://bun.sh"><img src="https://img.shields.io/badge/runtime-bun-1.4-ffd9a0.svg" alt="Bun 1.4"></a>
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-eeeeec.svg" alt="macOS and Linux">
-  <img src="https://img.shields.io/badge/models-free%20%26%20BYOK-ff8700.svg" alt="Free models and bring your own key">
+  <img src="https://img.shields.io/badge/model-Xiaomi%20MiMo-ff8700.svg" alt="Model: Xiaomi MiMo">
 </p>
 
 <p align="center">
   <a href="https://elitza.life">elitza.life</a> ·
-  <a href="docs/install.md">Install</a> ·
-  <a href="docs/tui.md">TUI guide</a> ·
-  <a href="docs/brain.md">The brain</a> ·
-  <a href="docs/guided-setup.md">Guided setup</a> ·
-  <a href="docs/first-client.md">First client</a> ·
-  <a href="docs/handover.md">Handover</a> ·
-  <a href="docs/architecture.md">Architecture</a> ·
+  <a href="docs/README.md">Docs</a> ·
+  <a href="docs/guide/install.md">Install</a> ·
+  <a href="docs/guide/guided-setup.md">Guided setup</a> ·
+  <a href="docs/guide/first-client.md">First client</a> ·
+  <a href="docs/guide/handover.md">Handover</a> ·
+  <a href="docs/reference/tui.md">TUI</a> ·
+  <a href="docs/reference/architecture.md">Architecture</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
 ---
 
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="Elitza fixing a bug in the terminal" width="960">
+  <img src="docs/assets/demo.gif" alt="Elitza running a full client engagement in the terminal" width="960">
 </p>
 
-<p align="center"><i>One prompt: validation added, an off-by-one fixed, 15 tests written and run, all on a free model.</i></p>
+<p align="center"><i>One prompt: a client scouted and qualified in the CRM, the first touch drafted for review, the playbooks consulted, the handover document generated.</i></p>
 
 ## What Elitza is
 
-Elitza is an autonomous coding agent that lives in your terminal. You point it at a project, tell it what you want in plain language, and it explores the codebase, edits files, runs commands and shows you the diff. It is a full screen application with sessions, tabs, subagents, a command palette, themes and a plugin system.
+Elitza is a local agentic operator for selling and delivering AI enablement work to local businesses. You give her a town and a trade; she scouts the businesses, scores them, writes the first touch for your approval, runs the four-touch cadence, and once a client says yes, drives the job through proposal, call, payment and handover. She does the scoping paperwork you would otherwise do by hand.
 
 Under the hood it is three things:
 
 1. **A terminal app.** A fast, native TUI (and a browser UI and a desktop app for the same server) with real tool calling, streaming output and permission gates on every command and file write.
-2. **A free, bring-your-own-key model client.** It ships with no API key and resells no inference. You connect a free OpenRouter endpoint (`:free` models) or any provider key you already own. Nothing is bundled, nothing is metered.
-3. **A memory.** A SQLite brain (`soul_v2.db`) with episodic, semantic, procedural and emotional memories, personas for the people she works with, and skills she writes herself as tasks complete. Her identity lives in a plain text file you can edit.
+2. **A MiMo-only model client.** Her guided setup wires one provider, Xiaomi MiMo, on your own key. No OpenRouter path, no fallback, nothing bundled and nothing metered. The affiliate invite code `HFSR94` takes 10% off your first paid Token Plan order.
+3. **A memory and an operating record.** A SQLite brain (`soul_v2.db`) with typed memories, personas and skills she writes herself, plus a separate CRM database (`crm.db`) holding clients, interactions, assets and the outreach pipeline.
 
-Everything runs locally. Keys, config, sessions and memory stay under `~/.elitza`. The only outbound traffic is to the model provider you configured and to fetch update metadata.
+Everything runs locally. Keys, config, sessions, memory and client records stay under `~/.elitza`. The only outbound traffic is to the model provider you configured, the Places lookup you asked for, the Resend call you approved, and release metadata.
+
+## The AI Enablement loop
+
+Every step is a tool she calls. Exactly one step reaches a human being, and it only goes out after you approve the batch.
+
+| Stage | What happens | Tools |
+| --- | --- | --- |
+| Scout | location + query → name, address, phone, website, rating, category | `client_scout` |
+| Qualify | score 0-100, dedupe, find a public email on their own site | `crm` |
+| First touch | a draft file with the opt-out footer, waiting for your read | `outreach draft` |
+| Approve, send | batch approval, then Resend posts it; stage, `last_contact` and the next touch are set | `outreach approve`, `outreach send` |
+| Cadence | +3, +7, +14 days: the heartbeat drafts each follow-up in the same thread, you approve again | `outreach due`, `outreach queue` |
+| Disposition | `yes` → production, `no` or silence → the stale list for nurture | `outreach dispose`, `outreach sweep` |
+| Production | diagnose → proposal → workbook → scheduled → payment → done | `production` |
+| Handover | `CLIENT_SOP_HANDOVER.md` written from git evidence and live gates | `handover` |
+
+Playbooks for all of it (diagnosis, proposal, workbook library, call script, payment terms, handover) ship as skills she pulls in on her own: `playbook list`, `playbook read`.
+
+Full walkthrough with real commands: [docs/guide/first-client.md](docs/guide/first-client.md).
 
 ## Highlights
 
-**Free by design.**
-`/models` lists free `:free` OpenRouter endpoints first. `/connect` walks you through adding a key you control. No subscription, no trial, no phone-home telemetry.
+**MiMo only, set up for you.**
+The `/start` interview walks you through the MiMo account (invite code `HFSR94`, 10% off the first paid Token Plan order), the endpoint for your region, and your key — stored mode 600, never echoed. No provider sprawl, no fallback to guess about.
+
+**A CRM that is just a database.**
+Clients, interactions and assets live in `~/.elitza/brain/crm.db` with a shared status lifecycle from `scouted` to `done`. Query it with `crm search`, patch it with `crm update`, read the story with `crm interactions`. It never enters the memory index.
+
+**Nothing sends without you.**
+Outreach is drafted to files under `~/.elitza/pipeline/<date>/` with the compliance footer already in. Approve a batch, then one command sends it. An unapproved row is refused with a reason, never a silent success.
 
 **A memory that compounds.**
 Memories are typed (episodic, semantic, procedural, emotional), scored for importance, decayed over time and consolidated when they prove useful. Personas, roles and hooks are plain directories of JSON and markdown you can read and edit.
 
 **She tidies up on her own.**
-A heartbeat runs between conversations: it consolidates and prunes the memory database, and during a long silence she writes a reflection that is waiting in the next session's prompt. No network, no notifications, just her own files.
+A heartbeat runs between conversations: it consolidates and prunes the memory database, polls the local gapfeed radar into draft files, drafts the follow-ups that are due, and closes cadences that ran four touches in silence. During a long silence she writes a reflection that is waiting in the next session's prompt.
 
 **Real tools, real permissions.**
-Built-in tools: `read`, `write`, `edit`, `patch`, `grep`, `glob`, `shell`, `webfetch`, `websearch`, `question`, `skill`, `subagent`. Every shell command and file write can be gated by the permission policy you configure.
+Built-in tools: `read`, `write`, `edit`, `patch`, `grep`, `glob`, `shell`, `webfetch`, `websearch`, `question`, `skill`, `subagent` — plus the operator tools above (`client_scout`, `crm`, `outreach`, `production`, `playbook`, `handover`, `task`, the `brain_*` set, the `gapfeed_*` pair and the `doctor_*` repair set). Every shell command and file write can be gated by the permission policy you configure.
 
 **Made for the terminal.**
 Sessions and tabs, `@` file mentions, `/` command menu, shell mode, inline diffs with a file tree, a fuzzy command palette, theme tokens, and a storybook driven TUI test harness.
@@ -71,7 +96,7 @@ Sessions and tabs, `@` file mentions, `/` command menu, shell mode, inline diffs
 `elitza serve` starts the same API behind a browser UI, `elitza pair` prints one-time links to connect a browser or phone, and an Electron desktop shell renders the same app.
 
 **Extensible.**
-Plugins from npm or git, MCP servers (local and remote, with OAuth), and a plugin API for hooks, tools and TUI extensions.
+Plugins from npm or git, MCP servers (local and remote, with OAuth) with a baked-in default set (maton, cloudflare, github, filesystem, memory, fetch, postgres, sqlite, slack, time), and a plugin API for hooks, tools and TUI extensions.
 
 ## Install
 
@@ -87,9 +112,9 @@ Then start her:
 elitza
 ```
 
-First run teaches the rest. Type `/connect` to link a free OpenRouter key from <https://openrouter.ai/keys>, or `/models` to choose the model. Elitza never ships or embeds a key; you always bring your own.
+Type `/start` for the guided setup: it asks who she is, what she must never do, what needs your permission first, and walks the MiMo signup on your own key. Elitza never ships or embeds a key; you always bring your own.
 
-The installer downloads a prebuilt binary plus the brain plugin, installs them at `~/.elitza/agent`, writes the `elitza` launcher into `~/.local/bin` and seeds your config, `SOUL.md` and personas. It is safe to re-run, and `--uninstall` reverses it. Full options: [docs/install.md](docs/install.md).
+The installer downloads a prebuilt binary plus the brain plugin, installs them at `~/.elitza/agent`, writes the `elitza` launcher into `~/.local/bin` and seeds your config, `SOUL.md` and personas. It is safe to re-run, and `--uninstall` reverses it. Full options: [docs/guide/install.md](docs/guide/install.md).
 
 ## Commands
 
@@ -149,7 +174,8 @@ Type `/` in the composer for the command menu, `ctrl+p` for the fuzzy command pa
 | `/sessions` | Resume a session (aliases: `/resume`, `/continue`) |
 | `/new` · `/clear` · `/rename` | Start fresh, wipe the transcript, rename the session |
 | `/open` | Open a project or workspace |
-| `/models` | Pick the brain, free `:free` endpoints first |
+| `/start` · `/profile` | Guided setup interview, and the read-back of what it decided |
+| `/models` | Pick the model (the guided setup leaves you on Xiaomi MiMo) |
 | `/connect` | Add an integration or provider key |
 | `/agents` · `/variants` | Switch agent, thinking and effort variants |
 | `/mcps` · `/plugins` | Manage MCP servers and plugins |
@@ -188,24 +214,28 @@ Type `/` in the composer for the command menu, `ctrl+p` for the fuzzy command pa
 The brain plugin (`packages/plugins/elitza-brain`) gives her a persistent self:
 
 - **Memory.** SQLite at `~/.elitza/brain/soul_v2.db`. Episodic (episodes, 1000 max), semantic (facts, 500), procedural (skills, 200) and emotional (300) memories, plus a full text index, a recall log and a session log. Memories carry importance and valence, decay on a schedule, and get consolidated when they cross the threshold.
-- **Identity.** `~/.elitza/SOUL.md` is her core personality in plain markdown. Edit it and she changes.
+- **The CRM.** SQLite at `~/.elitza/brain/crm.db`: `clients`, `client_interactions`, `client_assets` and the `pipeline` table with its cadence state. Deliberately a separate file, so client data stays out of the memory index and can be backed up or wiped on its own.
+- **Identity.** `~/.elitza/SOUL.md` is her core personality in plain markdown, `~/.elitza/PERSONA.md` is what `/start` wrote about your answers. Edit either and she changes.
 - **Personas, roles and hooks.** Directories of JSON and markdown under `~/.elitza` for who she is talking to, how she should behave, and what she should do on an event.
-- **Skills.** Markdown in `~/.elitza/brain/procedural`, written by herself as tasks complete and replayed as procedures on later tasks.
-- **16 brain tools** exposed to the model: `brain_search`, `brain_create`, `brain_stats`, `brain_consolidate`, `brain_forget`, `brain_personality`, `brain_metamemory`, `brain_learning`, `brain_persistence`, `brain_search_history`, `brain_sessions`, `brain_config`, `brain_validate`, plus `doctor_check`, `doctor_repair` and `doctor_history` for self-repair.
+- **Playbooks.** Curated knowledge in `~/.elitza/brain/procedural/` — diagnosis, proposal, workbook library, call script, payment terms, handover. Seeded on load, never overwriting your edits, and registered as skills so she pulls the right one in herself. Your own `.md` files dropped in that folder join the library.
+- **25 tools** exposed to the model: the `brain_*` memory set, `doctor_check` / `doctor_repair` / `doctor_history`, `gapfeed_query_signals` / `gapfeed_build_pipeline`, and the operator set `client_scout`, `crm`, `outreach`, `production`, `playbook`, `handover` and `task` (plus `rv_session` when the dual-mind API is configured).
 
-Full reference: [docs/brain.md](docs/brain.md).
+Full reference: [docs/reference/brain.md](docs/reference/brain.md).
 
 ## Where things live
 
 | Path | What lives there |
 | --- | --- |
 | `~/.elitza/agent` | The installed release (binary + brain plugin) |
-| `~/.elitza/brain/soul_v2.db` | Memories, links, recall log, session log |
+| `~/.elitza/brain/soul_v2.db` | Memories, links, recall log, session log, tasks |
+| `~/.elitza/brain/crm.db` | Clients, interactions, assets, outreach pipeline |
+| `~/.elitza/brain/procedural/` | Playbooks (curated and auto-generated), one markdown each |
+| `~/.elitza/pipeline/<date>/` | Outreach drafts waiting for your batch approval |
 | `~/.elitza/SOUL.md` | Her identity. Edit to make her yours |
 | `~/.elitza/personas`, `roles`, `hooks` | Persona, role and hook definitions |
 | `~/.elitza/home/config` | Installed config (`opencode.json`) and service credential |
 | `~/.elitza/home/data/elitza.db` | Session database for the installed copy |
-| `~/.elitza/.env` | Provider keys, loaded by the launcher |
+| `~/.elitza/.env` | Provider keys (`XIAOMI_API_KEY`, `GOOGLE_MAPS_API_KEY`, `RESEND_API_KEY`, `MATON_API_KEY`), mode 600, loaded by the launcher |
 | `./elitza.json`, `./.elitza/` | Per project configuration |
 
 ## Architecture
@@ -233,7 +263,7 @@ flowchart LR
 
     subgraph Extensibility
         PLUG["plugin API"]
-        BRAIN["elitza-brain plugin<br/>16 tools · hooks · SOUL.md"]
+        BRAIN["elitza-brain plugin<br/>25 tools · hooks · SOUL.md"]
         MCP["MCP servers"]
     end
 
@@ -252,7 +282,7 @@ flowchart LR
     PROTO --> API
 ```
 
-Three clients (terminal, browser, desktop) talk to one server. The server owns sessions, tools, providers and configuration, and plugins hang off the same host. Detailed package map and request flow: [docs/architecture.md](docs/architecture.md).
+Three clients (terminal, browser, desktop) talk to one server. The server owns sessions, tools, providers and configuration, and plugins hang off the same host. Detailed package map and request flow: [docs/reference/architecture.md](docs/reference/architecture.md).
 
 ## Development
 
@@ -266,34 +296,40 @@ bun run dev        # run the TUI from source
 bun run check      # lint + typecheck, run from the repo root
 ```
 
-Tests run per package, never from the root: `cd packages/tui && bun test`. CI runs `bun run check`, `bun turbo test --affected`, a CLI build and a service smoke test on every push. Releases are built for linux x64/arm64 and darwin x64/arm64 when a `v*` tag lands.
+Tests run per package, never from the root: `cd packages/tui && bun test`. The brain plugin's own harness is `cd packages/plugins/elitza-brain && bun run script/smoke.ts` — it exercises memory, scouting, CRM, outreach, cadence, disposition, production, playbooks and the handover generator against a throwaway home. CI runs `bun run check`, `bun turbo test --affected`, a CLI build and a service smoke test on every push. Releases are built for linux x64/arm64 and darwin x64/arm64 when a `v*` tag lands.
 
-More detail in [docs/configuration.md](docs/configuration.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+More detail in [docs/reference/configuration.md](docs/reference/configuration.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## FAQ
 
 <details>
-<summary><b>Is it really free?</b></summary>
+<summary><b>What does it cost?</b></summary>
 
-The software is MIT licensed and costs nothing. Inference is either a free `:free` OpenRouter endpoint or a key you already own. Elitza ships with no key of its own and resells no tokens. You can use it fully offline against a local model endpoint if you configure one.
+The software is MIT licensed and costs nothing. Inference runs on your own Xiaomi MiMo key: the guided setup signs you up through invite code `HFSR94`, which takes 10% off your first paid Token Plan order. Google Places and Resend also run on your own keys, so every cost stays visible on accounts you control.
 </details>
 
 <details>
 <summary><b>Where does my data go?</b></summary>
 
-Nowhere but your machine. Keys, config, sessions and memory live under `~/.elitza`. The only outbound connections are to the model provider you configured and to release metadata when you install or update. There is no analytics or telemetry client in the tree.
+Nowhere but your machine. Keys, config, sessions, memory and the CRM live under `~/.elitza`. The only outbound connections are the model provider you configured, Places searches you run, Resend posts you approved, and release metadata when you install or update. There is no analytics or telemetry client in the tree.
+</details>
+
+<details>
+<summary><b>Will it email people without me?</b></summary>
+
+No. Every message is a file under `~/.elitza/pipeline/<date>/` first. Only drafts you approve in a batch can be sent, an unapproved row is refused with a reason, and the compliance footer (public-listing reason, opt-out) is written in before you review it.
 </details>
 
 <details>
 <summary><b>What is Elitza built on?</b></summary>
 
-Elitza is a fork of the [OpenCode](https://github.com/anomalyco/opencode) terminal agent, rebranded and reworked end to end for a free model, bring-your-own-key life: new brain plugin, new identity system, new defaults, new installer and a rebuilt command surface. Upstream credit stays in the license and in this sentence.
+Elitza is a fork of the [OpenCode](https://github.com/anomalyco/opencode) terminal agent, rebranded and reworked end to end for one job: operating an AI enablement practice. New brain plugin, new CRM and outreach engine, new identity system, new defaults, new installer and a rebuilt command surface. Upstream credit stays in the license and in this sentence.
 </details>
 
 <details>
 <summary><b>Can I use it with my own models?</b></summary>
 
-Yes. `/connect` and `elitza auth login` accept any OpenAI-compatible provider. `/models` shows every model the configured providers expose, free endpoints first, and `shift+tab` or `ctrl+x` then `m` switches models mid session.
+The guided setup deliberately wires one provider, Xiaomi MiMo, so there is no fallback to debug and no key sprawl to manage. Underneath, the engine reads a standard OpenAI-compatible provider block in `opencode.json` — Elitza supports MiMo only, and that is the product decision, not a technical limit.
 </details>
 
 <details>
@@ -304,7 +340,7 @@ The build pipeline can produce windows binaries, but only macOS and Linux are bu
 
 ## Contributing
 
-Bug fixes, free model and BYOK improvements, brain improvements, and documentation are the changes most likely to land. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules and [AGENTS.md](AGENTS.md) for the repository conventions.
+Bug fixes, AI enablement workflow improvements, brain and CRM improvements, and documentation are the changes most likely to land. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules and [AGENTS.md](AGENTS.md) for the repository conventions.
 
 Security reports go through [GitHub Security Advisories](https://github.com/dario-cositore/elitza-code/security/advisories), never through public issues. See [SECURITY.md](SECURITY.md).
 

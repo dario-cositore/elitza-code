@@ -8,7 +8,7 @@ The `/start` interview is how Elitza becomes yours: her name and voice, your har
 /profile         show what the last run decided
 ```
 
-Back to the [README](../README.md), or see [first client](first-client.md) and [handover](handover.md).
+Back to the [README](../../README.md), or see [first client](first-client.md) and [handover](handover.md).
 
 ## The questions, in order
 

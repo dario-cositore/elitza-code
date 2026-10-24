@@ -1,13 +1,13 @@
 # TUI guide
 
-Elitza's terminal app is built around one composer and one command surface. You get sessions, tabs, mentions, slash commands, a fuzzy palette and inline diffs, all from the same input. The [README](../README.md#inside-the-tui) lists the highlights; this page documents every command, keybinding and screen.
+Elitza's terminal app is built around one composer and one command surface. You get sessions, tabs, mentions, slash commands, a fuzzy palette and inline diffs, all from the same input. The [README](../../README.md#inside-the-tui) lists the highlights; this page documents every command, keybinding and screen.
 
 <p align="center">
-  <img src="assets/session.png" alt="Elitza session transcript" width="900">
+  <img src="../assets/session.png" alt="Elitza session transcript" width="900">
 </p>
 
 <p align="center">
-  <img src="assets/palette.png" alt="Elitza command palette" width="900">
+  <img src="../assets/palette.png" alt="Elitza command palette" width="900">
 </p>
 
 
@@ -161,6 +161,6 @@ The brand color is orange. The built-in `elitza` theme maps its dark primary to 
 
 ## See also
 
-- [Install](install.md): installer flags, launcher paths, first run
+- [Install](../guide/install.md): installer flags, launcher paths, first run
 - [Configuration](configuration.md): config files, keybind overrides, themes on disk
-- [README: Inside the TUI](../README.md#inside-the-tui), [README: Commands](../README.md#commands)
+- [README: Inside the TUI](../../README.md#inside-the-tui), [README: Commands](../../README.md#commands)

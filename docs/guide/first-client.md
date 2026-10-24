@@ -2,7 +2,7 @@
 
 The whole AI Enablement loop, from a town and a trade to a paid, delivered job. Every step is a tool Elitza calls; you approve the one step that reaches a human being.
 
-Back to the [README](../README.md), or see [guided setup](guided-setup.md) and [handover](handover.md).
+Back to the [README](../../README.md), or see [guided setup](guided-setup.md) and [handover](handover.md).
 
 ## What never happens on its own
 
