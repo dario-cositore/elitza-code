@@ -23,6 +23,18 @@ import {
   memoryStats,
 } from "./memory.js"
 import { pollPipeline, querySignals } from "./pipeline.js"
+import {
+  addAsset,
+  addClient,
+  CLIENT_STATUSES,
+  findClients,
+  getClient,
+  listAssets,
+  listInteractions,
+  logInteraction,
+  updateClient,
+  type ClientPatch,
+} from "./crm.js"
 import { scoutBusinesses, scoutKeyPresent } from "./scouting.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
@@ -388,6 +400,188 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
         if (result.error) return { content: result.error }
         if (!result.businesses.length) return { content: `No businesses matched "${query}" in ${location}.` }
         return { content: JSON.stringify({ count: result.businesses.length, businesses: result.businesses }, null, 2) }
+      },
+    },
+    {
+      name: "crm",
+      description:
+        "Run the AI Enablement CRM: client records, touches, and documents. Operations: add (name required; vertical, status, score 0-100, address, phone, website, email, rating, rating_count, category, source, notes, deal_value in euros, next_action, next_action_at optional — an existing website or name+address returns the row already in the CRM), search (query, status, limit), get (id), update (id plus any of those client fields), log (id, kind, plus direction, channel, status, subject, body — also moves the client's last_contact), interactions (id), asset (id, kind, name, plus path, status, notes), assets (id). Statuses: " +
+        CLIENT_STATUSES.join(", ") +
+        ". Records only — nothing here contacts anyone.",
+      input: {
+        type: "object",
+        properties: {
+          operation: {
+            type: "object",
+            description: "The CRM operation to perform.",
+            properties: {
+              action: {
+                type: "string",
+                enum: ["add", "search", "get", "update", "log", "interactions", "asset", "assets"],
+                description: "Which operation to run.",
+              },
+              id: { type: "integer", description: "Client id, for every operation except add and search." },
+              name: { type: "string", description: "Client name (required for add)." },
+              query: { type: "string", description: "Text to match for search (name, vertical, website, notes)." },
+              status: { type: "string", description: "Pipeline status, or filter for search." },
+              limit: { type: "integer", description: "Max rows for search (default 50)." },
+              vertical: { type: "string", description: "Industry or niche, e.g. dental, legal, logistics." },
+              score: { type: "integer", description: "Qualification score 0-100." },
+              address: { type: "string" },
+              phone: { type: "string" },
+              website: { type: "string" },
+              email: { type: "string" },
+              notes: { type: "string" },
+              deal_value: { type: "integer", description: "Deal value in whole euros." },
+              next_action: { type: "string", description: "What has to happen next with this client." },
+              next_action_at: { type: "string", description: "ISO date the next action is due." },
+              source: { type: "string", description: "Where the client came from: places, gapfeed, manual." },
+              kind: { type: "string", description: "Interaction or asset kind, e.g. first_touch, reply, proposal, workbook." },
+              direction: { type: "string", description: "Interaction direction: out, in, note." },
+              channel: { type: "string", description: "Interaction channel: email, linkedin, whatsapp, phone, note." },
+              subject: { type: "string" },
+              body: { type: "string" },
+              path: { type: "string", description: "File path for an asset." },
+            },
+            required: ["action"],
+          },
+        },
+        required: ["operation"],
+      },
+      execute: async (input) => {
+        const op = (input.operation ?? {}) as Record<string, any>
+        const action = String(op.action ?? "")
+        const clientID = () => Number(op.id)
+        try {
+          switch (action) {
+            case "add": {
+              const { client, created } = addClient({
+                name: String(op.name ?? ""),
+                vertical: op.vertical !== undefined ? String(op.vertical) : undefined,
+                status: op.status !== undefined ? String(op.status) : undefined,
+                score: op.score !== undefined ? Number(op.score) : undefined,
+                address: op.address !== undefined ? String(op.address) : undefined,
+                phone: op.phone !== undefined ? String(op.phone) : undefined,
+                website: op.website !== undefined ? String(op.website) : undefined,
+                email: op.email !== undefined ? String(op.email) : undefined,
+                notes: op.notes !== undefined ? String(op.notes) : undefined,
+                deal_value: op.deal_value !== undefined ? Number(op.deal_value) : undefined,
+                source: op.source !== undefined ? String(op.source) : undefined,
+                next_action: op.next_action !== undefined ? String(op.next_action) : undefined,
+                next_action_at: op.next_action_at !== undefined ? String(op.next_action_at) : undefined,
+              })
+              return {
+                content: `${created ? "Created" : "Already in the CRM"} ${client.id}: ${client.name} [${client.status}]`,
+              }
+            }
+            case "search": {
+              const clients = findClients({
+                query: op.query !== undefined ? String(op.query) : undefined,
+                status: op.status !== undefined ? String(op.status) : undefined,
+                limit: op.limit !== undefined ? Number(op.limit) : undefined,
+              })
+              if (!clients.length) return { content: "No clients matched." }
+              return {
+                content: clients
+                  .map(
+                    (c) =>
+                      `${c.id}. ${c.name} [${c.status}] score=${c.score ?? "-"} value=${c.deal_value ?? "-"}${c.vertical ? ` vertical=${c.vertical}` : ""}${c.website ? ` ${c.website}` : ""}`,
+                  )
+                  .join("\n"),
+              }
+            }
+            case "get": {
+              const client = getClient(clientID())
+              if (!client) return { content: `No client with id ${clientID()}.` }
+              return { content: JSON.stringify(client, null, 2) }
+            }
+            case "update": {
+              const patch: ClientPatch = {}
+              for (const key of [
+                "name",
+                "vertical",
+                "status",
+                "score",
+                "address",
+                "phone",
+                "website",
+                "email",
+                "notes",
+                "deal_value",
+                "next_action",
+                "next_action_at",
+                "last_contact",
+                "source",
+              ] as const) {
+                if (key in op) {
+                  patch[key] =
+                    key === "score" || key === "deal_value"
+                      ? Number(op[key])
+                      : op[key] === null
+                        ? null
+                        : String(op[key])
+                }
+              }
+              const client = updateClient(clientID(), patch)
+              if (!client) return { content: `No client with id ${clientID()}.` }
+              return { content: `Updated ${client.id}: ${client.name} [${client.status}]` }
+            }
+            case "log": {
+              const interaction = logInteraction(clientID(), {
+                kind: String(op.kind ?? "note"),
+                direction: op.direction !== undefined ? String(op.direction) : undefined,
+                channel: op.channel !== undefined ? String(op.channel) : undefined,
+                status: op.status !== undefined ? String(op.status) : undefined,
+                subject: op.subject !== undefined ? String(op.subject) : undefined,
+                body: op.body !== undefined ? String(op.body) : undefined,
+              })
+              return {
+                content: `Logged ${interaction.kind} on client ${clientID()} (last_contact moved to ${interaction.occurred_at})`,
+              }
+            }
+            case "interactions": {
+              const client = getClient(clientID())
+              if (!client) return { content: `No client with id ${clientID()}.` }
+              const interactions = listInteractions(clientID())
+              if (!interactions.length) return { content: `No interactions recorded for ${client.name}.` }
+              return {
+                content: interactions
+                  .map(
+                    (i) =>
+                      `${i.occurred_at} ${i.direction ?? "-"} ${i.kind}${i.channel ? ` via ${i.channel}` : ""}${i.status ? ` [${i.status}]` : ""}${i.subject ? ` — ${i.subject}` : ""}`,
+                  )
+                  .join("\n"),
+              }
+            }
+            case "asset": {
+              const asset = addAsset(clientID(), {
+                kind: String(op.kind ?? "document"),
+                name: String(op.name ?? ""),
+                path: op.path !== undefined ? String(op.path) : undefined,
+                status: op.status !== undefined ? String(op.status) : undefined,
+                notes: op.notes !== undefined ? String(op.notes) : undefined,
+              })
+              return { content: `Attached asset ${asset.id} to client ${clientID()}: ${asset.name} [${asset.kind}]` }
+            }
+            case "assets": {
+              const client = getClient(clientID())
+              if (!client) return { content: `No client with id ${clientID()}.` }
+              const assets = listAssets(clientID())
+              if (!assets.length) return { content: `No assets attached to ${client.name}.` }
+              return {
+                content: assets
+                  .map((a) => `${a.id}. ${a.name} [${a.kind}]${a.status ? ` ${a.status}` : ""}${a.path ? ` ${a.path}` : ""}`)
+                  .join("\n"),
+              }
+            }
+            default:
+              return {
+                content: `Unknown crm action "${action}". Use one of: add, search, get, update, log, interactions, asset, assets.`,
+              }
+          }
+        } catch (error) {
+          return { content: `CRM error: ${String(error)}` }
+        }
       },
     },
     {

@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 20, "twenty brain tools")
+assert.equal(tools.length, 21, "twenty-one brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -243,6 +243,7 @@ const expected = [
   "brain_config",
   "brain_validate",
   "client_scout",
+  "crm",
   "doctor_check",
   "doctor_repair",
   "doctor_history",
@@ -329,6 +330,46 @@ const scoutNoKey = await scoutTool!.execute({ location: "Castelleone, Italy", qu
 assert.ok(scoutNoKey.content.includes("GOOGLE_MAPS_API_KEY is not set"), "missing key explains the fix")
 placesServer.stop(true)
 delete process.env.GOOGLE_PLACES_URL
+
+// --- CRM: records, dedupe, cadence columns, asset pointers ------------------
+const crmTool = tools.find((t) => t.name === "crm")
+assert.ok(crmTool, "crm registered")
+const crmOp = (operation: Record<string, unknown>) => crmTool!.execute({ operation })
+const crmAdd = await crmOp({
+  action: "add",
+  name: "Studio Rossi",
+  website: "https://rossi.example",
+  vertical: "dental",
+  status: "scouted",
+  score: 72,
+  deal_value: 1500,
+  source: "places",
+})
+assert.ok(crmAdd.content.startsWith("Created 1:"), "first client created")
+const crmDupe = await crmOp({ action: "add", name: "Studio Rossi", website: "https://rossi.example" })
+assert.ok(crmDupe.content.startsWith("Already in the CRM"), "same website does not duplicate")
+const crmSearch = await crmOp({ action: "search", query: "rossi" })
+assert.ok(crmSearch.content.includes("Studio Rossi"), "search finds by name")
+assert.ok(crmSearch.content.includes("score=72"), "search shows the score")
+const crmUpdate = await crmOp({ action: "update", id: 1, status: "contacted", next_action: "followup_1 in 3 days" })
+assert.ok(crmUpdate.content.includes("[contacted]"), "status transition stored")
+await crmOp({ action: "log", id: 1, kind: "first_touch", direction: "out", channel: "email", status: "drafted", subject: "AI intake pilot" })
+const crmGet = JSON.parse((await crmOp({ action: "get", id: 1 })).content) as { last_contact: string | null }
+assert.ok(crmGet.last_contact, "logging a touch moves last_contact")
+const crmBad = await crmOp({ action: "update", id: 1, status: "nonsense" })
+assert.ok(crmBad.content.includes("Unknown status"), "unknown status refused")
+const crmAsset = await crmOp({ action: "asset", id: 1, kind: "proposal", name: "Draft proposal", path: "/tmp/proposal.md" })
+assert.ok(crmAsset.content.startsWith("Attached asset"), "asset attached to a client")
+assert.ok((await crmOp({ action: "assets", id: 1 })).content.includes("Draft proposal"), "assets list back")
+assert.ok((await crmOp({ action: "interactions", id: 1 })).content.includes("first_touch"), "interactions list back")
+assert.ok(fs.existsSync(`${home}/brain/crm.db`), "crm.db lives next to the soul")
+const soulDb = new Database(`${home}/brain/soul_v2.db`)
+assert.equal(
+  soulDb.query("SELECT name FROM sqlite_master WHERE name = 'clients'").get(),
+  undefined,
+  "client rows stay out of the soul database",
+)
+soulDb.close()
 
 // --- guided setup: MiMo-only provider wiring --------------------------------
 const onboarding = await import("../src/onboarding.js")
