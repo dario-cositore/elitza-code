@@ -15,6 +15,7 @@ import { WebSearch } from "../../websearch.js"
 import { ConfigPolicy } from "@elitza/schema/config/policy"
 import { ConfigProvider } from "@elitza/schema/config/provider"
 import { Mcp } from "@elitza/schema/mcp"
+import { applyDefaultMcpServers } from "../../mcp/defaults.js"
 import { Money } from "@elitza/schema/money"
 
 const defaultServer = "https://opencode.ai/console"
@@ -428,6 +429,8 @@ export const OpencodePlugin = define<HttpClient.HttpClient | Bus.Service | Manag
         const { auth, ...config } = server
         editor.set(name, auth === "console" ? { ...config, headers: { ...config.headers, ...mcp.headers } } : config)
       }
+      // Baked-in defaults for famous MCP servers — only fill names the user hasn't configured.
+      applyDefaultMcpServers(editor)
     })
 
     const apply = Effect.fn("OpencodePlugin.apply")(function* (next: typeof snapshot) {
