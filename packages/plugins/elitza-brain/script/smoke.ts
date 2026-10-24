@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 19, "nineteen brain tools")
+assert.equal(tools.length, 20, "twenty brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -242,6 +242,7 @@ const expected = [
   "brain_sessions",
   "brain_config",
   "brain_validate",
+  "client_scout",
   "doctor_check",
   "doctor_repair",
   "doctor_history",
@@ -264,6 +265,70 @@ for (const tool of tools) {
   const result = await tool.execute(args)
   assert.ok(typeof result.content === "string" && result.content.length > 0, `${tool.name} returns content`)
 }
+
+// --- client scouting: Places contract, key never leaves the environment -----
+const { scoutKeyPresent } = await import("../src/scouting.js")
+let placesRequest: { path: string; key: string | null; fieldMask: string | null; body: string } | null = null
+const placesServer = Bun.serve({
+  port: 0,
+  fetch: async (request) => {
+    placesRequest = {
+      path: new URL(request.url).pathname,
+      key: request.headers.get("X-Goog-Api-Key"),
+      fieldMask: request.headers.get("X-Goog-FieldMask"),
+      body: await request.text(),
+    }
+    return Response.json({
+      places: [
+        {
+          displayName: { text: "Studio Dentale Rossi" },
+          formattedAddress: "Via Roma 1, 26022 Castelleone CR, Italy",
+          nationalPhoneNumber: "+39 0374 123456",
+          websiteUri: "https://studio-rossi.example",
+          rating: 4.7,
+          userRatingCount: 89,
+          primaryType: "dentist",
+          primaryTypeDisplayName: { text: "Dentist" },
+          googleMapsUri: "https://maps.example/studio-rossi",
+        },
+        {
+          displayName: { text: "Studio Bianchi" },
+          formattedAddress: "Via Garibaldi 4, 26022 Castelleone CR, Italy",
+          userRatingCount: 0,
+          primaryType: "dentist",
+          googleMapsUri: "https://maps.example/studio-bianchi",
+        },
+      ],
+    })
+  },
+})
+process.env.GOOGLE_PLACES_URL = `http://127.0.0.1:${placesServer.port}/v1/places:searchText`
+process.env.GOOGLE_MAPS_API_KEY = "smoke-places-key"
+const scoutTool = tools.find((t) => t.name === "client_scout")
+assert.ok(scoutTool, "client_scout registered")
+assert.equal(scoutKeyPresent(), true, "scout key visible from the environment")
+const scoutRun = await scoutTool!.execute({ location: "Castelleone, Italy", query: "dentist", limit: 5 })
+const scoutBody = JSON.parse(scoutRun.content) as {
+  count: number
+  businesses: { name: string; phone: string | null; rating: number | null; rating_count: number | null; category: string }[]
+}
+assert.equal(scoutBody.count, 2, "both places returned")
+assert.equal(scoutBody.businesses[0].name, "Studio Dentale Rossi", "name mapped")
+assert.equal(scoutBody.businesses[0].phone, "+39 0374 123456", "phone mapped")
+assert.equal(scoutBody.businesses[0].rating, 4.7, "rating mapped")
+assert.equal(scoutBody.businesses[0].rating_count, 89, "review count mapped")
+assert.equal(scoutBody.businesses[0].category, "Dentist", "category mapped")
+assert.equal(scoutBody.businesses[1].rating, null, "missing rating stays null instead of 0")
+assert.equal(placesRequest?.path, "/v1/places:searchText", "search endpoint path")
+assert.equal(placesRequest?.key, "smoke-places-key", "key sent as a header, not in the URL")
+assert.ok(placesRequest?.fieldMask?.includes("places.rating"), "field mask asks for the scouting fields")
+assert.ok(placesRequest?.body.includes("dentist in Castelleone, Italy"), "query and location combined in the text query")
+assert.ok(!JSON.stringify(scoutRun.content).includes("smoke-places-key"), "key never appears in tool output")
+delete process.env.GOOGLE_MAPS_API_KEY
+const scoutNoKey = await scoutTool!.execute({ location: "Castelleone, Italy", query: "dentist" })
+assert.ok(scoutNoKey.content.includes("GOOGLE_MAPS_API_KEY is not set"), "missing key explains the fix")
+placesServer.stop(true)
+delete process.env.GOOGLE_PLACES_URL
 
 // --- guided setup: MiMo-only provider wiring --------------------------------
 const onboarding = await import("../src/onboarding.js")

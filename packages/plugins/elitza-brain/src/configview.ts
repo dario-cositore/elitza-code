@@ -162,6 +162,7 @@ export function validateConfig(): string[] {
   if (typeof config.model === "string" && config.model.startsWith("elitza/") && !process.env.XIAOMI_API_KEY) {
     warnings.push("XIAOMI_API_KEY not set")
   }
+  if (!process.env.GOOGLE_MAPS_API_KEY) warnings.push("GOOGLE_MAPS_API_KEY not set (client_scout returns nothing)")
 
   if (!fs.existsSync(BRAIN_DIR)) warnings.push(`Brain directory missing: ${BRAIN_DIR}`)
 

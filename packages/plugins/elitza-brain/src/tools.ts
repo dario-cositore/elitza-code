@@ -23,6 +23,7 @@ import {
   memoryStats,
 } from "./memory.js"
 import { pollPipeline, querySignals } from "./pipeline.js"
+import { scoutBusinesses, scoutKeyPresent } from "./scouting.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
 import { runRemoteViewing } from "./remoteview.js"
@@ -348,6 +349,45 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
             "Review each draft before anything goes out — the pipeline never sends.",
           ].join("\n"),
         }
+      },
+    },
+    {
+      name: "client_scout",
+      description:
+        "Scout local businesses for AI enablement outreach: a location plus a query returns name, address, phone, website, rating, review count, category and Google Maps link. Uses the official Google Places Text Search API with your own GOOGLE_MAPS_API_KEY — no key is embedded anywhere. Read-only: it never stores, ranks, or contacts anyone.",
+      input: {
+        type: "object",
+        properties: {
+          location: {
+            type: "string",
+            description: "Where to search, e.g. 'Castelleone, Cremona, Italy'",
+          },
+          query: {
+            type: "string",
+            description: "What to look for, e.g. 'dentist', 'pizzeria', 'accountant'",
+          },
+          limit: {
+            type: "integer",
+            description: "Max businesses to return, 1-20 (default 10)",
+            default: 10,
+          },
+        },
+        required: ["location", "query"],
+      },
+      execute: async (input) => {
+        const location = String(input.location ?? "").trim()
+        const query = String(input.query ?? "").trim()
+        if (!location || !query) return { content: "client_scout needs both a location and a query." }
+        if (!scoutKeyPresent()) {
+          return {
+            content:
+              "GOOGLE_MAPS_API_KEY is not set. Add your own Google Places API key to ~/.elitza/.env as GOOGLE_MAPS_API_KEY=... (mode 600), then restart Elitza.",
+          }
+        }
+        const result = await scoutBusinesses(location, query, Number(input.limit ?? 10))
+        if (result.error) return { content: result.error }
+        if (!result.businesses.length) return { content: `No businesses matched "${query}" in ${location}.` }
+        return { content: JSON.stringify({ count: result.businesses.length, businesses: result.businesses }, null, 2) }
       },
     },
     {
