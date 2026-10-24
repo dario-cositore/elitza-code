@@ -55,6 +55,7 @@ export interface OutreachRow {
   touch: number
   draft_path: string | null
   approved: number
+  queued_touch: number
   last_touch_at: string | null
   next_touch_at: string | null
   created_at: string
@@ -161,11 +162,12 @@ export function writeDraft(
   fs.mkdirSync(dir, { recursive: true })
 
   fs.writeFileSync(filePath, renderDraft(pipelineRow, client.email, subject, body, touch, "drafted"))
-  crmDb().run("UPDATE pipeline SET draft_path = ?, approved = 0, updated_at = ? WHERE id = ?", [
-    filePath,
-    nowISO(),
-    pipelineRow.id,
-  ])
+  // queued_touch marks the touch number whose draft is waiting for review, so
+  // the scheduler never writes a second copy of the same follow-up.
+  crmDb().run(
+    "UPDATE pipeline SET draft_path = ?, approved = 0, queued_touch = ?, updated_at = ? WHERE id = ?",
+    [filePath, touch, nowISO(), pipelineRow.id],
+  )
   return { filePath, row: getPipelineRow(pipelineRow.id) ?? pipelineRow }
 }
 
@@ -297,7 +299,7 @@ export async function sendApproved(ids?: number[]): Promise<SendResult> {
       ? new Date(Date.parse(sentAt) + dueIn * 86_400_000).toISOString()
       : null
     crmDb().run(
-      `UPDATE pipeline SET touch = ?, stage = ?, approved = 0, last_touch_at = ?, next_touch_at = ?, updated_at = ?
+      `UPDATE pipeline SET touch = ?, stage = ?, approved = 0, queued_touch = 0, last_touch_at = ?, next_touch_at = ?, updated_at = ?
        WHERE id = ?`,
       [touch, stage, sentAt, nextTouchAt, sentAt, pipelineRow.id],
     )
@@ -337,4 +339,81 @@ async function sendEmail(from: string, to: string, subject: string, text: string
   } catch (error) {
     return String(error)
   }
+}
+
+// ---------------------------------------------------------------------------
+// Cadence scheduler (Task E)
+// ---------------------------------------------------------------------------
+
+/** Stages where the cadence has stopped one way or another (Task F owns them). */
+const TERMINAL_STAGES = ["yes", "no", "stale", "done"]
+
+/** Copy for touch n+1 — shorter each time, always in the same thread. */
+const FOLLOWUP_BODIES: Record<number, string> = {
+  2: "Following up on my previous note — still worth a short conversation this week?",
+  3: "One more nudge on the same. Happy to send a one-page outline instead, if judging it in writing is easier.",
+  4: "Last one from me: if this is not a priority I will leave it alone. Reply and I will pick it back up.",
+}
+
+/** Rows whose next touch is due now: cadence still running, nothing waiting for review. */
+export function listDue(now = nowISO(), limit = 20): OutreachRow[] {
+  return rows<OutreachRow>(
+    `SELECT * FROM pipeline
+       WHERE next_touch_at IS NOT NULL
+         AND next_touch_at <= ?
+         AND touch < 4
+         AND queued_touch <= touch
+         AND stage NOT IN (${TERMINAL_STAGES.map(() => "?").join(",")})
+       ORDER BY next_touch_at
+       LIMIT ?`,
+    [now, ...TERMINAL_STAGES, limit],
+  )
+}
+
+export interface FollowupQueue {
+  queued: { pipeline_id: number; client_id: number; touch: number; path: string }[]
+  skipped: { pipeline_id: number; reason: string }[]
+}
+
+/**
+ * The scheduler pass: draft every due follow-up as a file waiting for the
+ * same batch review as a first touch. It never sends — approval stays the
+ * human's, and `queued_touch` keeps the same follow-up from being drafted
+ * twice on the next tick.
+ */
+export function queueFollowups(now = nowISO()): FollowupQueue {
+  const result: FollowupQueue = { queued: [], skipped: [] }
+  for (const pipelineRow of listDue(now)) {
+    const client = getClient(pipelineRow.client_id)
+    if (!client) {
+      result.skipped.push({ pipeline_id: pipelineRow.id, reason: "client row missing" })
+      continue
+    }
+    try {
+      const { filePath, row } = writeDraft(pipelineRow.client_id, followupCopy(pipelineRow, client.name))
+      result.queued.push({
+        pipeline_id: row.id,
+        client_id: row.client_id,
+        touch: row.queued_touch,
+        path: filePath,
+      })
+    } catch (error) {
+      result.skipped.push({ pipeline_id: pipelineRow.id, reason: String(error) })
+    }
+  }
+  return result
+}
+
+/**
+ * Copy for touch n+1: `Re:` the subject that was actually sent, so a reply
+ * lands in the thread the recipient already has. No sent subject means no
+ * thread to stay in — one plain line instead.
+ */
+function followupCopy(pipelineRow: OutreachRow, business: string): { subject: string; body: string } {
+  const previous = pipelineRow.draft_path ? readDraft(pipelineRow.draft_path) : null
+  const topic = previous?.subject.replace(/^\s*re:\s*/i, "").trim() ?? ""
+  const line = FOLLOWUP_BODIES[pipelineRow.touch + 1] ?? FOLLOWUP_BODIES[2]
+  return topic
+    ? { subject: `Re: ${topic}`, body: line }
+    : { subject: `${business}: still worth a conversation?`, body: line }
 }

@@ -113,6 +113,7 @@ const SCHEMA = `
       touch INTEGER NOT NULL DEFAULT 0,
       draft_path TEXT,
       approved INTEGER NOT NULL DEFAULT 0,
+      queued_touch INTEGER NOT NULL DEFAULT 0,
       last_touch_at TEXT,
       next_touch_at TEXT,
       created_at TEXT NOT NULL,
@@ -122,6 +123,14 @@ const SCHEMA = `
   CREATE INDEX IF NOT EXISTS pipeline_stage ON pipeline(stage);
   CREATE INDEX IF NOT EXISTS pipeline_next ON pipeline(next_touch_at);
 `
+
+/** A row shipped before this column existed must gain it, or the cadence reads null. */
+function migrate(db: Database): void {
+  const columns = db.query("PRAGMA table_info(pipeline)").all() as { name: string }[]
+  if (!columns.some((column) => column.name === "queued_touch")) {
+    db.exec("ALTER TABLE pipeline ADD COLUMN queued_touch INTEGER NOT NULL DEFAULT 0")
+  }
+}
 
 let instance: Database | undefined
 
@@ -133,6 +142,7 @@ export function crmDb(): Database {
   conn.exec("PRAGMA journal_mode=WAL")
   conn.exec("PRAGMA foreign_keys=ON")
   conn.exec(SCHEMA)
+  migrate(conn)
   instance = conn
   return conn
 }

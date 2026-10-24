@@ -36,7 +36,7 @@ import {
   type ClientPatch,
 } from "./crm.js"
 import { scoutBusinesses, scoutKeyPresent, discoverEmail } from "./scouting.js"
-import { addToPipeline, approveDrafts, listPipeline, sendApproved, writeDraft } from "./outreach.js"
+import { addToPipeline, approveDrafts, listDue, listPipeline, queueFollowups, sendApproved, writeDraft } from "./outreach.js"
 import { persistenceStats, recentSessions, searchMessages } from "./sessions.js"
 import { getPersonality } from "./soul.js"
 import { runRemoteViewing } from "./remoteview.js"
@@ -600,7 +600,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
     {
       name: "outreach",
       description:
-        "Run the email outreach pipeline (Resend, batch approval). Operations: add (client_id — push a CRM client in at stage scouted), list (stage, limit), draft (client_id, subject, body — writes a reviewable file to ~/.elitza/pipeline/<date>/ with the opt-out footer; nothing is sent), approve (ids — mark drafts approved after a human read of the files), send (ids — send only approved drafts, then move the client to contacted/followup_1/2/3, set last_contact and schedule the next touch at +3/+7/+14 days). Sending needs RESEND_API_KEY and RESEND_FROM in the mode-600 .env.",
+        "Run the email outreach pipeline (Resend, batch approval). Operations: add (client_id — push a CRM client in at stage scouted), list (stage, limit), draft (client_id, subject, body — writes a reviewable file to ~/.elitza/pipeline/<date>/ with the opt-out footer; nothing is sent), approve (ids — mark drafts approved after a human read of the files), send (ids — send only approved drafts, then move the client to contacted/followup_1/2/3, set last_contact and schedule the next touch at +3/+7/+14 days), due (list follow-ups whose day has come), queue (draft every due follow-up now — what the heartbeat does each tick). Sending needs RESEND_API_KEY and RESEND_FROM in the mode-600 .env.",
       input: {
         type: "object",
         properties: {
@@ -610,7 +610,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
             properties: {
               action: {
                 type: "string",
-                enum: ["add", "list", "draft", "approve", "send"],
+                enum: ["add", "list", "draft", "approve", "send", "due", "queue"],
                 description: "Which operation to run.",
               },
               client_id: { type: "integer", description: "Client id, for add and draft." },
@@ -686,9 +686,38 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
                 ].join("\n"),
               }
             }
+            case "due": {
+              const due = listDue()
+              if (!due.length) return { content: "No follow-up is due right now." }
+              return {
+                content: due
+                  .map(
+                    (p) =>
+                      `${p.id}. client ${p.client_id} [${p.stage}] touch=${p.touch}/4 due=${p.next_touch_at?.slice(0, 10)}${p.queued_touch > p.touch ? " draft waiting" : ""}`,
+                  )
+                  .join("\n"),
+              }
+            }
+            case "queue": {
+              const queued = queueFollowups()
+              if (!queued.queued.length && !queued.skipped.length) {
+                return { content: "Nothing due — the cadence is idle." }
+              }
+              return {
+                content: [
+                  queued.queued.length ? `Drafted ${queued.queued.length} follow-up(s):` : "",
+                  ...queued.queued.map((q) => `- ${q.path} (client ${q.client_id}, touch ${q.touch})`),
+                  ...queued.skipped.map((s) => `skipped pipeline ${s.pipeline_id}: ${s.reason}`),
+                  "",
+                  "Same rule as a first touch: read them, edit if you want, approve as a batch.",
+                ]
+                  .filter(Boolean)
+                  .join("\n"),
+              }
+            }
             default:
               return {
-                content: `Unknown outreach action "${action}". Use one of: add, list, draft, approve, send.`,
+                content: `Unknown outreach action "${action}". Use one of: add, list, draft, approve, send, due, queue.`,
               }
           }
         } catch (error) {

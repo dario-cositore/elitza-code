@@ -438,6 +438,51 @@ delete process.env.RESEND_URL
 delete process.env.RESEND_API_KEY
 delete process.env.RESEND_FROM
 
+// --- cadence scheduler: due rows draft once, then the next interval ----------
+assert.ok((await outreachOp({ action: "due" })).content.includes("No follow-up is due"), "cadence idle before day +3")
+const crmConn = new Database(`${home}/brain/crm.db`)
+crmConn.run("UPDATE pipeline SET next_touch_at = ? WHERE id = ?", [
+  new Date(Date.now() - 3_600_000).toISOString(),
+  1,
+])
+crmConn.close()
+assert.ok((await outreachOp({ action: "due" })).content.includes("touch=1/4"), "due once day +3 passes")
+const queued = await outreachOp({ action: "queue" })
+assert.ok(queued.content.startsWith("Drafted 1 follow-up"), "due follow-up drafted by the scheduler")
+const followupPath = queued.content.split("\n")[1]?.replace(/^- /, "").split(" ")[0] ?? ""
+assert.ok(fs.existsSync(followupPath), "follow-up file written")
+const followupText = fs.readFileSync(followupPath, "utf8")
+assert.ok(followupText.includes("subject: Re: Faster intake for Studio Rossi"), "follow-up stays in the sent thread")
+assert.ok(followupText.includes("touch: 2"), "second touch drafted")
+assert.ok(followupText.includes("status: drafted"), "follow-up waits for review, not sending")
+assert.ok(
+  (await outreachOp({ action: "queue" })).content.includes("Nothing due"),
+  "the same follow-up is never drafted twice",
+)
+
+const resendServer2 = Bun.serve({
+  port: 0,
+  fetch: async (request) => {
+    await request.text()
+    return Response.json({ id: "email_smoke_followup" })
+  },
+})
+process.env.RESEND_URL = `http://127.0.0.1:${resendServer2.port}`
+process.env.RESEND_API_KEY = "re_smoke_key"
+process.env.RESEND_FROM = "Dario Cositore <hello@elitza.life>"
+await outreachOp({ action: "approve", ids: [1] })
+await outreachOp({ action: "send", ids: [1] })
+const afterFollowup = listPipeline()[0]
+assert.equal(afterFollowup.touch, 2, "second touch counted")
+assert.equal(afterFollowup.stage, "followup_1", "stage advanced to followup_1")
+assert.equal(afterFollowup.queued_touch, 0, "sent draft no longer queued")
+const expectedSecond = Date.parse(afterFollowup.last_touch_at!) + 7 * 86_400_000
+assert.ok(Math.abs(Date.parse(afterFollowup.next_touch_at!) - expectedSecond) < 5_000, "third touch due in 7 days")
+resendServer2.stop(true)
+delete process.env.RESEND_URL
+delete process.env.RESEND_API_KEY
+delete process.env.RESEND_FROM
+
 // --- guided setup: MiMo-only provider wiring --------------------------------
 const onboarding = await import("../src/onboarding.js")
 const setupAnswers: [string, string][] = [

@@ -29,6 +29,12 @@
  *           pollPipeline, so ticks are free when it is not due. A stopped
  *           backend is a no-op; drafts are files, nothing is ever sent.
  *
+ *   CADENCE the follow-up scheduler (Task E): every tick, draft the touch
+ *           that is due (+3 / +7 / +14 days after the last one) as a file
+ *           waiting for the same batch review. Drafts only — approval and
+ *           sending stay the human's call, and a row already holding a
+ *           waiting draft is left alone.
+ *
  * Everything here is best-effort. A tick that throws is logged and swallowed
  * — it must never take down the host process. Config:
  *
@@ -36,12 +42,14 @@
  *   ELITZA_HEARTBEAT_MINUTES=30   tick cadence (default 30, min 5)
  *   ELITZA_GAPFEED=0              disable the gapfeed poll pass
  *   ELITZA_GAPFEED_POLL_MINUTES   poll interval (default 360 = 6h)
+ *   ELITZA_FOLLOWUPS=0            disable the follow-up cadence pass
  *   GAPFEED_LOCAL_URL             gapfeed backend base (default 127.0.0.1:5002)
  */
 
 import fs from "node:fs"
 import { consolidate, getMetamemory, pruneAll, recall } from "./memory.js"
 import { pollPipeline } from "./pipeline.js"
+import { queueFollowups } from "./outreach.js"
 import { soulGet, soulSet } from "./soul.js"
 import type { EmotionEngine } from "./emotion.js"
 
@@ -177,6 +185,18 @@ export function startHeartbeat(emotion: EmotionEngine, cadenceMs?: number): Hear
         if (result?.drafted.length) debug(`poll drafted ${result.drafted.length} new file(s)`)
       })
       .catch((error) => debug(`poll-error: ${String(error)}`))
+
+    // CADENCE — follow-ups due now -> draft files for the next batch review.
+    if (process.env.ELITZA_FOLLOWUPS !== "0") {
+      try {
+        const queued = queueFollowups()
+        if (queued.queued.length || queued.skipped.length) {
+          debug(`cadence queued=${queued.queued.length} skipped=${queued.skipped.length}`)
+        }
+      } catch (error) {
+        debug(`cadence-error: ${String(error)}`)
+      }
+    }
   }
 
   const timer = setInterval(tick, cadenceMs ?? cadence * 60_000)
