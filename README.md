@@ -36,7 +36,7 @@
   <img src="docs/assets/demo.gif" alt="Elitza running a full client engagement in the terminal" width="960">
 </p>
 
-<p align="center"><i>One prompt: a client scouted and qualified in the CRM, the first touch drafted for review, the playbooks consulted, the handover document generated.</i></p>
+<p align="center"><i>One prompt: a client scouted and qualified in the CRM, the first touch drafted as a file, batch-approved and sent, the workbook playbook consulted, the handover document generated.</i></p>
 
 ## What Elitza is
 

@@ -1,0 +1,13 @@
+{
+  "name": "elitza-demo-recorder",
+  "private": true,
+  "type": "module",
+  "description": "Records the README demo: drives the real TUI with a scripted model and exports the GIF.",
+  "scripts": {
+    "record": "bash record.sh"
+  },
+  "dependencies": {
+    "effect": "4.0.1",
+    "opencode-drive": "2.4.0"
+  }
+}
