@@ -217,7 +217,7 @@ export function recordAnswer(text: string): { next: Question | null; state: Onbo
   if (!question) return { next: null, state }
 
   const cleaned = text.trim().replace(/^["']+|["']+$/g, "").trim()
-  const skipped = !cleaned || /^(skip|none|nothing|n\/a|na)$/i.test(cleaned)
+  const skipped = !cleaned || /^(skip|none|nothing|n\/a|na|not now)$/i.test(cleaned)
   const index = QUESTIONS.findIndex((q) => q.key === question.key)
 
   // A secret never lands in the state: it goes straight to its 600 file
@@ -261,7 +261,7 @@ export function adoptAnswers(answers: Record<string, string>, started?: string):
     const raw = answers[question.key]
     if (raw === undefined) continue
     const value = raw.trim().replace(/^["']+|["']+$/g, "").trim()
-    if (question.secret && value && value !== SECRET_SAVED && !value.startsWith("(")) {
+    if (question.secret && value && value !== SECRET_SAVED && !value.startsWith("(") && value !== question.fallback) {
       clean[question.key] = saveSecret(question.key, value)
         ? SECRET_SAVED
         : "(not saved — could not write the file)"

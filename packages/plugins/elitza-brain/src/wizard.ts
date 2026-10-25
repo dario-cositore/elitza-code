@@ -50,7 +50,7 @@ interface Run extends WizardIO {
 type StepResult = "continue" | "postpone"
 type Step = (run: Run) => Promise<StepResult>
 
-const SKIP = /^(skip|none|nothing|n\/a|na)$/i
+const SKIP = /^(skip|none|nothing|n\/a|na|not now)$/i
 
 const question = (key: string) => {
   const found = QUESTIONS.find((q) => q.key === key)
@@ -118,7 +118,7 @@ const mimoKey: Step = async ({ dialog, toast, answers, index, total }) => {
       secret: true,
     })
     const value = typed?.trim() ?? ""
-    if (!value) {
+    if (!value || SKIP.test(value)) {
       const now = await dialog.confirm({
         title: "Without a key I can't reply yet",
         message: "Add your MiMo API key now? You can also add it later — she stays quiet until you do.",
