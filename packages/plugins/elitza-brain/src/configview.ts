@@ -162,7 +162,9 @@ export function validateConfig(): string[] {
   if (typeof config.model === "string" && config.model.startsWith("elitza/") && !process.env.XIAOMI_API_KEY) {
     warnings.push("XIAOMI_API_KEY not set")
   }
-  if (!process.env.GOOGLE_MAPS_API_KEY) warnings.push("GOOGLE_MAPS_API_KEY not set (client_scout returns nothing)")
+  if (!process.env.GOOGLE_MAPS_API_KEY) {
+    warnings.push("GOOGLE_MAPS_API_KEY not set (Google Places fallback disabled; client_scout still works via OpenStreetMap)")
+  }
   if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
     warnings.push("RESEND_API_KEY / RESEND_FROM not set (outreach send is disabled)")
   }

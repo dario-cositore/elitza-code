@@ -274,8 +274,19 @@ for (const tool of tools) {
   assert.ok(typeof result.content === "string" && result.content.length > 0, `${tool.name} returns content`)
 }
 
-// --- client scouting: Places contract, key never leaves the environment -----
+// --- client scouting: OSM-first waterfall, Places fallback, keys stay home -----
 const { scoutKeyPresent } = await import("../src/scouting.js")
+let overpassElements: unknown[] = []
+let overpassQueries: string[] = []
+const overpassServer = Bun.serve({
+  port: 0,
+  fetch: async (request) => {
+    const body = await request.text()
+    overpassQueries.push(new URLSearchParams(body).get("data") ?? "")
+    return Response.json({ elements: overpassElements })
+  },
+})
+process.env.OVERPASS_URL = `http://127.0.0.1:${overpassServer.port}/api/interpreter`
 let placesRequest: { path: string; key: string | null; fieldMask: string | null; body: string } | null = null
 const placesServer = Bun.serve({
   port: 0,
@@ -315,12 +326,65 @@ process.env.GOOGLE_MAPS_API_KEY = "smoke-places-key"
 const scoutTool = tools.find((t) => t.name === "client_scout")
 assert.ok(scoutTool, "client_scout registered")
 assert.equal(scoutKeyPresent(), true, "scout key visible from the environment")
+
+// OSM first: enough Overpass hits stop the waterfall before Places is billed.
+overpassElements = [
+  {
+    type: "node",
+    lat: 45.29,
+    lon: 9.76,
+    tags: {
+      name: "Studio Dentale Rossi",
+      amenity: "dentist",
+      "addr:street": "Via Roma",
+      "addr:housenumber": "1",
+      "addr:postcode": "26022",
+      "addr:city": "Castelleone",
+      "contact:phone": "+39 0374 123456",
+      "contact:website": "https://studio-rossi.example",
+    },
+  },
+  {
+    type: "way",
+    id: 42,
+    center: { lat: 45.3, lon: 9.77 },
+    tags: {
+      name: "Studio Bianchi",
+      amenity: "dentist",
+      "addr:full": "Via Garibaldi 4, 26022 Castelleone CR",
+    },
+  },
+]
+overpassQueries = []
+placesRequest = null
+const scoutOsmOnly = await scoutTool!.execute({ location: "Castelleone, Italy", query: "dentist", limit: 2 })
+const osmBody = JSON.parse(scoutOsmOnly.content) as {
+  count: number
+  businesses: { name: string; address: string; phone: string | null; website: string | null; google_maps: string | null }[]
+  meta: { sources_used: string[] }
+}
+assert.equal(osmBody.count, 2, "both OSM businesses returned")
+assert.deepEqual(osmBody.meta.sources_used, ["osm"], "OSM listed as the contributing source")
+assert.equal(osmBody.businesses[0].phone, "+39 0374 123456", "phone read from contact:phone")
+assert.equal(osmBody.businesses[0].website, "https://studio-rossi.example", "website read from contact:website")
+assert.equal(osmBody.businesses[1].address, "Via Garibaldi 4, 26022 Castelleone CR", "address read from addr:full")
+assert.equal(osmBody.businesses[0].google_maps, null, "no map link invented for OSM rows")
+assert.ok(overpassQueries[0].includes('["admin_level"="8"]'), "city areas scoped at admin_level=8")
+assert.ok(overpassQueries[0].includes("out center tags"), "ways and relations get center coordinates")
+assert.ok(overpassQueries[0].includes('["amenity"="dentist"]'), "query mapped to the OSM tag")
+assert.equal(placesRequest, null, "Places not called once OSM returned enough")
+
+// Waterfall: too few OSM hits fall through to Places behind the key.
+overpassElements = []
+placesRequest = null
 const scoutRun = await scoutTool!.execute({ location: "Castelleone, Italy", query: "dentist", limit: 5 })
 const scoutBody = JSON.parse(scoutRun.content) as {
   count: number
   businesses: { name: string; phone: string | null; rating: number | null; rating_count: number | null; category: string }[]
+  meta: { sources_used: string[] }
 }
 assert.equal(scoutBody.count, 2, "both places returned")
+assert.deepEqual(scoutBody.meta.sources_used, ["google_places"], "Places listed as the contributing source")
 assert.equal(scoutBody.businesses[0].name, "Studio Dentale Rossi", "name mapped")
 assert.equal(scoutBody.businesses[0].phone, "+39 0374 123456", "phone mapped")
 assert.equal(scoutBody.businesses[0].rating, 4.7, "rating mapped")
@@ -332,11 +396,47 @@ assert.equal(placesRequest?.key, "smoke-places-key", "key sent as a header, not 
 assert.ok(placesRequest?.fieldMask?.includes("places.rating"), "field mask asks for the scouting fields")
 assert.ok(placesRequest?.body.includes("dentist in Castelleone, Italy"), "query and location combined in the text query")
 assert.ok(!JSON.stringify(scoutRun.content).includes("smoke-places-key"), "key never appears in tool output")
+
+// Dedup: the same studio in both sources keeps one row and merges the rating.
+overpassElements = [
+  {
+    type: "node",
+    lat: 45.29,
+    lon: 9.76,
+    tags: { name: "Studio Dentale Rossi", amenity: "dentist", phone: "+39 0374 123456" },
+  },
+]
+placesRequest = null
+const scoutMerged = await scoutTool!.execute({ location: "Castelleone, Italy", query: "dentist", limit: 5 })
+const mergedBody = JSON.parse(scoutMerged.content) as {
+  count: number
+  businesses: { name: string; rating: number | null; google_maps: string | null }[]
+  meta: { sources_used: string[] }
+}
+assert.equal(mergedBody.count, 2, "phone duplicate merged away")
+assert.equal(mergedBody.businesses[0].rating, 4.7, "rating filled in from Places")
+assert.equal(mergedBody.businesses[0].google_maps, "https://maps.example/studio-rossi", "map link filled in from Places")
+assert.deepEqual(mergedBody.meta.sources_used, ["osm", "google_places"], "both sources credited")
+
+// No key: Google is simply skipped and OSM still answers.
 delete process.env.GOOGLE_MAPS_API_KEY
+overpassElements = [
+  {
+    type: "node",
+    lat: 45.29,
+    lon: 9.76,
+    tags: { name: "Studio Dentale Rossi", amenity: "dentist", phone: "+39 0374 123456" },
+  },
+]
 const scoutNoKey = await scoutTool!.execute({ location: "Castelleone, Italy", query: "dentist" })
-assert.ok(scoutNoKey.content.includes("GOOGLE_MAPS_API_KEY is not set"), "missing key explains the fix")
+const noKeyBody = JSON.parse(scoutNoKey.content) as { count: number; meta: { sources_used: string[] } }
+assert.equal(noKeyBody.count, 1, "keyless scouting still finds businesses")
+assert.deepEqual(noKeyBody.meta.sources_used, ["osm"], "OSM carries the keyless search")
+assert.ok(!scoutNoKey.content.includes("GOOGLE_MAPS_API_KEY is not set"), "no key nag when OSM works")
 placesServer.stop(true)
+overpassServer.stop(true)
 delete process.env.GOOGLE_PLACES_URL
+delete process.env.OVERPASS_URL
 
 // --- CRM: records, dedupe, cadence columns, asset pointers ------------------
 const crmTool = tools.find((t) => t.name === "crm")

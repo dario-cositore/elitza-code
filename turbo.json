@@ -41,6 +41,10 @@
     "transit": {
       "dependsOn": ["^transit"]
     },
+    "@elitza/brain#test": {
+      "dependsOn": ["transit"],
+      "outputs": []
+    },
     "@elitza/ai#test": {
       "dependsOn": ["transit"],
       "outputs": []

@@ -38,7 +38,7 @@ import {
   updateClient,
   type ClientPatch,
 } from "./crm.js"
-import { scoutBusinesses, scoutKeyPresent, discoverEmail } from "./scouting.js"
+import { scoutBusinesses, discoverEmail } from "./scouting.js"
 import {
   addToPipeline,
   approveDrafts,
@@ -388,7 +388,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
     {
       name: "client_scout",
       description:
-        "Scout local businesses for AI enablement outreach: a location plus a query returns name, address, phone, website, rating, review count, category and Google Maps link. Uses the official Google Places Text Search API with your own GOOGLE_MAPS_API_KEY — no key is embedded anywhere. Read-only: it never stores, ranks, or contacts anyone.",
+        "Scout local businesses for AI enablement outreach: a location plus a query returns name, address, phone, website, rating, review count, category and map link. Free OpenStreetMap (Overpass) carries the search; Google Places runs only as an optional fallback when GOOGLE_MAPS_API_KEY is set — no key is embedded anywhere. Queries: idraulici, parrucchieri, dentisti, avvocati, commercialisti, ristoranti, bar, autofficine, farmacie (English words work too). Read-only: it never stores, ranks, or contacts anyone.",
       input: {
         type: "object",
         properties: {
@@ -398,7 +398,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
           },
           query: {
             type: "string",
-            description: "What to look for, e.g. 'dentist', 'pizzeria', 'accountant'",
+            description: "What to look for, e.g. 'dentisti', 'parrucchieri', 'idraulici', 'ristoranti', 'bar'",
           },
           limit: {
             type: "integer",
@@ -412,16 +412,16 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
         const location = String(input.location ?? "").trim()
         const query = String(input.query ?? "").trim()
         if (!location || !query) return { content: "client_scout needs both a location and a query." }
-        if (!scoutKeyPresent()) {
-          return {
-            content:
-              "GOOGLE_MAPS_API_KEY is not set. Add your own Google Places API key to ~/.elitza/.env as GOOGLE_MAPS_API_KEY=... (mode 600), then restart Elitza.",
-          }
-        }
         const result = await scoutBusinesses(location, query, Number(input.limit ?? 10))
         if (result.error) return { content: result.error }
         if (!result.businesses.length) return { content: `No businesses matched "${query}" in ${location}.` }
-        return { content: JSON.stringify({ count: result.businesses.length, businesses: result.businesses }, null, 2) }
+        return {
+          content: JSON.stringify(
+            { count: result.businesses.length, businesses: result.businesses, meta: result.meta },
+            null,
+            2,
+          ),
+        }
       },
     },
     {
