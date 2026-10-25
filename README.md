@@ -46,6 +46,19 @@ Under the hood it is three things:
 
 Everything runs locally. Keys, config, sessions, memory and client records stay under `~/.elitza`. The only outbound traffic is to the model provider you configured, the Places lookup you asked for, the Resend call you approved, and release metadata.
 
+## Direction
+
+This branch, `main`, is the **cloud-first line**. The loop below is the foundation it grows from:
+
+- **Long-horizon autonomy with accountability.** Runs for days or weeks against a clear business goal, keeps its own operating plan, CRM, outreach cadence and delivery pipeline, and surfaces only high-stakes decisions. Failures get recovered from, playbooks get updated, SOPs stay durable. The metric is operator leverage: hours replaced per hour of human attention.
+- **The AI Enablement Operator as the default way this work is sold.** The full loop from scout to handover gets reliable enough that freelancers and small agencies run their selling and delivery through it, with anonymized public proof compounding credibility.
+- **The invisible operator.** A background service that scouts, nurtures, drafts outreach (batch approval still required), detects ready clients and prepares delivery packages. You are pinged only on exceptions.
+- **Closed-loop business intelligence.** Conversion rate, time to close, deal size and delivery time tracked against real outcomes, feeding A/B variants and rewritten skills until the weekly report reads like a business partner.
+- **Zero-trust, auditable autonomy.** Every action logged, hard policy boundaries the agent cannot override, so higher autonomy stays safe.
+- **Compounding without leakage.** Anonymized playbooks, diagnosis patterns and delivery templates improve across operators while client records and personal memory never leave their owner.
+
+The local-first line (multi-agent swarm, everything on your own hardware) is developed on the [`local-agent`](https://github.com/dario-cositore/elitza-code/tree/local-agent) branch.
+
 ## The AI Enablement loop
 
 Every step is a tool she calls. Exactly one step reaches a human being, and it only goes out after you approve the batch.
