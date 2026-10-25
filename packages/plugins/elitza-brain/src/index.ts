@@ -33,6 +33,7 @@ import { nowISO } from "./db.js"
 import { ELITZA_HOME } from "./db.js"
 import {
   adoptAnswers,
+  alignPlanToKey,
   applyGates,
   applyProvider,
   begin,
@@ -44,6 +45,7 @@ import {
   loadState,
   progress,
   recordAnswer,
+  saveState,
   writePersona,
   SECRET_SAVED,
   WIZARD_FILE,
@@ -377,6 +379,7 @@ export default Plugin.define({
       const question = currentQuestion(state)
       if (!question) return
       const { next, state: updated } = recordAnswer(trimmed)
+      if (question.key === "mimo_key") saveState(alignPlanToKey(updated, trimmed))
       debug(`setup answer: ${question.key} -> next=${next?.key ?? "complete"}`)
       if (!next) finishSetup(updated)
     }

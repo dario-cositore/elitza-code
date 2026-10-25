@@ -490,6 +490,41 @@ export function mimoEndpoint(planAnswer: string): string {
   return MIMO_ENDPOINTS[planAnswer.trim().toLowerCase()] ?? MIMO_ENDPOINTS.standard
 }
 
+/** Which family a pasted key belongs to: `sk-` the standard API, `tp-` a Token Plan. */
+export function mimoKeyFamily(key: string): "standard" | "token-plan" | "unknown" {
+  const trimmed = key.trim().toLowerCase()
+  if (trimmed.startsWith("sk")) return "standard"
+  if (trimmed.startsWith("tp")) return "token-plan"
+  return "unknown"
+}
+
+/** Token Plan regions — the only `mimo_plan` answers that accept `tp-` keys. */
+export function isRegionPlan(planAnswer: string): boolean {
+  const plan = planAnswer.trim().toLowerCase()
+  return plan === "europe" || plan === "singapore" || plan === "china"
+}
+
+/**
+ * The key is authoritative about its own endpoint family: a pasted `sk-` key
+ * forces the standard endpoint, and a `tp-` key without a region re-opens the
+ * region question instead of letting the standard fallback swallow it.
+ */
+export function alignPlanToKey(state: OnboardingState, rawKey: string): OnboardingState {
+  const family = mimoKeyFamily(rawKey)
+  if (family === "standard") {
+    state.answers.mimo_plan = "standard"
+    return state
+  }
+  if (family === "token-plan" && !isRegionPlan(state.answers.mimo_plan ?? "")) {
+    state.answers.mimo_plan = ""
+    state.pending = "mimo_plan"
+    state.step = Math.max(0, QUESTIONS.findIndex((q) => q.key === "mimo_plan"))
+    state.active = true
+    state.completed = null
+  }
+  return state
+}
+
 /**
  * Wire MiMo into the engine config as the only provider: the `elitza` entry
  * carries the endpoint and the key source, and the model string points at it.

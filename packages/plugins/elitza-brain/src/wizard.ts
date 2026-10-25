@@ -20,7 +20,9 @@ import {
   QUESTIONS,
   SECRET_SAVED,
   WIZARD_FILE,
+  isRegionPlan,
   mimoEndpoint,
+  mimoKeyFamily,
   saveSecretValue,
 } from "./onboarding.js"
 
@@ -93,7 +95,7 @@ const welcome: Step = async ({ dialog, answers }) => {
 const plan: Step = async ({ dialog, answers, index, total }) => {
   const picked = await dialog.select({
     title: titled(index, total, "Which MiMo endpoint should I run on?"),
-    placeholder: "Esc uses the standard endpoint",
+    placeholder: "Esc lets the key type decide",
     options: [
       { title: "Standard API", value: "standard", description: "api.xiaomimimo.com — regular API keys" },
       { title: "Europe (Token Plan)", value: "europe", description: "token-plan-ams.xiaomimimo.com" },
@@ -128,6 +130,16 @@ const mimoKey: Step = async ({ dialog, toast, answers, index, total }) => {
       answers.mimo_key = "not now"
       return "continue"
     }
+    const family = mimoKeyFamily(value)
+    if (family === "standard") {
+      answers.mimo_plan = "standard"
+      toast.show({ message: "Standard API key — checking api.xiaomimimo.com" })
+    }
+    if (family === "token-plan") {
+      const region = await resolveTokenPlanRegion(value, answers.mimo_plan ?? "")
+      answers.mimo_plan = region ?? answers.mimo_plan ?? "europe"
+      toast.show({ message: `Token Plan key — endpoint: ${mimoEndpoint(answers.mimo_plan)}` })
+    }
     if (!saveSecretValue("mimo_key", value)) {
       await dialog.alert({
         title: "Couldn't write the key",
@@ -142,9 +154,15 @@ const mimoKey: Step = async ({ dialog, toast, answers, index, total }) => {
       toast.show({ message: "MiMo key verified" })
       return "continue"
     }
+    const hint =
+      family === "token-plan"
+        ? "tp- keys only work on a Token Plan region"
+        : family === "standard"
+          ? "sk- keys only work on the standard endpoint"
+          : "MiMo keys start with sk- (standard) or tp- (Token Plan)"
     const choice = await dialog.select({
       title: "Couldn't verify that key",
-      placeholder: check.reason ?? "unknown error",
+      placeholder: `${check.reason ?? "unknown error"} — ${hint}`,
       options: [
         { title: "Try again", value: "retry", description: "Repaste the key" },
         {
@@ -226,6 +244,37 @@ const STEPS: Step[] = [
 // ---------------------------------------------------------------------------
 // The run
 // ---------------------------------------------------------------------------
+
+/** A free `GET /models` — enough to prove a key against one endpoint. */
+async function probeMimoEndpoint(key: string, endpoint: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${endpoint}/models`, {
+      headers: { authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(10_000),
+    })
+    return response.ok
+  } catch {
+    return false
+  }
+}
+
+/**
+ * A `tp-` key belongs to exactly one Token Plan region and the prefix cannot
+ * say which one, so the key picks its own region: hint first, then the others.
+ */
+export async function resolveTokenPlanRegion(
+  key: string,
+  hint: string,
+  probe: (key: string, endpoint: string) => Promise<boolean> = probeMimoEndpoint,
+): Promise<string | undefined> {
+  const candidates = [hint, "europe", "singapore", "china"].filter(
+    (value, index, all) => isRegionPlan(value) && all.indexOf(value) === index,
+  )
+  for (const region of candidates) {
+    if (await probe(key, mimoEndpoint(region))) return region
+  }
+  return undefined
+}
 
 /** One cheap live call so a wrong key or endpoint fails here, not on her first reply. */
 export async function verifyMiMo(
