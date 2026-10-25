@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 — 2026-10-25
+
+Key safety and keyless scouting.
+
+- **Wizard sentinel fix**: deferring a key in setup (answering "not now") no longer writes that placeholder over `XIAOMI_API_KEY` or `MATON_API_KEY` on the next boot. Deferred keys are left alone; real ones keep their 600-permission files.
+- **Keyless scouting on OpenStreetMap**: `client_scout` runs Overpass as the primary source (Italian trade-to-tag mapping, city and province scoping, contact-tag hygiene) with cross-source dedup and `meta.sources_used`. Google Places is now an optional enrichment layer: add your own `GOOGLE_MAPS_API_KEY` and it joins the waterfall, otherwise scouting still works with zero keys. Never invents contact details.
+- **CI restored for `@elitza/ui`**: the solid-js test preload dropped in the rebrand fork is back, so the test suite runs green again.
+
 ## 1.1.0 — 2026-10-25
 
 The AI Enablement operator: the same binary, now built around finding, contacting and delivering client work.
