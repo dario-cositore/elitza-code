@@ -48,16 +48,14 @@ Everything runs locally. Keys, config, sessions, memory and client records stay 
 
 ## Direction
 
-This branch, `main`, is the **cloud-first line**. The loop below is the foundation it grows from:
+This branch, `local-agent`, is the **local-first line**. Everything runs on your machine, or on hardware you own, by default:
 
-- **Long-horizon autonomy with accountability.** Runs for days or weeks against a clear business goal, keeps its own operating plan, CRM, outreach cadence and delivery pipeline, and surfaces only high-stakes decisions. Failures get recovered from, playbooks get updated, SOPs stay durable. The metric is operator leverage: hours replaced per hour of human attention.
-- **The AI Enablement Operator as the default way this work is sold.** The full loop from scout to handover gets reliable enough that freelancers and small agencies run their selling and delivery through it, with anonymized public proof compounding credibility.
-- **The invisible operator.** A background service that scouts, nurtures, drafts outreach (batch approval still required), detects ready clients and prepares delivery packages. You are pinged only on exceptions.
-- **Closed-loop business intelligence.** Conversion rate, time to close, deal size and delivery time tracked against real outcomes, feeding A/B variants and rewritten skills until the weekly report reads like a business partner.
-- **Zero-trust, auditable autonomy.** Every action logged, hard policy boundaries the agent cannot override, so higher autonomy stays safe.
-- **Compounding without leakage.** Anonymized playbooks, diagnosis patterns and delivery templates improve across operators while client records and personal memory never leave their owner.
+- **A swarm that scales without cloud.** One instance spawns and manages a fleet of specialized sub-agents (scout, closer, implementer, researcher, memory consolidator, and whatever the work needs next) that share a single coherent brain and one CRM. Graceful degradation when something is unreachable, and hand-off between machines when you move.
+- **The local agentic OS layer.** Elitza's brain (memory model, typed skills, permission system, CRM primitives) is the substrate other local agents and tools plug into instead of rebuilding, the way programs build on SQLite or the filesystem.
 
-The local-first line (multi-agent swarm, everything on your own hardware) is developed on the [`local-agent`](https://github.com/dario-cositore/elitza-code/tree/local-agent) branch.
+Both lines share the same primitives: the SQLite brain, typed skills, permission gates, the CRM lifecycle, approval-gated outreach and durable state. What differs is where the work runs and how far it is allowed to run unattended.
+
+The cloud-first line (long-horizon autonomy, the invisible operator, cross-operator compounding) is developed on [`main`](https://github.com/dario-cositore/elitza-code).
 
 ## The AI Enablement loop
 
