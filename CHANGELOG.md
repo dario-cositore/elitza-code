@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.2 — 2026-10-25
+
+Keys know their own endpoint.
+
+- **Key-type aware setup**: `sk-` (standard API) and `tp-` (Token Plan) MiMo keys are digested by their prefix. A standard key always verifies against `api.xiaomimimo.com`; a Token Plan key probes the Token Plan regions and runs on the one that accepts it, whatever the earlier endpoint answer said. The chat interview re-opens the region question when a `tp-` key lands without one. A correct key can no longer fail with "Invalid API Key" just because it met the wrong endpoint.
+
 ## 1.1.1 — 2026-10-25
 
 Key safety and keyless scouting.
