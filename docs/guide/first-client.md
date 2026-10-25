@@ -16,7 +16,7 @@ Back to the [README](../../README.md), or see [guided setup](guided-setup.md) an
 client_scout: location = "Castelleone, Cremona, Italy", query = "dentist", limit = 10
 ```
 
-Returns name, address, phone, website, rating, review count, category and a Maps link per business, straight from the official Google Places Text Search API with your own `GOOGLE_MAPS_API_KEY`. Read-only: it stores nothing and contacts nobody.
+Returns name, address, phone, website and category per business, straight from OpenStreetMap (Overpass) with zero keys. Add your own `GOOGLE_MAPS_API_KEY` and Google Places joins as an enrichment layer that fills ratings, review counts and Maps links. Read-only: it stores nothing and contacts nobody.
 
 ## 2. Qualify into the CRM
 
@@ -31,7 +31,7 @@ Scores are 0-100: how well they fit what you sell (budget signal, volume, whethe
 crm find_email: id = 1
 ```
 
-Places does not hand out email addresses, so this reads the client's own website for a public one. It returns nothing rather than guessing an address that would only bounce.
+Neither OSM nor Places hands out email addresses, so this reads the client's own website for a public one. It returns nothing rather than guessing an address that would only bounce.
 
 ## 3. First touch
 
