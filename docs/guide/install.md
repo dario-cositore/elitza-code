@@ -1,6 +1,6 @@
 # Install Elitza
 
-Elitza ships as a prebuilt binary for macOS and Linux. You install her with one command, connect a free model, and start working. The [README](../../README.md) has the short version; this page has every flag, path and step.
+Elitza ships as a prebuilt binary for macOS and Linux. You install her with one command, connect your MiMo key, and start working. The [README](../../README.md) has the short version; this page has every flag, path and step.
 
 ## Install
 
@@ -48,7 +48,7 @@ Environment overrides, also read from `--help`:
 3. Downloads `elitza-<os>-<arch>.tar.gz` (the `elitza` binary plus the brain plugin), extracts it to a staging directory, and swaps it into `~/.elitza/agent`. A failed download never leaves a half-installed release behind.
 4. Runs `elitza --version` in a throwaway home to prove the binary starts.
 5. Migrates an older `~/.elitza/opencode` tree into `~/.elitza/home`, so sessions and config survive the upgrade.
-6. Seeds what is missing: `~/.elitza/.env` for provider keys, `~/.elitza/SOUL.md` for her identity, `~/.elitza/brain`, `~/.elitza/personas`, and a config at `~/.elitza/home/config/opencode.json` with a free default model (`openrouter/nvidia/nemotron-3-super-120b-a12b:free`) and the brain plugin.
+6. Seeds what is missing: `~/.elitza/.env` for provider keys, `~/.elitza/SOUL.md` for her identity, `~/.elitza/brain`, `~/.elitza/personas`, and a config at `~/.elitza/home/config/opencode.json` with her Xiaomi MiMo provider and model (`elitza/xiaomi/mimo-v2.6-flash`) plus the brain plugin.
 7. Writes the `elitza` launcher into `~/.local/bin` and adds a PATH line marked `# Elitza` to your shell startup files (skip with `--no-modify-path`).
 
 The script lives at <https://elitza.life/install.sh>.
@@ -66,7 +66,7 @@ The launcher is a small shell script, not a symlink. It pins every runtime direc
 | `XDG_CACHE_HOME` | `~/.elitza/home/cache` |
 | `OPENCODE_DB` | `~/.elitza/home/data/elitza.db` |
 
-It also sources `~/.elitza/.env` with `set -a`, so every variable you put there (like `OPENROUTER_API_KEY`) reaches the process, then execs `~/.elitza/agent/elitza`. Always start Elitza through the launcher. Skip it and config, sessions and logs land in machine-default paths that other tools share.
+It also sources `~/.elitza/.env` with `set -a`, so every variable you put there (like `XIAOMI_API_KEY`) reaches the process, then execs `~/.elitza/agent/elitza`. Always start Elitza through the launcher. Skip it and config, sessions and logs land in machine-default paths that other tools share.
 
 ## Platforms
 
@@ -83,8 +83,8 @@ CI builds four targets on every `v*` tag (`.github/workflows/release.yml`):
 
 ## First run
 
-1. Type `/connect`. The integration dialog walks you through an OpenRouter key. Free keys are at <https://openrouter.ai/keys>. You can also drop `OPENROUTER_API_KEY=...` straight into `~/.elitza/.env`.
-2. Type `/models` to pick a brain. Free `:free` OpenRouter endpoints sort to the top of the list (`packages/tui/src/component/dialog-model.tsx`).
+1. Run `elitza`. The setup wizard opens over the composer and walks you through creating your Xiaomi MiMo account (invite code `HFSR94`), choosing your endpoint (standard API or a regional Token Plan) and pasting your key with a live verify ping. It writes `XIAOMI_API_KEY=...` into `~/.elitza/.env` and points the config at her MiMo provider for you.
+2. Answer the persona and permission questions and the write-up lands in `~/.elitza/PERSONA.md`. Esc skips any step; `/setup` reopens the wizard and `/start` is the in-chat fallback.
 3. Type `@` to pull a file into context, then send your first prompt.
 
 Elitza ships with no API key and meters nothing. You always bring your own. Full command and TUI reference: [tui.md](../reference/tui.md).
