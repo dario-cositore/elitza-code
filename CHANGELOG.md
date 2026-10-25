@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 — 2026-10-25
 
 The AI Enablement operator: the same binary, now built around finding, contacting and delivering client work.
 
