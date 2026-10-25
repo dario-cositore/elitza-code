@@ -1,14 +1,33 @@
 # Guided setup
 
-The `/start` interview is how Elitza becomes yours: her name and voice, your hard rules, the permission gates the engine will enforce, and the one provider she runs on. Answer in plain sentences; skip anything you do not want to decide yet.
+Setup is how Elitza becomes yours: her name and voice, your hard rules, the permission gates the engine will enforce, and the one provider she runs on. Answer in plain sentences; skip anything you do not want to decide yet.
+
+Two doors, the same thirteen questions: the wizard pops up on first boot, `/start` runs the interview inside chat.
 
 ```text
-/start           run the interview
+(start)          the wizard opens itself while setup is unfinished
+/setup           open the wizard again, or start over once it is complete
+/start           run the same interview in chat
 /start reset     start over from the first question
 /profile         show what the last run decided
 ```
 
 Back to the [README](../../README.md), or see [first client](first-client.md) and [handover](handover.md).
+
+## The first-boot wizard
+
+The first time you start Elitza with setup unfinished, a popup takes over the composer and asks the questions one at a time, numbered `[1/13]`:
+
+1. A welcome card with the MiMo affiliate link and invite code `HFSR94`, and whether you already have an account. Esc here postpones everything: the wizard stops and will not open itself again until you type `/setup`.
+2. Which endpoint you are on (Esc uses `standard`).
+3. Your API key, masked as you type. It goes straight into `~/.elitza/.env` with mode 600, then the wizard pings the endpoint to confirm it works. A failed ping offers *Try again* or *Continue anyway*; no key offers *Add it now* or *Later*, and she stays quiet until you add one.
+4. The nine persona and gate questions from the list below (items 1-9), then the optional Maton gateway key.
+
+The wizard asks the same thirteen questions `/start` asks, only the MiMo block moves first: the key is the thing that makes her reply, so it comes before the persona questions. In chat, `/start` keeps the order below.
+
+Progress is saved after every step, so a restart resumes where you left off. The only network call is a four-token key check against your own key, so nothing else runs a model during setup.
+
+When the last question is answered the wizard writes a hand-off file, says "You're all set", and closes. The engine picks that file up on your first message and applies persona, hard rules, permission gates, provider and keys in one go. If that first reply fails, send it again.
 
 ## The questions, in order
 

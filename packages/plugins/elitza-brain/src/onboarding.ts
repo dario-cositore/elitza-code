@@ -19,13 +19,21 @@
 import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { ELITZA_HOME, nowISO, parseJSON } from "./db.js"
+import { BRAIN_DIR, ELITZA_HOME, nowISO, parseJSON } from "./db.js"
 import { soulGet, soulSet } from "./soul.js"
 import { engineConfigPath } from "./configview.js"
 
 const STATE_KEY = "onboarding"
 const PERSONA_FILE = path.join(ELITZA_HOME, "PERSONA.md")
 const CONFIG_FILE = engineConfigPath()
+
+/**
+ * The visual wizard's hand-off file. The TUI collects the answers (and any
+ * secrets go straight to their 600 files), writes them here, and the engine
+ * adopts them into the soul on the next prompt or boot — one writer per
+ * process, no cross-process soul writes.
+ */
+export const WIZARD_FILE = path.join(BRAIN_DIR, "onboarding-wizard.json")
 
 export interface OnboardingState {
   active: boolean
@@ -241,6 +249,38 @@ export function progress(state = loadState()): { done: number; total: number } {
   return { done: Object.keys(state.answers).length, total }
 }
 
+/**
+ * Adopt a finished set of answers from the visual wizard in one move: the
+ * same end state the interview reaches when the last question lands.
+ * A raw secret that ever reaches this function is re-routed through its
+ * 600 file, so the soul never holds a key.
+ */
+export function adoptAnswers(answers: Record<string, string>, started?: string): OnboardingState {
+  const clean: Record<string, string> = {}
+  for (const question of QUESTIONS) {
+    const raw = answers[question.key]
+    if (raw === undefined) continue
+    const value = raw.trim().replace(/^["']+|["']+$/g, "").trim()
+    if (question.secret && value && value !== SECRET_SAVED && !value.startsWith("(")) {
+      clean[question.key] = saveSecret(question.key, value)
+        ? SECRET_SAVED
+        : "(not saved — could not write the file)"
+      continue
+    }
+    clean[question.key] = value.slice(0, 2000)
+  }
+  const state: OnboardingState = {
+    active: false,
+    step: QUESTIONS.length,
+    pending: null,
+    answers: clean,
+    started: started || nowISO(),
+    completed: nowISO(),
+  }
+  saveState(state)
+  return state
+}
+
 // ---------------------------------------------------------------------------
 // Permission gates
 // ---------------------------------------------------------------------------
@@ -381,6 +421,35 @@ function saveSecret(questionKey: string, value: string): boolean {
   }
 }
 
+/** The wizard writes secrets through the same 600-file path as the interview. */
+export function saveSecretValue(questionKey: string, value: string): boolean {
+  return saveSecret(questionKey, value)
+}
+
+/**
+ * Load ~/.elitza/.env into this process's environment, never overwriting an
+ * existing variable. The launcher sources the file at start; a key entered
+ * through the wizard lands later, so the engine loads it here before it ever
+ * resolves a provider credential.
+ */
+export function loadEnvFile(): string[] {
+  const loaded: string[] = []
+  try {
+    if (!fs.existsSync(ENV_FILE)) return loaded
+    for (const line of fs.readFileSync(ENV_FILE, "utf8").split("\n")) {
+      const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/.exec(line)
+      if (!match) continue
+      const [, name, raw] = match
+      if (process.env[name]) continue
+      process.env[name] = raw.replace(/^["']|["']$/g, "")
+      loaded.push(name)
+    }
+  } catch {
+    // Loading the env file is best-effort, like the launcher's own sourcing.
+  }
+  return loaded
+}
+
 /**
  * Tighten permissions on every file that holds a secret, whether or not this
  * run wrote one — a pre-existing .env must not stay group-readable just
@@ -416,13 +485,18 @@ const MIMO_ENDPOINTS: Record<string, string> = {
   china: "https://token-plan-cn.xiaomimimo.com/v1",
 }
 
+/** The base URL for a plan answer — shared by the provider config and the wizard's key check. */
+export function mimoEndpoint(planAnswer: string): string {
+  return MIMO_ENDPOINTS[planAnswer.trim().toLowerCase()] ?? MIMO_ENDPOINTS.standard
+}
+
 /**
  * Wire MiMo into the engine config as the only provider: the `elitza` entry
  * carries the endpoint and the key source, and the model string points at it.
  * Returns a short note for the closing summary.
  */
 export function applyProvider(planAnswer: string): string {
-  const endpoint = MIMO_ENDPOINTS[planAnswer.trim().toLowerCase()] ?? MIMO_ENDPOINTS.standard
+  const endpoint = mimoEndpoint(planAnswer)
   const written = editEngineConfig((config) => {
     config.model = MIMO_MODEL
     const providers = { ...((config.providers as Record<string, unknown>) ?? {}) }

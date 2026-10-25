@@ -11,7 +11,7 @@ Back to the [README](../../README.md), or see [configuration](configuration.md) 
 | `~/.elitza/brain/soul_v2.db` | Memories, links, recall log, session log, doctor history, tasks |
 | `~/.elitza/brain/crm.db` | Clients, interactions, assets and the outreach pipeline — a separate file on purpose, so client data never enters the memory index and can be backed up or wiped alone |
 | `~/.elitza/SOUL.md` | Core identity, plain markdown, edit it and she changes |
-| `~/.elitza/PERSONA.md` | What `/start` wrote about your answers |
+| `~/.elitza/PERSONA.md` | What guided setup wrote about your answers |
 | `~/.elitza/personas/` | Who she is talking to (JSON) |
 | `~/.elitza/roles/` | How she should behave in a given role (JSON) |
 | `~/.elitza/hooks/` | Event hooks (JSON) |

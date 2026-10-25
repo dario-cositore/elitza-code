@@ -350,6 +350,8 @@ export interface DialogPromptOptions {
   readonly description?: string
   readonly placeholder?: string
   readonly value?: string
+  /** Masks the input as it is typed — for API keys and other secrets. */
+  readonly secret?: boolean
 }
 
 export interface DialogSelectOption<Value> {

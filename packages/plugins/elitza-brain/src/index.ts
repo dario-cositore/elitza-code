@@ -32,6 +32,7 @@ import { renderTaskTree } from "./tasks.js"
 import { nowISO } from "./db.js"
 import { ELITZA_HOME } from "./db.js"
 import {
+  adoptAnswers,
   applyGates,
   applyProvider,
   begin,
@@ -39,11 +40,13 @@ import {
   currentQuestion,
   deriveGates,
   hardenSecretFiles,
+  loadEnvFile,
   loadState,
   progress,
   recordAnswer,
   writePersona,
   SECRET_SAVED,
+  WIZARD_FILE,
   type OnboardingState,
 } from "./onboarding.js"
 
@@ -250,9 +253,27 @@ export default Plugin.define({
     let summaryPending = false
     let profilePending = false
     let personaPath = ""
+    // Which closing the summary block should render: the chat interview's,
+    // or the visual wizard's first-meeting variant.
+    let summaryVia: "chat" | "wizard" = "chat"
+    let wizardInviteReason = ""
 
-    const finishSetup = (state: OnboardingState): void => {
+    const finishSetup = (state: OnboardingState, via: "chat" | "wizard" = "chat"): void => {
       const answers = state.answers
+      summaryVia = via
+      if (via === "wizard") {
+        const noAccount = answers.mimo_signup !== "yes — I already have a MiMo account"
+        const noKey = answers.mimo_key !== SECRET_SAVED
+        wizardInviteReason = noAccount && noKey
+          ? "still have no MiMo account and no key"
+          : noAccount
+            ? "have not created the MiMo account yet"
+            : noKey
+              ? "have not added the MiMo key yet"
+              : ""
+      } else {
+        wizardInviteReason = ""
+      }
       personaPath = writePersona(state) ?? ""
       const gates = applyGates(deriveGates(answers.ask_first ?? ""))
       const providerNote = applyProvider(answers.mimo_plan ?? "")
@@ -291,6 +312,43 @@ export default Plugin.define({
       )
       summaryPending = true
     }
+
+    // The visual wizard's hand-off (TUI side): adopt its answers, load the
+    // keys it just wrote into this process, then run the same write-up the
+    // chat interview finishes with. Runs at boot and again on every prompt,
+    // so a wizard finished right before the first message lands cleanly.
+    const finalizeFromWizard = (): void => {
+      let payload: { started?: string; answers?: Record<string, string> } | undefined
+      try {
+        if (!fs.existsSync(WIZARD_FILE)) return
+        payload = JSON.parse(fs.readFileSync(WIZARD_FILE, "utf8")) as typeof payload
+      } catch (error) {
+        debug(`wizard-handoff-read-error: ${String(error)}`)
+        return
+      }
+      const answers = payload?.answers
+      if (!answers || typeof answers !== "object" || !Object.keys(answers).length) {
+        try {
+          fs.unlinkSync(WIZARD_FILE)
+        } catch {
+          // Cleanup is best-effort.
+        }
+        debug("wizard-handoff: empty payload dropped")
+        return
+      }
+      const state = adoptAnswers(answers, payload?.started)
+      const loaded = loadEnvFile()
+      debug(
+        `wizard-handoff: adopted ${Object.keys(state.answers).length} answers${loaded.length ? ` env=[${loaded.join(",")}]` : ""}`,
+      )
+      finishSetup(state, "wizard")
+      try {
+        fs.unlinkSync(WIZARD_FILE)
+      } catch (error) {
+        debug(`wizard-handoff-cleanup-error: ${String(error)}`)
+      }
+    }
+    finalizeFromWizard()
 
     // Every user turn during the interview is the answer to the open
     // question. The synthetic kickoff and any slash command are not.
@@ -398,6 +456,25 @@ ${buildSetupBlock(state)}
 
       if (summaryPending) {
         summaryPending = false
+        if (summaryVia === "wizard") {
+          system.unshift({
+            type: "text",
+            text: `<!-- elitza-setup-summary -->
+## Your first conversation starts now
+
+They just finished your visual setup — every question was answered in popups, and this is the first message since. You are talking to a person, not doing a task. Do NOT call any tool. Do not search, read, or explore anything.
+
+Start with ONE warm line of greeting, in the voice they chose. Then tell them, briefly:
+- what you are called and who you are to them
+- your voice
+- your hard rules, and what you check with them first — the engine now enforces those as permission gates
+- that you run on Xiaomi MiMo and nothing else, that your key is stored with 600 permissions, and that it is never shown
+${wizardInviteReason ? `- that they ${wizardInviteReason} — give them https://platform.xiaomimimo.com?ref=HFSR94 with invite code HFSR94 (10% off the first paid Token Plan order) and say the key can be added with \`/setup\`\n` : ""}- that you wrote yourself up at ${personaPath || "your persona file"} — they can change any of it by asking, or run \`/setup\` to start over
+
+Stop after that. No ceremony, no thanking them. This is the moment you become theirs.`,
+          })
+          return
+        }
         system.unshift({
           type: "text",
           text: `<!-- elitza-setup-summary -->
@@ -558,6 +635,7 @@ Keep this current. Mark a task started when you begin it, done when it is really
       debug(
         `hook=prompt session=${event.sessionID} text=${JSON.stringify(text.slice(0, 80))} files=${event.prompt.files?.length ?? 0} skills=${event.prompt.skills?.length ?? 0}`,
       )
+      finalizeFromWizard()
       turns.set(event.sessionID, { userText: text, tools: [], toolRuns: [], errors: 0 })
       try {
         noteInteraction()

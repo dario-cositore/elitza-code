@@ -22,6 +22,8 @@ export type DialogPromptProps = {
   description?: () => JSX.Element
   placeholder?: string
   value?: string
+  /** Masks the input as it is typed and keeps the real value out of the buffer. */
+  secret?: boolean
   busy?: boolean
   busyText?: string
   actions?: DialogPromptAction[]
@@ -29,17 +31,38 @@ export type DialogPromptProps = {
   onCancel?: () => void
 }
 
+const MASK = "•"
+
 export function DialogPrompt(props: DialogPromptProps) {
   const dialog = useDialog()
   const renderer = useRenderer()
   const theme = useTheme().surface("dialog")
   const config = useConfig().data
   const [textareaTarget, setTextareaTarget] = createSignal<TextareaRenderable>()
+  const [real, setReal] = createSignal(props.value ?? "")
   let textarea: TextareaRenderable
 
   function confirm() {
     if (props.busy) return
-    props.onConfirm?.(textarea.plainText)
+    props.onConfirm?.(props.secret ? real() : textarea.plainText)
+  }
+
+  // Secret mode keeps the true value in `real` and only ever shows bullets:
+  // every content change is re-masked, which also clears the undo history so
+  // a stray undo cannot reveal the key. Editing is expected to happen at the
+  // end of the line (the prompt starts there); the setup wizard verifies the
+  // stored key with a live ping, which catches any mismatch.
+  function syncSecret() {
+    if (!textarea || textarea.isDestroyed) return
+    const shown = textarea.plainText
+    if (shown === MASK.repeat(real().length)) return
+    let next = real()
+    if (shown.length > next.length) next += shown.slice(next.length)
+    else if (shown.length < next.length) next = next.slice(0, shown.length)
+    else next = shown
+    setReal(next)
+    textarea.setText(MASK.repeat(next.length))
+    textarea.gotoLineEnd()
   }
 
   const handle = {
@@ -93,6 +116,10 @@ export function DialogPrompt(props: DialogPromptProps) {
 
   onMount(() => {
     dialog.setSize(props.size ?? "medium")
+    if (props.secret && props.value) {
+      setReal(props.value)
+      textarea.setText(MASK.repeat(props.value.length))
+    }
     setTimeout(() => {
       if (!textarea || textarea.isDestroyed) return
       if (props.busy) return
@@ -150,6 +177,7 @@ export function DialogPrompt(props: DialogPromptProps) {
           ref={(val: TextareaRenderable) => {
             textarea = val
             setTextareaTarget(val)
+            val.onContentChange = props.secret ? syncSecret : undefined
           }}
           initialValue={props.value}
           placeholder={props.placeholder ?? "Enter text"}

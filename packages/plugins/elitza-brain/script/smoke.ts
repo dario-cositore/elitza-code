@@ -714,5 +714,136 @@ assert.ok(
   "permission gates derived from the answers",
 )
 
+// --- visual wizard: scripted dialog run, key ping, hand-off, adoption -----
+const { runWizard, verifyMiMo } = await import("../src/wizard.js")
+type WizardModule = typeof import("../src/wizard.js")
+type WizardIO = Parameters<WizardModule["runWizard"]>[0]
+
+const wizardReplies = new Map<string, () => unknown>()
+const wizardAsked: string[] = []
+const answerFor = (title: string): unknown => {
+  wizardAsked.push(title)
+  for (const [fragment, reply] of wizardReplies) {
+    if (title.includes(fragment)) {
+      wizardReplies.delete(fragment)
+      return reply()
+    }
+  }
+  throw new Error(`wizard asked an unexpected question: ${title}`)
+}
+const fakeIO: WizardIO = {
+  dialog: {
+    show() {},
+    set() {},
+    clear() {},
+    async alert() {},
+    async confirm() {
+      return true
+    },
+    async prompt(options) {
+      return answerFor(options.title) as string | undefined
+    },
+    async select(options) {
+      return answerFor(options.title) as never
+    },
+  },
+  toast: { show() {} },
+}
+const savedProgress: Array<{ step: number; postponed?: boolean; answers: Record<string, string> }> = []
+const saveProgress = async (next: { step: number; postponed?: boolean; answers: Record<string, string> }) => {
+  savedProgress.push(next)
+}
+
+const verifyServer = Bun.serve({
+  port: 0,
+  fetch(request) {
+    if (new URL(request.url).pathname === "/bad") return new Response("invalid key", { status: 401 })
+    return new Response(JSON.stringify({ choices: [{ message: { content: "pong" } }] }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    })
+  },
+})
+process.env.ELITZA_MIMO_VERIFY_URL = `http://127.0.0.1:${verifyServer.port}/ok`
+
+// Postponing at the welcome screen saves no answers and writes no hand-off.
+wizardReplies.set("Do you already have your MiMo account", () => undefined)
+const postponed = await runWizard(fakeIO, { step: 0, answers: {} }, saveProgress)
+assert.equal(postponed, "postponed", "welcome esc postpones the wizard")
+assert.equal(savedProgress.at(-1)?.postponed, true, "postponement is persisted")
+assert.ok(!fs.existsSync(onboarding.WIZARD_FILE), "no hand-off file when postponed")
+
+// A full scripted run: key verified against the local mock, skips map to
+// fallbacks, secrets never reach the hand-off file.
+wizardReplies.clear()
+wizardReplies.set("Do you already have your MiMo account", () => "yes")
+wizardReplies.set("Which MiMo endpoint", () => "standard")
+wizardReplies.set("Paste your MiMo API key", () => "smoke-wizard-key-raw")
+wizardReplies.set("What should I be called", () => "Zara")
+wizardReplies.set("What should I call you", () => "Kai")
+wizardReplies.set("What am I to you", () => "a co-pilot")
+wizardReplies.set("How should I talk to you", () => "blunt")
+wizardReplies.set("Do I ask before I act", () => "ask first")
+wizardReplies.set("What must I absolutely never do", () => "skip")
+wizardReplies.set("What should I check with you", () => "before running commands")
+wizardReplies.set("What should I remember", () => "keep decisions, never passwords")
+wizardReplies.set("Anything else", () => "")
+wizardReplies.set("And your Maton gateway key", () => undefined)
+const handoff = await runWizard(fakeIO, { step: 0, answers: {} }, saveProgress)
+assert.equal(handoff, "handed-off", "full run hands off")
+assert.ok(wizardAsked.some((title) => title.includes("Paste your MiMo API key")), "the key step ran")
+assert.equal(savedProgress.at(-1)?.step, 0, "progress clears after hand-off")
+
+const payload = JSON.parse(fs.readFileSync(onboarding.WIZARD_FILE, "utf8")) as {
+  started?: string
+  answers: Record<string, string>
+}
+assert.equal(payload.answers.name, "Zara", "persona answers reach the hand-off")
+assert.equal(payload.answers.mimo_key, onboarding.SECRET_SAVED, "key is a placeholder in the hand-off")
+assert.equal(
+  payload.answers.never,
+  "nothing in particular, but I will never do anything that destroys your work or sends anything without saying so",
+  "skip stores the question's default",
+)
+assert.equal(payload.answers.maton_key, "not now", "skipped Maton key keeps its default")
+assert.ok(!JSON.stringify(payload.answers).includes("smoke-wizard-key-raw"), "raw key never enters the hand-off")
+assert.ok(
+  fs.readFileSync(`${home}/.env`, "utf8").includes("XIAOMI_API_KEY=smoke-wizard-key-raw"),
+  "the wizard wrote the key to its 600 file",
+)
+
+// Adoption lands in the soul exactly like the interview's own finish.
+const adopted = onboarding.adoptAnswers(payload.answers, payload.started)
+assert.ok(adopted.completed && !adopted.active, "adoption closes the setup")
+const soulRow = onboarding.loadState()
+assert.equal(soulRow.answers.name, "Zara", "adopted answers live in the soul")
+assert.ok(!JSON.stringify(soulRow).includes("smoke-wizard-key-raw"), "raw key never lands in the soul")
+
+// A raw secret smuggled into adoption is re-routed to its 600 file anyway.
+const defended = onboarding.adoptAnswers({ ...payload.answers, mimo_key: "raw-second-key" })
+assert.equal(defended.answers.mimo_key, onboarding.SECRET_SAVED, "adoption never stores a raw secret")
+assert.ok(
+  fs.readFileSync(`${home}/.env`, "utf8").includes("XIAOMI_API_KEY=raw-second-key"),
+  "the raw secret was written to the env file instead",
+)
+
+// The key check reports honest failures, not throws.
+process.env.ELITZA_MIMO_VERIFY_URL = `http://127.0.0.1:${verifyServer.port}/bad`
+const bad = await verifyMiMo("standard", "wrong-key")
+assert.equal(bad.ok, false, "a 401 fails the check")
+assert.ok(bad.reason?.includes("401"), "the reason carries the status")
+
+// .env loading feeds the engine process keys entered mid-session.
+delete process.env.XIAOMI_API_KEY
+delete process.env.SMOKE_LATE_TOKEN
+fs.appendFileSync(`${home}/.env`, "SMOKE_LATE_TOKEN=late-1\n")
+const loaded = onboarding.loadEnvFile()
+assert.ok(loaded.includes("XIAOMI_API_KEY") && loaded.includes("SMOKE_LATE_TOKEN"), "both keys load")
+assert.equal(process.env.XIAOMI_API_KEY, "raw-second-key", "the key reaches the process environment")
+assert.equal(onboarding.loadEnvFile().length, 0, "loading is idempotent")
+
+verifyServer.stop()
+fs.rmSync(onboarding.WIZARD_FILE, { force: true })
+
 fs.rmSync(home, { recursive: true, force: true })
 console.log("BRAIN SMOKE TEST: all assertions passed")

@@ -79,7 +79,7 @@ Full server schema: `packages/schema/src/config.ts`.
 | `XDG_CACHE_HOME` | Base for cache, default `~/.cache` | `packages/util/src/global-roots.ts` |
 | `ELITZA_SELF_UPDATE` | Set to `1` to un-gate the built-in updater, which stays off otherwise | `packages/cli/src/services/updater.ts`, `packages/cli/src/commands/handlers/upgrade.ts` |
 | `OPENCODE_DISABLE_AUTOUPDATE` | `1` or `true` skips the background update check | `packages/cli/src/services/updater.ts` |
-| `XIAOMI_API_KEY` | The MiMo key. Read by the `elitza` provider entry that `/start` writes; the only model credential the guided setup collects | `packages/plugins/elitza-brain/src/onboarding.ts` |
+| `XIAOMI_API_KEY` | The MiMo key. Read by the `elitza` provider entry that guided setup writes; the only model credential the guided setup collects | `packages/plugins/elitza-brain/src/onboarding.ts` |
 | `GOOGLE_MAPS_API_KEY` | Google Places key for `client_scout`. Sent as a header, never in a URL | `packages/plugins/elitza-brain/src/scouting.ts` |
 | `RESEND_API_KEY`, `RESEND_FROM` | Resend key and verified sender for `outreach send`. Sending stays disabled without both | `packages/plugins/elitza-brain/src/outreach.ts` |
 | `MATON_API_KEY` | Maton gateway for GitHub work. Written to `~/.config/maton/credentials.env`, not to `.env` | `packages/plugins/elitza-brain/src/onboarding.ts` |
@@ -131,10 +131,10 @@ This is an example, not a recommended default. Drop it in `./elitza.json` for on
 
 What each block does:
 
-- `model` points at the `elitza` provider below. This is exactly what `/start` writes after the MiMo signup (the guided setup offers `standard`, `europe`, `singapore` and `china` endpoints — token-plan hosts for the regional ones). See [guided setup](../guide/guided-setup.md).
+- `model` points at the `elitza` provider below. This is exactly what guided setup writes after the MiMo signup (the guided setup offers `standard`, `europe`, `singapore` and `china` endpoints — token-plan hosts for the regional ones). See [guided setup](../guide/guided-setup.md).
 - `providers.elitza` declares the key she reads from `~/.elitza/.env` (`XIAOMI_API_KEY`) and the endpoint. The config-facing model key carries the `xiaomi/` prefix and `modelID` is the name the API actually receives — both are deliberate.
 - Any other OpenAI-compatible endpoint follows the same shape (plural `providers` key, `package`, `settings`, `env`) — the guided setup simply refuses to offer anything but MiMo.
-- `permissions` lets `git status` run without asking, and sends every other shell command and file edit to the permission gate. Rules evaluate in order and the last match wins. `/start` writes its own gates from your answers.
+- `permissions` lets `git status` run without asking, and sends every other shell command and file edit to the permission gate. Rules evaluate in order and the last match wins. Guided setup writes its own gates from your answers.
 
 ## Check what loaded
 

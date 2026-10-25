@@ -7,7 +7,7 @@ Two shelves: **how to use her** (the guide, in the order you meet things) and **
 | Page | What it covers |
 | --- | --- |
 | [Install](guide/install.md) | one-line installer, every flag, paths, uninstall |
-| [Guided setup](guide/guided-setup.md) | the `/start` interview: MiMo affiliate, keys, permission gates |
+| [Guided setup](guide/guided-setup.md) | the first-boot wizard and the `/start` interview: MiMo affiliate, keys, permission gates |
 | [First client](guide/first-client.md) | scout → CRM → first touch → four-touch cadence → disposition → production |
 | [Handover](guide/handover.md) | generating `CLIENT_SOP_HANDOVER.md` from evidence |
 

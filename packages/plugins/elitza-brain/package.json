@@ -6,10 +6,12 @@
   "type": "module",
   "license": "MIT",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./tui": "./tui.ts"
   },
   "files": [
-    "src"
+    "src",
+    "tui.ts"
   ],
   "scripts": {
     "typecheck": "tsgo --noEmit"

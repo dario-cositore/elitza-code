@@ -68,7 +68,7 @@ Full walkthrough with real commands: [docs/guide/first-client.md](docs/guide/fir
 ## Highlights
 
 **MiMo only, set up for you.**
-The `/start` interview walks you through the MiMo account (invite code `HFSR94`, 10% off the first paid Token Plan order), the endpoint for your region, and your key — stored mode 600, never echoed. No provider sprawl, no fallback to guess about.
+First boot opens a setup wizard that walks you through the MiMo account (invite code `HFSR94`, 10% off the first paid Token Plan order), the endpoint for your region, and your key — masked as you type, stored mode 600, never echoed. No provider sprawl, no fallback to guess about.
 
 **A CRM that is just a database.**
 Clients, interactions and assets live in `~/.elitza/brain/crm.db` with a shared status lifecycle from `scouted` to `done`. Query it with `crm search`, patch it with `crm update`, read the story with `crm interactions`. It never enters the memory index.
@@ -108,7 +108,7 @@ Then start her:
 elitza
 ```
 
-Type `/start` for the guided setup: it asks who she is, what she must never do, what needs your permission first, and walks the MiMo signup on your own key. Elitza never ships or embeds a key; you always bring your own.
+Setup opens itself on first start as a popup wizard: it asks who she is, what she must never do, what needs your permission first, and walks the MiMo signup on your own key. Type `/setup` to run it again, or `/start` for the same interview in chat. Elitza never ships or embeds a key; you always bring your own.
 
 The installer downloads a prebuilt binary plus the brain plugin, installs them at `~/.elitza/agent`, writes the `elitza` launcher into `~/.local/bin` and seeds your config, `SOUL.md` and personas. It is safe to re-run, and `--uninstall` reverses it. Full options: [docs/guide/install.md](docs/guide/install.md).
 
@@ -170,7 +170,7 @@ Type `/` in the composer for the command menu, `ctrl+p` for the fuzzy command pa
 | `/sessions` | Resume a session (aliases: `/resume`, `/continue`) |
 | `/new` · `/clear` · `/rename` | Start fresh, wipe the transcript, rename the session |
 | `/open` | Open a project or workspace |
-| `/start` · `/profile` | Guided setup interview, and the read-back of what it decided |
+| `/setup` · `/start` · `/profile` | Guided setup (popup wizard or in-chat interview), and the read-back of what it decided |
 | `/models` | Pick the model (the guided setup leaves you on Xiaomi MiMo) |
 | `/connect` | Add an integration or provider key |
 | `/agents` · `/variants` | Switch agent, thinking and effort variants |
@@ -211,7 +211,7 @@ The brain plugin (`packages/plugins/elitza-brain`) gives her a persistent self:
 
 - **Memory.** SQLite at `~/.elitza/brain/soul_v2.db`. Episodic (episodes, 1000 max), semantic (facts, 500), procedural (skills, 200) and emotional (300) memories, plus a full text index, a recall log and a session log. Memories carry importance and valence, decay on a schedule, and get consolidated when they cross the threshold.
 - **The CRM.** SQLite at `~/.elitza/brain/crm.db`: `clients`, `client_interactions`, `client_assets` and the `pipeline` table with its cadence state. Deliberately a separate file, so client data stays out of the memory index and can be backed up or wiped on its own.
-- **Identity.** `~/.elitza/SOUL.md` is her core personality in plain markdown, `~/.elitza/PERSONA.md` is what `/start` wrote about your answers. Edit either and she changes.
+- **Identity.** `~/.elitza/SOUL.md` is her core personality in plain markdown, `~/.elitza/PERSONA.md` is what guided setup wrote about your answers. Edit either and she changes.
 - **Personas, roles and hooks.** Directories of JSON and markdown under `~/.elitza` for who she is talking to, how she should behave, and what she should do on an event.
 - **Playbooks.** Curated knowledge in `~/.elitza/brain/procedural/` — diagnosis, proposal, workbook library, call script, payment terms, handover. Seeded on load, never overwriting your edits, and registered as skills so she pulls the right one in herself. Your own `.md` files dropped in that folder join the library.
 - **25 tools** exposed to the model: the `brain_*` memory set, `doctor_check` / `doctor_repair` / `doctor_history`, `gapfeed_query_signals` / `gapfeed_build_pipeline`, and the operator set `client_scout`, `crm`, `outreach`, `production`, `playbook`, `handover` and `task` (plus `rv_session` when the dual-mind API is configured).
