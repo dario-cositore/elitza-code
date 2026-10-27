@@ -54,9 +54,9 @@ export function SidebarOnboarding(props: { context: Plugin.Context; sessionID: s
               ✕
             </text>
           </box>
-          <text fg={props.context.theme.text.muted}>Free models need a free OpenRouter key.</text>
+          <text fg={props.context.theme.text.muted}>Elitza runs on Xiaomi MiMo.</text>
           <text fg={props.context.theme.text.muted}>
-            Get one at openrouter.ai/keys, then connect. Or use Claude, GPT, Gemini etc
+            Add your MiMo key with /setup, or connect another provider with /connect.
           </text>
           <box
             id="sidebar.footer.getting-started.connect"

@@ -24,9 +24,9 @@ const placeholder = {
 }
 
 const tips = [
-  "Grab a free key at openrouter.ai/keys, then run /connect",
+  "Add your MiMo key with /setup, or /connect another provider",
   "Elitza learns as you work — memories build up in ~/.elitza",
-  "Switch brains anytime with /models — BYOK or OpenRouter :free",
+  "Switch brains anytime with /models — your MiMo key, or BYOK",
   "Make her yours — edit ~/.elitza/SOUL.md and personas",
   "Type / for commands and @ for files — ctrl+p opens the palette",
 ]

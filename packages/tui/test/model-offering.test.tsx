@@ -4,10 +4,9 @@ import { directory, json } from "./fixture/tui-client"
 import { tmpdir } from "./fixture/fixture"
 import { createAppFixture } from "./fixture/app"
 
-// Elitza's model dialog offers only the OpenRouter free endpoint plus providers the
-// user connected themselves (BYOK). Elitza's Zen models are rejected by the
-// upstream free tier and paid OpenRouter models are out of scope, so both stay hidden.
-test("model dialog offers only the OpenRouter free endpoint and BYOK providers", async () => {
+// Elitza's model dialog rejects the managed Zen/Go providers (gated to the official
+// client) and offers everything else the operator connected (BYOK).
+test("model dialog rejects managed Zen/Go providers and offers BYOK providers", async () => {
   await using state = await tmpdir()
   const location = { directory, project: { id: "project", directory, canonical: directory } }
   const session = {
@@ -99,6 +98,5 @@ test("model dialog offers only the OpenRouter free endpoint and BYOK providers",
   await setup.waitForFrame((frame) => frame.includes("Nemotron Super Free"))
   const frame = setup.captureCharFrame()
   expect(frame).toInclude("First model")
-  expect(frame).not.toInclude("Nemotron Paid Pro")
   expect(frame).not.toInclude("Zen Ling Free")
 })

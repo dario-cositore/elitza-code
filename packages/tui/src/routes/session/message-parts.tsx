@@ -113,7 +113,7 @@ export function ReasoningPart(props: {
 }
 
 export function reasoningContent(part: SessionMessageAssistantReasoning) {
-  // OpenRouter encrypts some reasoning blocks; drop the placeholder.
+  // Some providers encrypt reasoning blocks; drop the placeholder.
   return part.text.replace("[REDACTED]", "").trim()
 }
 

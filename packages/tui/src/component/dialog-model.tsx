@@ -201,8 +201,7 @@ export function sortModelOptions<
     const name = grouped ? (a.providerName ?? "").localeCompare(b.providerName ?? "") : 0
     if (name !== 0) return name
 
-    const free = Number(b.footer === "Free") - Number(a.footer === "Free")
-    if (free !== 0) return free
+
 
     const release = Number(b.releaseDate) - Number(a.releaseDate)
     if (release !== 0) return release
@@ -211,13 +210,11 @@ export function sortModelOptions<
   })
 }
 
-// Elitza ships two model sources: the OpenRouter free endpoint and providers the
-// user connects themselves (BYOK — the server already restricts the model list to
-// available providers). Elitza's hosted Zen/Go providers are force-enabled here
-// but gated to the official client, so they are always rejected from this fork.
+// Elitza runs on Xiaomi MiMo only. The managed Zen/Go providers are gated to the
+// official client and rejected here; everything else the operator connected (BYOK)
+// stays available.
 function offered(model: { providerID: string; id: string }) {
   if (model.providerID === "opencode" || model.providerID === "opencode-go") return false
-  if (model.providerID === "openrouter") return model.id.endsWith(":free")
   return true
 }
 
