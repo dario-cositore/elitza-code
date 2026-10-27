@@ -35,6 +35,7 @@ flowchart TB
     subgraph ext["Extensibility"]
         PLG["packages/plugin<br/>effect · host · runtime · tui"]
         INSTALLED["packages/plugins/*<br/>elitza-brain, figma, browser"]
+        HOUSE["CRM house<br/>127.0.0.1:8787, served by elitza-brain"]
         MCP["MCP servers"]
     end
 
@@ -49,6 +50,7 @@ flowchart TB
     CORE --> CM
     CORE --> PLG
     PLG --> INSTALLED
+    INSTALLED --> HOUSE
     CORE --> MCP
     AI --> SCH
     CORE --> SCH
@@ -115,19 +117,20 @@ Only a few of these are published; most are internal to the monorepo. `desktop`,
 
 `read`, `write`, `edit`, `patch`, `grep`, `glob`, `shell`, `webfetch`, `websearch`, `question`, `skill`, `subagent`.
 
-Plugins add more. The brain plugin registers its sixteen memory tools as direct model tools (not behind the code mode catalog), which is why they appear in the model request alongside the core set.
+Plugins add more. The brain plugin registers its twenty-six tools — the memory and doctor set, the gapfeed pair and the operator set (`client_scout`, `crm`, `enrich_client`, `outreach`, `production`, `playbook`, `handover`, `task`) — as direct model tools (not behind the code mode catalog), which is why they appear in the model request alongside the core set.
 
 Permission policy decides which of these run automatically and which prompt you. See [configuration](configuration.md).
 
-## The three interfaces
+## The interfaces
 
 | Interface | Package | Notes |
 | --- | --- | --- |
 | Terminal | `packages/tui` | OpenTUI based, sessions and tabs, storybook driven frame tests |
 | Browser | `packages/app` | Solid, Vite, PWA; built assets are embedded in the binary and served by `packages/cli/src/services/web-ui.ts` |
 | Desktop | `packages/desktop` | Electron shell rendering `packages/app`, private package |
+| CRM house | `packages/plugins/elitza-brain` | Zero-build dashboard on `127.0.0.1:8787`, started by the brain plugin's setup hook: pipeline, approval queue, scout, client detail ([guide](../guide/crm-house.md)) |
 
-`elitza serve` starts the API and web server on its own, `elitza pair` prints one time links for another device, and the plain `elitza` command launches the terminal client against a background service.
+`elitza serve` starts the API and web server on its own, `elitza pair` prints one time links for another device, and the plain `elitza` command launches the terminal client against a background service. The CRM house comes up from the same plugin hook, so every process that hosts the brain exposes it.
 
 ## Configuration resolution
 

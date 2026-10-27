@@ -23,6 +23,8 @@ Back to the [README](../../README.md), or see [configuration](configuration.md) 
 
 Set `ELITZA_HOME` to move the whole tree somewhere else (source: `packages/plugins/elitza-brain/src/db.ts`). The installed binary leaves it at the default `~/.elitza`.
 
+The CRM tables have a browser front end as well as the `crm` tool: the [CRM house](../guide/crm-house.md), served by this same plugin on `127.0.0.1:8787`. `clients` carries four social columns (`linkedin`, `twitter`, `facebook`, `instagram`) that enrichment and the house both write.
+
 ## Memory model
 
 Every memory is one of four types, with its own capacity and decay schedule:
@@ -105,8 +107,9 @@ Twenty-five tools are registered as direct model tools (`src/tools.ts`):
 | `doctor_history` | Health check history for the past week |
 | `gapfeed_query_signals` | Read buyer-intent signals from the local gapfeed radar |
 | `gapfeed_build_pipeline` | Turn fresh signals into outreach draft files now |
-| `client_scout` | Google Places search: name, address, phone, website, rating, category |
+| `client_scout` | Scout a place: Photon (OSM-backed) primary, Google Places as enrichment — name, address, phone, website, rating, category |
 | `crm` | Clients, interactions, assets: add, search, update, log, find_email |
+| `enrich_client` | Fetch the client's own site, extract emails, phones and social profiles, write the diagnosis, proposal and risk back |
 | `outreach` | Pipeline: draft, batch-approve, send, due, queue, dispose, sweep |
 | `production` | Won work: where, advance, schedule_call, record_payment |
 | `playbook` | List and read the curated playbooks |
@@ -156,6 +159,7 @@ In a session, `brain_stats` shows what she currently holds, `brain_validate` rep
 ## See also
 
 * [README](../../README.md)
+* [CRM house](../guide/crm-house.md): the browser dashboard over these same tables
 * [Configuration](configuration.md): where the model and permission settings come from
 * [Architecture](architecture.md): where the plugin sits in the request path
 * Source: `packages/plugins/elitza-brain/src`

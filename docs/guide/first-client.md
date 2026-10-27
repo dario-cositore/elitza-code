@@ -2,6 +2,8 @@
 
 The whole AI Enablement loop, from a town and a trade to a paid, delivered job. Every step is a tool Elitza calls; you approve the one step that reaches a human being.
 
+The same loop is available without the terminal: the [CRM house](crm-house.md) puts the board, the queue, the scout screen and each client record in the browser, over the same database.
+
 Back to the [README](../../README.md), or see [guided setup](guided-setup.md) and [handover](handover.md).
 
 ## What never happens on its own
@@ -16,7 +18,7 @@ Back to the [README](../../README.md), or see [guided setup](guided-setup.md) an
 client_scout: location = "Castelleone, Cremona, Italy", query = "dentist", limit = 10
 ```
 
-Returns name, address, phone, website and category per business, straight from OpenStreetMap (Overpass) with zero keys. Add your own `GOOGLE_MAPS_API_KEY` and Google Places joins as an enrichment layer that fills ratings, review counts and Maps links. Read-only: it stores nothing and contacts nobody.
+Returns name, address, phone, website and category per business, from Photon (Komoot's OSM-backed search) with zero keys, then OSM API enrichment for the tags. Add your own `GOOGLE_MAPS_API_KEY` and Google Places joins as a further enrichment layer that fills ratings, review counts and Maps links; Overpass stays as a fallback. Read-only: it stores nothing and contacts nobody.
 
 ## 2. Qualify into the CRM
 

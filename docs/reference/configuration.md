@@ -88,6 +88,7 @@ Full server schema: `packages/schema/src/config.ts`.
 | `ELITZA_FOLLOWUPS` | `0` disables the follow-up cadence pass of the heartbeat | `packages/plugins/elitza-brain/src/heartbeat.ts` |
 | `ELITZA_GAPFEED`, `GAPFEED_LOCAL_URL` | Gapfeed radar: `0` disables the poll, the URL points at the local backend (default `http://127.0.0.1:5002`) | `packages/plugins/elitza-brain/src/pipeline.ts` |
 | `ELITZA_BRAIN_DEBUG` | Appends plugin diagnostics to `/tmp/elitza-brain-debug.log` | `src/index.ts`, `src/pipeline.ts`, `src/heartbeat.ts` |
+| `CRM_VIEW_PORT`, `CRM_VIEW_NO_OPEN` | The [CRM house](../guide/crm-house.md): port to bind (default `8787`) and `1` to stop it opening the browser when it starts | `packages/plugins/elitza-brain/src/crmview.ts` |
 
 The four credential variables are read from `~/.elitza/.env`, which the launcher loads with `set -a` on every start. That file is mode 600, written only by the guided setup's secret questions, and never echoed: the soul stores the word "set", never the value.
 

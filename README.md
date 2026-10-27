@@ -20,6 +20,7 @@
   <a href="docs/guide/install.md">Install</a> ·
   <a href="docs/guide/guided-setup.md">Guided setup</a> ·
   <a href="docs/guide/first-client.md">First client</a> ·
+  <a href="docs/guide/crm-house.md">CRM house</a> ·
   <a href="docs/guide/handover.md">Handover</a> ·
   <a href="docs/reference/tui.md">TUI</a> ·
   <a href="docs/reference/architecture.md">Architecture</a> ·
@@ -66,7 +67,7 @@ Every step is a tool she calls. Exactly one step reaches a human being, and it o
 | Stage | What happens | Tools |
 | --- | --- | --- |
 | Scout | location + query → name, address, phone, website, rating, category | `client_scout` |
-| Qualify | score 0-100, dedupe, find a public email on their own site | `crm` |
+| Qualify | score 0-100, dedupe, find a public email on their own site, enrich from their own website | `crm`, `enrich_client` |
 | First touch | a draft file with the opt-out footer, waiting for your read | `outreach draft` |
 | Approve, send | batch approval, then Resend posts it; stage, `last_contact` and the next touch are set | `outreach approve`, `outreach send` |
 | Cadence | +3, +7, +14 days: the heartbeat drafts each follow-up in the same thread, you approve again | `outreach due`, `outreach queue` |
@@ -86,6 +87,9 @@ First boot opens a setup wizard that walks you through the MiMo account (invite 
 **A CRM that is just a database.**
 Clients, interactions and assets live in `~/.elitza/brain/crm.db` with a shared status lifecycle from `scouted` to `done`. Query it with `crm search`, patch it with `crm update`, read the story with `crm interactions`. It never enters the memory index.
 
+**A CRM house in the browser.**
+The same records, as a page: `elitza serve` (or the background service) starts a zero-build dashboard on `127.0.0.1:8787` and opens it for you — pipeline board, approval queue, scout screen, and a client detail where the website, email, phone, address and every social profile are real links. One input per network saves a social profile back to the row, and **Enrich** scrapes their own site for contacts and socials before running the diagnosis and proposal over your playbooks. Same database, same modules as the terminal. [docs/guide/crm-house.md](docs/guide/crm-house.md).
+
 **Nothing sends without you.**
 Outreach is drafted to files under `~/.elitza/pipeline/<date>/` with the compliance footer already in. Approve a batch, then one command sends it. An unapproved row is refused with a reason, never a silent success.
 
@@ -102,7 +106,7 @@ Built-in tools: `read`, `write`, `edit`, `patch`, `grep`, `glob`, `shell`, `webf
 Sessions and tabs, `@` file mentions, `/` command menu, shell mode, inline diffs with a file tree, a fuzzy command palette, theme tokens, and a storybook driven TUI test harness.
 
 **More than a terminal.**
-`elitza serve` starts the same API behind a browser UI, `elitza pair` prints one-time links to connect a browser or phone, and an Electron desktop shell renders the same app.
+`elitza serve` starts the same API behind a browser UI, `elitza pair` prints one-time links to connect a browser or phone, and an Electron desktop shell renders the same app. The brain plugin adds the [CRM house](docs/guide/crm-house.md) on `127.0.0.1:8787` to that same server, so the CRM works without the terminal at all.
 
 **Extensible.**
 Plugins from npm or git, MCP servers (local and remote, with OAuth) with a baked-in default set (maton, cloudflare, github, filesystem, memory, fetch, postgres, sqlite, slack, time), and a plugin API for hooks, tools and TUI extensions.
@@ -122,6 +126,8 @@ elitza
 ```
 
 Setup opens itself on first start as a popup wizard: it asks who she is, what she must never do, what needs your permission first, and walks the MiMo signup on your own key. Type `/setup` to run it again, or `/start` for the same interview in chat. Elitza never ships or embeds a key; you always bring your own.
+
+Would rather stay in a browser? `elitza serve` (or `elitza service start`) runs the whole thing in the background and opens the [CRM house](docs/guide/crm-house.md) on `127.0.0.1:8787` — board, approval queue, scout and client records. The terminal is the power surface, not a requirement.
 
 The installer downloads a prebuilt binary plus the brain plugin, installs them at `~/.elitza/agent`, writes the `elitza` launcher into `~/.local/bin` and seeds your config, `SOUL.md` and personas. It is safe to re-run, and `--uninstall` reverses it. Full options: [docs/guide/install.md](docs/guide/install.md).
 
@@ -227,7 +233,7 @@ The brain plugin (`packages/plugins/elitza-brain`) gives her a persistent self:
 - **Identity.** `~/.elitza/SOUL.md` is her core personality in plain markdown, `~/.elitza/PERSONA.md` is what guided setup wrote about your answers. Edit either and she changes.
 - **Personas, roles and hooks.** Directories of JSON and markdown under `~/.elitza` for who she is talking to, how she should behave, and what she should do on an event.
 - **Playbooks.** Curated knowledge in `~/.elitza/brain/procedural/` — diagnosis, proposal, workbook library, call script, payment terms, handover. Seeded on load, never overwriting your edits, and registered as skills so she pulls the right one in herself. Your own `.md` files dropped in that folder join the library.
-- **25 tools** exposed to the model: the `brain_*` memory set, `doctor_check` / `doctor_repair` / `doctor_history`, `gapfeed_query_signals` / `gapfeed_build_pipeline`, and the operator set `client_scout`, `crm`, `outreach`, `production`, `playbook`, `handover` and `task` (plus `rv_session` when the dual-mind API is configured).
+- **26 tools** exposed to the model: the `brain_*` memory set, `doctor_check` / `doctor_repair` / `doctor_history`, `gapfeed_query_signals` / `gapfeed_build_pipeline`, and the operator set `client_scout`, `crm`, `enrich_client`, `outreach`, `production`, `playbook`, `handover` and `task` (plus `rv_session` when the dual-mind API is configured).
 
 Full reference: [docs/reference/brain.md](docs/reference/brain.md).
 
@@ -272,7 +278,7 @@ flowchart LR
 
     subgraph Extensibility
         PLUG["plugin API"]
-        BRAIN["elitza-brain plugin<br/>25 tools · hooks · SOUL.md"]
+        BRAIN["elitza-brain plugin<br/>26 tools · CRM house · hooks · SOUL.md"]
         MCP["MCP servers"]
     end
 
@@ -310,6 +316,12 @@ Tests run per package, never from the root: `cd packages/tui && bun test`. The b
 More detail in [docs/reference/configuration.md](docs/reference/configuration.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## FAQ
+
+<details>
+<summary><b>Do I have to live in the terminal?</b></summary>
+
+No. `elitza serve` or `elitza service start` runs everything in the background and opens the CRM house in your browser: the pipeline board, the approval queue, the scout screen and every client record with clickable contact details and editable social profiles. The CLI is the power surface — sessions, skills, shell mode, worktrees — and stays optional until you want it.
+</details>
 
 <details>
 <summary><b>What does it cost?</b></summary>

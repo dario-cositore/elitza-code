@@ -9,6 +9,7 @@ Two shelves: **how to use her** (the guide, in the order you meet things) and **
 | [Install](guide/install.md) | one-line installer, every flag, paths, uninstall |
 | [Guided setup](guide/guided-setup.md) | the first-boot wizard and the `/start` interview: MiMo affiliate, keys, permission gates |
 | [First client](guide/first-client.md) | scout → CRM → first touch → four-touch cadence → disposition → production |
+| [CRM house](guide/crm-house.md) | the browser dashboard: pipeline board, approval queue, scout, client detail and social links |
 | [Handover](guide/handover.md) | generating `CLIENT_SOP_HANDOVER.md` from evidence |
 
 ## Reference — how the machine works
