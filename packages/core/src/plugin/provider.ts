@@ -17,11 +17,11 @@ import { LMStudioPlugin } from "./provider/lmstudio.js"
 import { ModalPlugin } from "./provider/modal.js"
 import { NeonPlugin } from "./provider/neon.js"
 import { NvidiaPlugin } from "./provider/nvidia.js"
-import { OllamaPlugin } from "./provider/ollama.js"
+
 import { OpenAIPlugin } from "./provider/openai.js"
 import { SnowflakeCortexPlugin } from "./provider/snowflake-cortex.js"
 import { OpencodePlugin } from "./provider/console.js"
-import { OpenRouterPlugin } from "./provider/openrouter.js"
+
 import { PerplexityPlugin } from "./provider/perplexity.js"
 import { PoePlugin } from "./provider/poe.js"
 import { PromptCacheKeyPlugin } from "./provider/prompt-cache-key.js"
@@ -29,7 +29,7 @@ import { SapAICorePlugin } from "./provider/sap-ai-core.js"
 import { VercelPlugin } from "./provider/vercel.js"
 import { VLLMPlugin } from "./provider/vllm.js"
 import { XAIPlugin } from "./provider/xai.js"
-import { ZenmuxPlugin } from "./provider/zenmux.js"
+
 import type { PluginInternal } from "./internal.js"
 
 export const ProviderPlugins: PluginInternal.InternalPlugin[] = [
@@ -51,11 +51,9 @@ export const ProviderPlugins: PluginInternal.InternalPlugin[] = [
   ModalPlugin,
   NeonPlugin,
   NvidiaPlugin,
-  OllamaPlugin,
   OpencodePlugin,
   SnowflakeCortexPlugin,
   OpenAIPlugin,
-  OpenRouterPlugin,
   PerplexityPlugin,
   PoePlugin,
   PromptCacheKeyPlugin,
@@ -63,6 +61,5 @@ export const ProviderPlugins: PluginInternal.InternalPlugin[] = [
   VercelPlugin,
   VLLMPlugin,
   XAIPlugin,
-  ZenmuxPlugin,
   DynamicProviderPlugin,
 ]

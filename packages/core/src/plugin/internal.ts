@@ -91,7 +91,7 @@ import BrowserPlugin from "@elitza/plugin-browser"
 import { CommandPlugin } from "./command.js"
 import { IdentityPlugin } from "./identity.js"
 import { PlanPlugin } from "./plan.js"
-import { ModelsDevPlugin } from "./models-dev.js"
+
 import { McpCodeModeDefaultsPlugin } from "./mcp-codemode-defaults.js"
 import { ProviderPlugins } from "./provider.js"
 import { OpencodePlugin } from "./provider/console.js"
@@ -225,7 +225,6 @@ const pre = [
   CommandPlugin.Plugin,
   SkillPlugin.Plugin,
   VcsHgPlugin.Plugin,
-  ModelsDevPlugin,
   ...ProviderPlugins,
   ...WebSearchPlugins,
   PatchTool.Plugin,
