@@ -1,8 +1,10 @@
 # Changelog
 
-## 1.1.3 — 2026-10-26
+## 1.1.3 — 2026-10-27
 
 MiMo-only purge, code side.
+
+- **`crm add` works again**: the `clients` INSERT listed 29 columns against 28 placeholders, so every add failed with `SQLiteError: 28 values for 29 columns` — the house's `+ CRM` button and the `crm` tool both hit it. The column list is now single-sourced, and a new `src/crm.test.ts` (24 tests in the package) covers add, dedupe, the social columns, status validation and search. `ELITZA_CRM_DB` opens the CRM at another file at connection time so tests and scratch runs never reach real records.
 
 - **OpenRouter, Ollama and Zenmux (zen/managed inference) providers removed**: their plugin registration, plugin files and tests are gone. Elitza no longer ships or seeds any of those endpoints.
 - **models.dev catalog seeding removed**: `ModelsDevPlugin` is no longer registered, so the engine no longer seeds non-MiMo providers/models. The only selectable model family is Xiaomi MiMo (`elitza/xiaomi/mimo-v2.6-flash`).

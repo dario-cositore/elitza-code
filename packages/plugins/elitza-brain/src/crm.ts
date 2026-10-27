@@ -22,9 +22,20 @@
 
 import { Database } from "bun:sqlite"
 import fs from "node:fs"
+import path from "node:path"
 import { BRAIN_DIR, nowISO } from "./db.js"
 
 export const CRM_DB_PATH = `${BRAIN_DIR}/crm.db`
+
+/**
+ * Where the CRM opens. Resolved at open time, not at import time, because
+ * `ELITZA_HOME` (and therefore CRM_DB_PATH) is frozen the moment db.js loads —
+ * a test that sets it later would otherwise reach the operator's real records.
+ * Same override shape as GOOGLE_PLACES_URL / RESEND_URL.
+ */
+export function crmDbPath(): string {
+  return process.env.ELITZA_CRM_DB || CRM_DB_PATH
+}
 
 export const CLIENT_STATUSES = [
   "scouted",
@@ -165,8 +176,9 @@ let instance: Database | undefined
 /** Open (or return) the single connection to the CRM database. */
 export function crmDb(): Database {
   if (instance) return instance
-  fs.mkdirSync(BRAIN_DIR, { recursive: true })
-  const conn = new Database(CRM_DB_PATH, { create: true })
+  const file = crmDbPath()
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  const conn = new Database(file, { create: true })
   conn.exec("PRAGMA journal_mode=WAL")
   conn.exec("PRAGMA foreign_keys=ON")
   conn.exec(SCHEMA)
@@ -323,15 +335,42 @@ export function addClient(input: ClientInput): { client: Client; created: boolea
   if (existing) return { client: existing, created: false }
 
   const now = nowISO()
+  // One list, used for both the column names and the placeholders: a second
+  // copy is how the social/risk columns shipped with 29 columns and 28 values.
+  const columns = [
+    "name",
+    "vertical",
+    "status",
+    "score",
+    "address",
+    "phone",
+    "website",
+    "email",
+    "rating",
+    "rating_count",
+    "category",
+    "google_maps",
+    "source",
+    "notes",
+    "deal_value",
+    "next_action",
+    "next_action_at",
+    "linkedin",
+    "twitter",
+    "facebook",
+    "instagram",
+    "risk_level",
+    "risk_score",
+    "risk_notes",
+    "tech_stack",
+    "revenue_estimate",
+    "employee_count",
+    "created_at",
+    "updated_at",
+  ]
   const result = crmDb()
     .run(
-      `INSERT INTO clients (
-         name, vertical, status, score, address, phone, website, email, rating, rating_count,
-         category, google_maps, source, notes, deal_value, next_action, next_action_at,
-         linkedin, twitter, facebook, instagram, risk_level, risk_score, risk_notes,
-         tech_stack, revenue_estimate, employee_count,
-         created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO clients (${columns.join(", ")}) VALUES (${columns.map(() => "?").join(", ")})`,
       [
         name,
         input.vertical ?? null,
