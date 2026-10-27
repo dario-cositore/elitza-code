@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.3 — 2026-10-26
+
+MiMo-only purge, code side.
+
+- **OpenRouter, Ollama and Zenmux (zen/managed inference) providers removed**: their plugin registration, plugin files and tests are gone. Elitza no longer ships or seeds any of those endpoints.
+- **models.dev catalog seeding removed**: `ModelsDevPlugin` is no longer registered, so the engine no longer seeds non-MiMo providers/models. The only selectable model family is Xiaomi MiMo (`elitza/xiaomi/mimo-v2.6-flash`).
+- **Free-model router dropped**: the TUI model dialog no longer filters OpenRouter `:free` endpoints or sorts "Free" models first; the managed Zen/Go providers stay rejected. The sidebar onboarding copy no longer points at OpenRouter.
+- **Scout fixture**: brain smoke now uses the MiMo model string instead of an OpenRouter dummy.
+- **Scouting rebuilt for stability**: Photon (Komoot, OSM-backed full-text) is now the primary source with the OSM API for tag enrichment; Overpass (mirror list) and Google Places remain fallbacks. Added retry with backoff, in-memory caching (production only), area + trade-tag filtering, and OSM-API enrichment. Overpass is no longer the single point of failure.
+- **Fuzzy dedup in scouting**: OSM-only entries (no phone/website/address) now merge with their Google-Places-enriched counterparts via normalized name containment, Levenshtein distance, address similarity and shared postcode. Stops duplicate rows like "Pesadori" vs "Lafarmacia. Pesadori".
+- **Production advance is idempotent**: re-running `advance` on the stage a client already stands on (e.g. disposition already moved them to `diagnose`) records the note/asset instead of throwing "already stands".
+- **Handover refuses non-git folders**: `generateHandover` now throws a clear error when the repo has no `.git` directory, instead of silently writing a thin document. Updated the tool description accordingly.
+- **CRM "house" web view** (`src/crmview.ts` + `src/crmview.html`): zero-build, single-page dashboard served on http://127.0.0.1:8787. Pipeline Kanban board, client detail with timeline/assets, approval queue (approve/send drafts), and a scout screen that adds results to the CRM. Reuses the exact same brain modules (crm, outreach, production, scouting) via a small JSON API. Loads ~/.elitza/.env automatically. **Auto-starts with the engine** (brain plugin setup hook) and stops when the engine stops — no separate process to manage. Standalone launcher remains at `script/crm-view.ts`.
+- **Client enrichment** (`src/enrichment.ts`, `enrich_client` tool): fetches the client's own site (homepage plus common subpages), extracts emails, phones and social profiles, then runs MiMo over your playbooks to write a diagnosis, a scoped proposal, a price band and a risk assessment back into the CRM — plus `diagnosis.md` and `proposal.md` assets. Nothing is sent to the client.
+- **Social profiles on every client**: `linkedin`, `twitter`, `facebook` and `instagram` columns on `clients` (schema + `ALTER TABLE` migration for existing databases), written by enrichment and by the `crm` tool. The house detail view has a Social block with one input per network, a Save button and clickable chips.
+- **Everything clickable in the house**: website, email (`mailto:`), phone (`tel:`), address (Google Maps), scout results, enrichment output and any URL inside notes or reports render as real anchors; draft paths open in the asset viewer and queue rows open the client. Shared `webLink` / `mailLink` / `telLink` / `mapsLink` / `linkify` helpers replace the inline anchor strings.
+
 ## 1.1.2 — 2026-10-25
 
 Keys know their own endpoint.
