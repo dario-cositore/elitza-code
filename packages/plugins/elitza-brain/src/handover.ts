@@ -130,6 +130,10 @@ function packageFacts(repo: string): { name: string; scripts: [string, string][]
 export function generateHandover(options: HandoverOptions): HandoverResult {
   const repo = path.resolve(options.repo)
   if (!fs.existsSync(repo)) throw new Error(`No such folder: ${repo}`)
+  const isGit = Bun.spawnSync(["git", "-C", repo, "rev-parse", "--is-inside-work-tree"], { stdout: "pipe", stderr: "pipe" })
+  if (isGit.exitCode !== 0) {
+    throw new Error(`Not a git repository: ${repo}. Pass repo= pointing at a project folder with a .git directory.`)
+  }
 
   const log = git(repo, ["log", "-n", "15", "--pretty=format:%h %ad %s", "--date=short"])
   const commits = log ? log.split("\n").length : 0

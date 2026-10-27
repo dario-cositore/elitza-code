@@ -67,6 +67,16 @@ const SCHEMA = `
       last_contact TEXT,
       next_action TEXT,
       next_action_at TEXT,
+      linkedin TEXT,
+      twitter TEXT,
+      facebook TEXT,
+      instagram TEXT,
+      risk_level TEXT,
+      risk_score INTEGER,
+      risk_notes TEXT,
+      tech_stack TEXT,
+      revenue_estimate TEXT,
+      employee_count TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
   );
@@ -126,9 +136,27 @@ const SCHEMA = `
 
 /** A row shipped before this column existed must gain it, or the cadence reads null. */
 function migrate(db: Database): void {
-  const columns = db.query("PRAGMA table_info(pipeline)").all() as { name: string }[]
-  if (!columns.some((column) => column.name === "queued_touch")) {
+  const pipelineCols = db.query("PRAGMA table_info(pipeline)").all() as { name: string }[]
+  if (!pipelineCols.some((column) => column.name === "queued_touch")) {
     db.exec("ALTER TABLE pipeline ADD COLUMN queued_touch INTEGER NOT NULL DEFAULT 0")
+  }
+  const clientCols = db.query("PRAGMA table_info(clients)").all() as { name: string }[]
+  const newCols: { name: string; type: string }[] = [
+    { name: "linkedin", type: "TEXT" },
+    { name: "twitter", type: "TEXT" },
+    { name: "facebook", type: "TEXT" },
+    { name: "instagram", type: "TEXT" },
+    { name: "risk_level", type: "TEXT" },
+    { name: "risk_score", type: "INTEGER" },
+    { name: "risk_notes", type: "TEXT" },
+    { name: "tech_stack", type: "TEXT" },
+    { name: "revenue_estimate", type: "TEXT" },
+    { name: "employee_count", type: "TEXT" },
+  ]
+  for (const col of newCols) {
+    if (!clientCols.some((c) => c.name === col.name)) {
+      db.exec(`ALTER TABLE clients ADD COLUMN ${col.name} ${col.type}`)
+    }
   }
 }
 
@@ -168,6 +196,16 @@ export interface Client {
   last_contact: string | null
   next_action: string | null
   next_action_at: string | null
+  linkedin: string | null
+  twitter: string | null
+  facebook: string | null
+  instagram: string | null
+  risk_level: string | null
+  risk_score: number | null
+  risk_notes: string | null
+  tech_stack: string | null
+  revenue_estimate: string | null
+  employee_count: string | null
   created_at: string
   updated_at: string
 }
@@ -190,6 +228,16 @@ export interface ClientInput {
   deal_value?: number
   next_action?: string
   next_action_at?: string
+  linkedin?: string
+  twitter?: string
+  facebook?: string
+  instagram?: string
+  risk_level?: string
+  risk_score?: number
+  risk_notes?: string
+  tech_stack?: string
+  revenue_estimate?: string
+  employee_count?: string
 }
 
 export interface Interaction {
@@ -280,8 +328,10 @@ export function addClient(input: ClientInput): { client: Client; created: boolea
       `INSERT INTO clients (
          name, vertical, status, score, address, phone, website, email, rating, rating_count,
          category, google_maps, source, notes, deal_value, next_action, next_action_at,
+         linkedin, twitter, facebook, instagram, risk_level, risk_score, risk_notes,
+         tech_stack, revenue_estimate, employee_count,
          created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         input.vertical ?? null,
@@ -300,6 +350,16 @@ export function addClient(input: ClientInput): { client: Client; created: boolea
         input.deal_value ?? null,
         input.next_action ?? null,
         input.next_action_at ?? null,
+        input.linkedin ?? null,
+        input.twitter ?? null,
+        input.facebook ?? null,
+        input.instagram ?? null,
+        input.risk_level ?? null,
+        input.risk_score ?? null,
+        input.risk_notes ?? null,
+        input.tech_stack ?? null,
+        input.revenue_estimate ?? null,
+        input.employee_count ?? null,
         now,
         now,
       ],
@@ -356,6 +416,16 @@ const UPDATABLE = [
   "next_action_at",
   "last_contact",
   "source",
+  "linkedin",
+  "twitter",
+  "facebook",
+  "instagram",
+  "risk_level",
+  "risk_score",
+  "risk_notes",
+  "tech_stack",
+  "revenue_estimate",
+  "employee_count",
 ] as const
 
 export type ClientPatch = Partial<Record<(typeof UPDATABLE)[number], string | number | null>>

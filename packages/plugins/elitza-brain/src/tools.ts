@@ -39,6 +39,7 @@ import {
   type ClientPatch,
 } from "./crm.js"
 import { scoutBusinesses, discoverEmail } from "./scouting.js"
+import { enrichClient } from "./enrichment.js"
 import {
   addToPipeline,
   approveDrafts,
@@ -453,6 +454,10 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
               phone: { type: "string" },
               website: { type: "string" },
               email: { type: "string" },
+              linkedin: { type: "string", description: "LinkedIn profile URL." },
+              twitter: { type: "string", description: "X/Twitter profile URL." },
+              facebook: { type: "string", description: "Facebook page URL." },
+              instagram: { type: "string", description: "Instagram profile URL." },
               notes: { type: "string" },
               deal_value: { type: "integer", description: "Deal value in whole euros." },
               next_action: { type: "string", description: "What has to happen next with this client." },
@@ -491,6 +496,16 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
                 source: op.source !== undefined ? String(op.source) : undefined,
                 next_action: op.next_action !== undefined ? String(op.next_action) : undefined,
                 next_action_at: op.next_action_at !== undefined ? String(op.next_action_at) : undefined,
+                linkedin: op.linkedin !== undefined ? String(op.linkedin) : undefined,
+                twitter: op.twitter !== undefined ? String(op.twitter) : undefined,
+                facebook: op.facebook !== undefined ? String(op.facebook) : undefined,
+                instagram: op.instagram !== undefined ? String(op.instagram) : undefined,
+                risk_level: op.risk_level !== undefined ? String(op.risk_level) : undefined,
+                risk_score: op.risk_score !== undefined ? Number(op.risk_score) : undefined,
+                risk_notes: op.risk_notes !== undefined ? String(op.risk_notes) : undefined,
+                tech_stack: op.tech_stack !== undefined ? String(op.tech_stack) : undefined,
+                revenue_estimate: op.revenue_estimate !== undefined ? String(op.revenue_estimate) : undefined,
+                employee_count: op.employee_count !== undefined ? String(op.employee_count) : undefined,
               })
               return {
                 content: `${created ? "Created" : "Already in the CRM"} ${client.id}: ${client.name} [${client.status}]`,
@@ -534,6 +549,10 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
                 "next_action_at",
                 "last_contact",
                 "source",
+                "linkedin",
+                "twitter",
+                "facebook",
+                "instagram",
               ] as const) {
                 if (key in op) {
                   patch[key] =
@@ -772,7 +791,7 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
     {
       name: "handover",
       description:
-        "Generate CLIENT_SOP_HANDOVER.md for a delivered job: architecture from git history, environment variable NAMES found in tracked source (values are never written), run/check commands, recovery steps, the approval gates that are really in force, and ownership. Inputs: repo (folder or any path inside it, defaults to the working directory), optional client_id to name the CRM client, optional out path (defaults to the repo root). Regenerate it after any structural change.",
+        "Generate CLIENT_SOP_HANDOVER.md for a delivered job: architecture from git history, environment variable NAMES found in tracked source (values are never written), run/check commands, recovery steps, the approval gates that are really in force, and ownership. Inputs: repo (a git repository folder or any path inside one — must contain a .git directory; defaults to the working directory), optional client_id to name the CRM client, optional out path (defaults to the repo root). Regenerate it after any structural change.",
       input: {
         type: "object",
         properties: {
@@ -947,6 +966,43 @@ export function makeBrainTools(ctx?: { generate: { text: (input: { prompt: strin
           }
         } catch (error) {
           return { content: `Production error: ${String(error)}` }
+        }
+      },
+    },
+    {
+      name: "enrich_client",
+      description:
+        "Enrich a CRM client by scouting their own website: fetches the site, extracts contact details, calls MiMo with the diagnosis and proposal playbooks, and writes a one-page diagnosis + fixed-scope proposal (with a recommended price) back into the CRM (notes, interaction, diagnosis.md and proposal.md assets, next action). Use this before drafting a proposal, so you know exactly how to attack. Nothing is sent to the client.",
+      input: {
+        type: "object",
+        properties: {
+          id: { type: "integer", description: "CRM client id to enrich." },
+        },
+        required: ["id"],
+      },
+      execute: async (input) => {
+        try {
+          const result = await enrichClient(Number(input.id))
+          if (!result.ok) return { content: `Enrichment failed: ${result.error}` }
+          const lines: string[] = []
+          lines.push(`Enriched client ${result.client_id}.`)
+          lines.push(`Website: ${result.website}`)
+          if (result.emails.length) lines.push(`Emails found: ${result.emails.join(", ")}`)
+          if (result.phones.length) lines.push(`Phones found: ${result.phones.join(", ")}`)
+          lines.push("")
+          lines.push("DIAGNOSIS:")
+          lines.push(result.diagnosis)
+          lines.push("")
+          lines.push("PROPOSAL:")
+          lines.push(result.proposal)
+          lines.push("")
+          lines.push(`Price: ${result.price}`)
+          lines.push(`Next action: ${result.next_action}`)
+          lines.push("")
+          lines.push("Written to CRM notes, interaction log, and assets (diagnosis.md, proposal.md).")
+          return { content: lines.join("\n") }
+        } catch (error) {
+          return { content: `Enrichment error: ${String(error)}` }
         }
       },
     },

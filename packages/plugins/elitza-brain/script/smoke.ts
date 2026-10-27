@@ -64,7 +64,7 @@ engine.close()
 fs.writeFileSync(
   `${home}/config/opencode.json`,
   JSON.stringify({
-    model: "openrouter/nvidia/nemotron-test",
+    model: "elitza/xiaomi/mimo-v2.6-flash",
     plugins: [],
     providers: { testprov: { name: "Test Provider", models: { tiny: {} } } },
   }),
@@ -195,10 +195,10 @@ assert.equal(pstats.current_session, "ses_smoke_engine0000", "current session is
 // --- config views ----------------------------------------------------------
 const summary = configSummary(["brain_stats"])
 assert.ok(summary.includes("## Elitza Configuration"), "config summary header")
-assert.ok(summary.includes("openrouter/nvidia/nemotron-test"), "config summary shows model")
+assert.ok(summary.includes("elitza/xiaomi/mimo-v2.6-flash"), "config summary shows model")
 assert.ok(summary.includes("testprov"), "config summary lists providers")
 const modelSection = JSON.parse(configSection("model", [])) as { model: string }
-assert.equal(modelSection.model, "openrouter/nvidia/nemotron-test", "model section lookup")
+assert.equal(modelSection.model, "elitza/xiaomi/mimo-v2.6-flash", "model section lookup")
 assert.equal(
   configSection("nonexistent", []),
   "Section 'nonexistent' not found in config.",
@@ -223,7 +223,7 @@ assert.ok(fs.existsSync(`${home}/brain/health.db`), "health db created")
 
 // --- tools: all 16 registered and executable -------------------------------
 const tools = makeBrainTools()
-assert.equal(tools.length, 25, "twenty-five brain tools")
+assert.equal(tools.length, 26, "twenty-six brain tools")
 assert.ok(
   tools.every((t) => t.options?.codemode === false),
   "every brain tool is direct (codemode off)",
@@ -244,6 +244,7 @@ const expected = [
   "brain_validate",
   "client_scout",
   "crm",
+  "enrich_client",
   "doctor_check",
   "doctor_repair",
   "doctor_history",
@@ -287,6 +288,8 @@ const overpassServer = Bun.serve({
   },
 })
 process.env.OVERPASS_URL = `http://127.0.0.1:${overpassServer.port}/api/interpreter`
+const photonServer = Bun.serve({ port: 0, fetch: () => Response.json({ features: [] }) })
+process.env.PHOTON_URL = `http://127.0.0.1:${photonServer.port}/api/`
 let placesRequest: { path: string; key: string | null; fieldMask: string | null; body: string } | null = null
 const placesServer = Bun.serve({
   port: 0,
@@ -435,8 +438,10 @@ assert.deepEqual(noKeyBody.meta.sources_used, ["osm"], "OSM carries the keyless 
 assert.ok(!scoutNoKey.content.includes("GOOGLE_MAPS_API_KEY is not set"), "no key nag when OSM works")
 placesServer.stop(true)
 overpassServer.stop(true)
+photonServer.stop(true)
 delete process.env.GOOGLE_PLACES_URL
 delete process.env.OVERPASS_URL
+delete process.env.PHOTON_URL
 
 // --- CRM: records, dedupe, cadence columns, asset pointers ------------------
 const crmTool = tools.find((t) => t.name === "crm")
@@ -650,8 +655,8 @@ const advanced = await prodOp({
 assert.ok(advanced.content.includes("diagnose → proposal"), "stage move reported")
 assert.ok((await crmOp({ action: "assets", id: 2 })).content.includes("Draft proposal"), "proposal artifact attached")
 assert.ok(
-  (await prodOp({ action: "advance", id: 2, stage: "proposal" })).content.includes("already stands"),
-  "a stage does not repeat",
+  (await prodOp({ action: "advance", id: 2, stage: "proposal" })).content.includes("proposal → proposal"),
+  "re-advancing the same stage is idempotent",
 )
 assert.ok(
   (await prodOp({ action: "advance", id: 2, stage: "banana" })).content.includes("Unknown production stage"),

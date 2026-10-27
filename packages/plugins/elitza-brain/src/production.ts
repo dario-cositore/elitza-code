@@ -116,7 +116,20 @@ export function advance(
   }
   const current = requireStage(clientId, true)
   if (current.stage === target && current.status === target) {
-    throw new Error(`${target} is where this client already stands.`)
+    // Idempotent: re-running an advance on the stage the client already
+    // stands on (e.g. disposition already moved them to `diagnose`) just
+    // records the note/asset instead of throwing.
+    logInteraction(clientId, {
+      kind: "stage",
+      direction: "note",
+      channel: "note",
+      status: target,
+      subject: `stage: ${target} (reaffirmed)`,
+      body: options.note ?? "",
+      occurred_at: nowISO(),
+    })
+    if (options.asset) addAsset(clientId, options.asset)
+    return { from: target, to: target, next_action: NEXT_ACTIONS[target] }
   }
 
   const from = current.stage

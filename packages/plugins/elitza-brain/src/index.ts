@@ -20,6 +20,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { Plugin } from "@elitza/plugin"
 import { EmotionEngine } from "./emotion.js"
+import { startCrmView } from "./crmview.js"
 import { currentReflection, noteInteraction, startHeartbeat } from "./heartbeat.js"
 import { runAutoLearn, type ToolRun } from "./learning.js"
 import { ensureKnowledge, playbookFiles } from "./knowledge.js"
@@ -765,11 +766,17 @@ Keep this current. Mark a task started when you begin it, done when it is really
       }
     })()
 
+    // Auto-start the CRM "house" web view so it comes up with the engine
+    // and goes down when the engine stops. Port conflicts (a second serve
+    // process already bound it) are non-fatal.
+    const crmView = startCrmView()
+
     debug("plugin setup complete")
 
     return () => {
       controller.abort()
       heartbeat.stop()
+      if (crmView) crmView.stop()
     }
   },
 })

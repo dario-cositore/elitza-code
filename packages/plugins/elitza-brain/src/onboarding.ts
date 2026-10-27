@@ -132,7 +132,7 @@ export const QUESTIONS: Question[] = [
     key: "mimo_signup",
     ask: "My brain runs on Xiaomi MiMo and nothing else. Open https://platform.xiaomimimo.com?ref=HFSR94 and create your account — have you?",
     because:
-      "MiMo is my only provider: no OpenRouter, no local models, no fallback. My invite code HFSR94 goes into the console sidebar after signup and takes 10% off your first paid Token Plan order.",
+      "MiMo is my only provider: nothing else, no local models, no fallback. My invite code HFSR94 goes into the console sidebar after signup and takes 10% off your first paid Token Plan order.",
     fallback: "not yet — I will do it later",
     hint: "https://platform.xiaomimimo.com?ref=HFSR94 · invite code HFSR94 · 10% off the first Token Plan order.",
   },
