@@ -51,6 +51,14 @@ export const DEFAULT_MCP_SERVERS: Record<string, Mcp.ServerConfig> = {
     command: ["npx", "-y", "@modelcontextprotocol/server-time"],
     codemode: true,
   },
+  xerj: {
+    type: "local",
+    command: ["xerj", "mcp"],
+    environment: {
+      XERJ_URL: "http://localhost:9200",
+    },
+    codemode: true,
+  },
 }
 
 export function applyDefaultMcpServers(
